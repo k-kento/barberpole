@@ -40,11 +40,11 @@ import com.gastornisapp.barberpole.barberpole.Orientation.Right
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BarberPolePage(modifier: Modifier = Modifier) {
-    val isPlaying = remember { mutableStateOf(true) }
-    val orientation = remember { mutableStateOf(Orientation.Right) }
-    val sliderPosition = remember { mutableFloatStateOf(0f) }
-    val showSpeedBottomSheet = remember { mutableStateOf(false) }
-    val showColorBottomSheet = remember { mutableStateOf(false) }
+    var isPlaying by remember { mutableStateOf(true) }
+    var orientation by remember { mutableStateOf(Orientation.Right) }
+    var sliderPosition by remember { mutableFloatStateOf(0f) }
+    var showSpeedBottomSheet by remember { mutableStateOf(false) }
+    var showColorBottomSheet by remember { mutableStateOf(false) }
     var firstColor by remember { mutableStateOf(Color.Red) }
     val secondColor by remember { mutableStateOf(Color.Blue) }
 
@@ -57,13 +57,13 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
             factory = { context -> BarberPoleView(context) },
             update = { view ->
                 view.lifecycle = lifecycle
-                if (isPlaying.value) {
+                if (isPlaying) {
                     view.play()
                 } else {
                     view.pause()
                 }
-                view.setOrientation(orientation.value)
-                view.setSpeed(sliderPosition.floatValue / 1000)
+                view.setOrientation(orientation)
+                view.setSpeed(sliderPosition / 1000)
                 view.setColors(firstColor = firstColor, secondColor = secondColor)
             },
             onRelease = { view ->
@@ -78,18 +78,18 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             IconButton(modifier = Modifier.size(60.dp),
-                onClick = { isPlaying.value = !isPlaying.value }) {
+                onClick = { isPlaying = !isPlaying }) {
                 Icon(
                     modifier = Modifier.size(60.dp),
-                    imageVector = if (isPlaying.value) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = if (isPlaying.value) "Pause" else "Play"
+                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                    contentDescription = if (isPlaying) "Pause" else "Play"
                 )
             }
             IconButton(modifier = Modifier.size(60.dp),
-                onClick = { orientation.value = orientation.value.toggle() }) {
+                onClick = { orientation = orientation.toggle() }) {
                 Icon(
                     modifier = Modifier.size(60.dp),
-                    imageVector = when (orientation.value) {
+                    imageVector = when (orientation) {
                         Left -> Icons.Default.SwitchLeft
                         Right -> Icons.Default.SwitchRight
                     },
@@ -97,7 +97,7 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
                 )
             }
             IconButton(modifier = Modifier.size(60.dp),
-                onClick = { showSpeedBottomSheet.value = true }) {
+                onClick = { showSpeedBottomSheet = true }) {
                 Icon(
                     modifier = Modifier.size(60.dp),
                     imageVector = Icons.Default.Speed,
@@ -106,7 +106,7 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
             }
             IconButton(modifier = Modifier.size(60.dp),
                 onClick = {
-                    showColorBottomSheet.value = true
+                    showColorBottomSheet = true
                 }) {
                 Icon(
                     modifier = Modifier.size(60.dp),
@@ -115,9 +115,9 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
                 )
             }
 
-            if (showSpeedBottomSheet.value) {
+            if (showSpeedBottomSheet) {
                 ModalBottomSheet(
-                    onDismissRequest = { showSpeedBottomSheet.value = false },
+                    onDismissRequest = { showSpeedBottomSheet = false },
                 ) {
                     Column(
                         modifier = Modifier
@@ -128,18 +128,18 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
                         Slider(
                             valueRange = 1f..2f,
                             steps = 2,
-                            value = sliderPosition.floatValue,
-                            onValueChange = { sliderPosition.floatValue = it }
+                            value = sliderPosition,
+                            onValueChange = { sliderPosition = it }
                         )
                     }
                 }
             }
 
-            if (showColorBottomSheet.value) {
+            if (showColorBottomSheet) {
                 ColorPicker(
                     selectedColor = firstColor,
                     onSelected = { firstColor = it },
-                    onDismissed = { showColorBottomSheet.value = false }
+                    onDismissed = { showColorBottomSheet = false }
                 )
             }
         }
