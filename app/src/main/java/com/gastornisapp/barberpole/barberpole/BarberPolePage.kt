@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.gastornisapp.barberpole.barberpole.BarberPoleView
 import com.gastornisapp.barberpole.barberpole.ColorPicker
-import com.gastornisapp.barberpole.barberpole.Orientation
 import com.gastornisapp.barberpole.barberpole.Orientation.Left
 import com.gastornisapp.barberpole.barberpole.Orientation.Right
 
@@ -41,7 +40,7 @@ import com.gastornisapp.barberpole.barberpole.Orientation.Right
 @Composable
 fun BarberPolePage(modifier: Modifier = Modifier) {
     var isPlaying by remember { mutableStateOf(true) }
-    var orientation by remember { mutableStateOf(Orientation.Right) }
+    var orientation by remember { mutableStateOf(Right) }
     var sliderPosition by remember { mutableFloatStateOf(0f) }
     var showSpeedBottomSheet by remember { mutableStateOf(false) }
     var showColorBottomSheet by remember { mutableStateOf(false) }

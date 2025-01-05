@@ -20,24 +20,26 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
 
         var index = 0
 
-        var y = -2.6f
+        var y = -TOTAL_HEIGHT / 2
         val yGap = sin(PI / 4).toFloat()
 
         for (i in 0 until RECT_COUNT) {
             val baseIndex = i * VERTEX_COUNT * VERTEX_STRIDE
+            // 頂点座標の設定
             // 左上
             vertices[baseIndex] = -halfWidth
             vertices[baseIndex + 1] = y
             // 右上
             vertices[baseIndex + VERTEX_STRIDE] = -halfWidth
-            vertices[baseIndex + VERTEX_STRIDE + 1] = HEIGHT + y
+            vertices[baseIndex + VERTEX_STRIDE + 1] = RECT_HEIGHT + y
             // 左下
             vertices[baseIndex + 2 * VERTEX_STRIDE] = halfWidth
             vertices[baseIndex + 2 * VERTEX_STRIDE + 1] = y + yGap
             // 右下
             vertices[baseIndex + 3 * VERTEX_STRIDE] = halfWidth
-            vertices[baseIndex + 3 * VERTEX_STRIDE + 1] = HEIGHT + y + yGap
+            vertices[baseIndex + 3 * VERTEX_STRIDE + 1] = RECT_HEIGHT + y + yGap
 
+            // インデックスの設定
             val indexValue = i * VERTEX_COUNT
             indices[index++] = (indexValue).toShort()
             indices[index++] = (indexValue + 1).toShort()
@@ -46,12 +48,10 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
             indices[index++] = (indexValue + 2).toShort()
             indices[index++] = (indexValue + 3).toShort()
 
-            y += HEIGHT
+            y += RECT_HEIGHT
         }
 
         GLES20.glGenBuffers(2, bufferIds, 0)
-
-        update(floatArrayOf(1.0f, 1.0f, 0.0f, 0.0f), floatArrayOf(1.0f, 0.0f, 1.0f, 0.0f))
     }
 
     fun update(firstColor: FloatArray, secondColor: FloatArray) {
@@ -146,7 +146,7 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
         /**
          * 帯の数
          */
-        private const val RECT_COUNT = 6
+        private const val RECT_COUNT = 4 * 4 * 2
 
         /**
          * 帯一つあたりの頂点数
@@ -165,6 +165,8 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
         /**
          * 帯一つにあたりの高さ
          */
-        private const val HEIGHT = 2f / RECT_COUNT
+        private const val RECT_HEIGHT = 2f / (RECT_COUNT / 4)
+
+        private const val TOTAL_HEIGHT = RECT_COUNT * RECT_HEIGHT
     }
 }

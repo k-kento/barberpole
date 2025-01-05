@@ -16,6 +16,9 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
     private var orientation = true
     private val firstColor = FloatArray(4)
     private val secondColor = FloatArray(4)
+    private var positionY = 0.0f // オブジェクトのy座標
+    var speed = 0f // 移動速度 (単位: 距離/ミリ秒)
+    private var lastFrameTime = 0L // 前回のフレーム時間
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES20.glClearColor(0f, 0f, 0f, 1.0f)
@@ -27,10 +30,6 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
         lastFrameTime = System.currentTimeMillis()
     }
 
-    private var positionY = 0.0f // オブジェクトのy座標
-    var speed = 0f // 移動速度 (単位: 距離/ミリ秒)
-    private var lastFrameTime = 0L // 前回のフレーム時間
-
     override fun onDrawFrame(gl: GL10?) {
         val currentFrameTime = System.currentTimeMillis()
         val deltaFrameTime = currentFrameTime - lastFrameTime
@@ -38,7 +37,7 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
 
         positionY += (if (orientation) 1 else -1) * speed * deltaFrameTime
 
-        if (2f < abs(positionY)) {
+        if (2.0f < abs(positionY)) {
             positionY = 0f
         }
 
@@ -47,7 +46,7 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
         Matrix.setIdentityM(modelMatrix, 0)
         Matrix.translateM(modelMatrix, 0, modelMatrix, 0, 0f, positionY, 0.0f)
 
-        val uViewMatrix = GLES20.glGetUniformLocation(shaderProgram.program!!, "uModelViewMatrix");
+        val uViewMatrix = GLES20.glGetUniformLocation(shaderProgram.program!!, "uModelViewMatrix")
         GLES20.glUniformMatrix4fv(uViewMatrix, 1, false, modelMatrix, 0)
         barberPoleModel?.draw()
     }
