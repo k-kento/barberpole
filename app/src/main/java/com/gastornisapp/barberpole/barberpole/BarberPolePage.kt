@@ -45,13 +45,13 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
     var showSpeedBottomSheet by remember { mutableStateOf(false) }
     var showColorBottomSheet by remember { mutableStateOf(false) }
     var firstColor by remember { mutableStateOf(Color.Red) }
-    val secondColor by remember { mutableStateOf(Color.Blue) }
+    var secondColor by remember { mutableStateOf(Color.Blue) }
 
     Box(modifier = modifier.fillMaxSize()) {
         val lifecycle = LocalLifecycleOwner.current.lifecycle
         AndroidView(
             modifier = Modifier
-                .size(100.dp, 400.dp)
+                .size(100.dp, 500.dp)
                 .align(Alignment.Center),
             factory = { context -> BarberPoleView(context) },
             update = { view ->
@@ -136,8 +136,10 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
 
             if (showColorBottomSheet) {
                 ColorPicker(
-                    selectedColor = firstColor,
-                    onSelected = { firstColor = it },
+                    selectedFirstColor = firstColor,
+                    onFirstColorSelected = { firstColor = it },
+                    selectedSecondColor = secondColor,
+                    onSecondColorSelected = { secondColor = it },
                     onDismissed = { showColorBottomSheet = false }
                 )
             }
