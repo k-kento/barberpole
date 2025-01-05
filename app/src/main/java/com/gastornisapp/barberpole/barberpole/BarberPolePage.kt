@@ -19,9 +19,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,8 +45,8 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
     val sliderPosition = remember { mutableFloatStateOf(0f) }
     val showSpeedBottomSheet = remember { mutableStateOf(false) }
     val showColorBottomSheet = remember { mutableStateOf(false) }
-    val colorOne = remember { mutableStateOf(Color.Red) }
-    val colorTwo = remember { mutableStateOf(Color.Blue) }
+    var firstColor by remember { mutableStateOf(Color.Red) }
+    val secondColor by remember { mutableStateOf(Color.Blue) }
 
     Box(modifier = modifier.fillMaxSize()) {
         val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -62,7 +64,7 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
                 }
                 view.setOrientation(orientation.value)
                 view.setSpeed(sliderPosition.floatValue / 1000)
-                view.setColors(colorOne.value, colorTwo.value)
+                view.setColors(firstColor = firstColor, secondColor = secondColor)
             },
             onRelease = { view ->
                 // Need to release the lifecycle to prevent a memory leak
@@ -125,7 +127,7 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
                     ) {
                         Slider(
                             valueRange = 1f..2f,
-                            steps = 3,
+                            steps = 2,
                             value = sliderPosition.floatValue,
                             onValueChange = { sliderPosition.floatValue = it }
                         )
@@ -135,8 +137,8 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
 
             if (showColorBottomSheet.value) {
                 ColorPicker(
-                    selectedColor = colorOne.value,
-                    onSelected = { colorOne.value = it },
+                    selectedColor = firstColor,
+                    onSelected = { firstColor = it },
                     onDismissed = { showColorBottomSheet.value = false }
                 )
             }

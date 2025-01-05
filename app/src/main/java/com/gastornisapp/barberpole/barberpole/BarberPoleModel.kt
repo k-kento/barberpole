@@ -54,14 +54,14 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
         update(floatArrayOf(1.0f, 1.0f, 0.0f, 0.0f), floatArrayOf(1.0f, 0.0f, 1.0f, 0.0f))
     }
 
-    fun update(colorOne: FloatArray, colorTwo: FloatArray) {
+    fun update(firstColor: FloatArray, secondColor: FloatArray) {
 
         val whiteColor = floatArrayOf(1.0f, 1.0f, 1.0f, 0.0f)
 
         val colors: Queue<FloatArray> = ArrayDeque()
-        colors.add(colorOne)
+        colors.add(firstColor)
         colors.add(whiteColor)
-        colors.add(colorTwo)
+        colors.add(secondColor)
         colors.add(whiteColor)
 
         var index = 0
@@ -71,10 +71,8 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
             repeat(4) {
                 // 頂点座標部分をスキップ
                 index += 2
-                vertices[index++] = color[0]
-                vertices[index++] = color[1]
-                vertices[index++] = color[2]
-                vertices[index++] = color[3]
+                color.copyInto(vertices, index)
+                index += 4
             }
         }
 

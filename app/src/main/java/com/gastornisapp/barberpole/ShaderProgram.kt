@@ -5,7 +5,7 @@ import android.util.Log
 
 class ShaderProgram {
 
-    var program : Int? = null
+    var program: Int? = null
 
     fun createProgram() {
         // シェーダーのコンパイルとプログラムの作成
@@ -34,13 +34,13 @@ class ShaderProgram {
         val compileStatus = IntArray(1)
         GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compileStatus, 0)
         if (compileStatus[0] == 0) {
-            Log.e("test test", "[HERE ->] " + GLES20.glGetShaderInfoLog(shader))
-            Log.e("Shader Source : ", GLES20.glGetShaderSource(shader))
+            Log.e(TAG, "[HERE ->] " + GLES20.glGetShaderInfoLog(shader))
+            Log.e(TAG, GLES20.glGetShaderSource(shader))
             throw RuntimeException("Shader compilation failed")
         }
         return shader
     }
-    
+
     companion object {
         private const val VERTEX_SHADER_CODE = """
         uniform mat4 uModelViewMatrix;
@@ -62,5 +62,7 @@ class ShaderProgram {
             gl_FragColor = vColor;
         }
     """
+
+        private const val TAG = "ShaderProgram"
     }
 }

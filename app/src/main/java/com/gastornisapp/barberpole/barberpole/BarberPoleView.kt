@@ -70,9 +70,12 @@ class BarberPoleView(context: Context) : GLSurfaceView(context) {
         }
     }
 
-    fun setColors(colorOne: Color, colorTwo: Color) {
+    fun setColors(firstColor: Color, secondColor: Color) {
         queueEvent {
-            renderer?.setColors(rgbToFloatArray(colorOne), rgbToFloatArray(colorTwo))
+            renderer?.setColors(
+                firstColor = rgbToFloatArray(firstColor),
+                secondColor = rgbToFloatArray(secondColor)
+            )
         }
     }
 }

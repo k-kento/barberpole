@@ -8,32 +8,35 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.abs
 
-
 class BarberPoleRenderer : GLSurfaceView.Renderer {
 
     private var barberPoleModel: BarberPoleModel? = null
     private val shaderProgram = ShaderProgram()
     private val modelMatrix = FloatArray(16)
     private var orientation = true
+    private val firstColor = FloatArray(4)
+    private val secondColor = FloatArray(4)
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES20.glClearColor(0f, 0f, 0f, 1.0f)
         shaderProgram.createProgram()
         shaderProgram.useProgram()
-        barberPoleModel = BarberPoleModel(shaderProgram)
+        barberPoleModel = BarberPoleModel(shaderProgram).apply {
+            update(firstColor, secondColor)
+        }
+        lastFrameTime = System.currentTimeMillis()
     }
 
-    private var positionY = 0.0f // オブジェクトのx座標
-    var speed = 0f // 移動速度 (単位: 単位座標/ミリ秒)
-    private var lastTime = System.currentTimeMillis() // 前回のフレーム時間
+    private var positionY = 0.0f // オブジェクトのy座標
+    var speed = 0f // 移動速度 (単位: 距離/ミリ秒)
+    private var lastFrameTime = 0L // 前回のフレーム時間
 
     override fun onDrawFrame(gl: GL10?) {
-        val currentTime = System.currentTimeMillis()
+        val currentFrameTime = System.currentTimeMillis()
+        val deltaFrameTime = currentFrameTime - lastFrameTime
+        lastFrameTime = currentFrameTime
 
-        val deltaTime = currentTime - lastTime
-        lastTime = currentTime
-
-        positionY += (if (orientation) 1 else -1) * speed * deltaTime
+        positionY += (if (orientation) 1 else -1) * speed * deltaFrameTime
 
         if (2f < abs(positionY)) {
             positionY = 0f
@@ -53,9 +56,12 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
         GLES20.glViewport(0, 0, width, height)
     }
 
-    fun setColors(colorOne: FloatArray, colorTwo: FloatArray) {
+    fun setColors(firstColor: FloatArray, secondColor: FloatArray) {
+        firstColor.copyInto(this.firstColor)
+        secondColor.copyInto(this.secondColor)
+
         if (barberPoleModel != null) {
-            barberPoleModel?.update(colorOne, colorTwo)
+            barberPoleModel?.update(firstColor, secondColor)
         }
     }
 
