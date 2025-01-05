@@ -89,7 +89,7 @@ private fun ColorRow(
                 .size(32.dp, 32.dp)
                 .background(color = color)
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(16.dp))
         RadioButton(
             selected = selectedFirstColor == color,
             onClick = { onFirstColorSelected(color) },

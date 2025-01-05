@@ -41,7 +41,7 @@ import com.gastornisapp.barberpole.barberpole.Orientation.Right
 fun BarberPolePage(modifier: Modifier = Modifier) {
     var isPlaying by remember { mutableStateOf(true) }
     var orientation by remember { mutableStateOf(Right) }
-    var sliderPosition by remember { mutableFloatStateOf(0f) }
+    var sliderPosition by remember { mutableFloatStateOf(1.5f) }
     var showSpeedBottomSheet by remember { mutableStateOf(false) }
     var showColorBottomSheet by remember { mutableStateOf(false) }
     var firstColor by remember { mutableStateOf(Color.Red) }
@@ -126,7 +126,7 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
                     ) {
                         Slider(
                             valueRange = 1f..2f,
-                            steps = 2,
+                            steps = 5,
                             value = sliderPosition,
                             onValueChange = { sliderPosition = it }
                         )

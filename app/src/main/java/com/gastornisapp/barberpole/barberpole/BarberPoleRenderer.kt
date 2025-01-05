@@ -17,8 +17,9 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
     private val firstColor = FloatArray(4)
     private val secondColor = FloatArray(4)
     private var positionY = 0.0f // オブジェクトのy座標
-    var speed = 0f // 移動速度 (単位: 距離/ミリ秒)
     private var lastFrameTime = 0L // 前回のフレーム時間
+    var speed = 0f
+    var isPlaying = false
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES20.glClearColor(0f, 0f, 0f, 1.0f)
@@ -32,14 +33,14 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
 
     override fun onDrawFrame(gl: GL10?) {
         val currentFrameTime = System.currentTimeMillis()
-        val deltaFrameTime = currentFrameTime - lastFrameTime
-        lastFrameTime = currentFrameTime
-
-        positionY += (if (orientation) 1 else -1) * speed * deltaFrameTime
-
-        if (2.0f < abs(positionY)) {
-            positionY = 0f
+        if (isPlaying) {
+            val deltaFrameTime = currentFrameTime - lastFrameTime
+            positionY += (if (orientation) 1 else -1) * speed * deltaFrameTime
+            if (2.0f < abs(positionY)) {
+                positionY = 0f
+            }
         }
+        lastFrameTime = currentFrameTime
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 

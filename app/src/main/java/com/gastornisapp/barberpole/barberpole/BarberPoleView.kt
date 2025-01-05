@@ -42,13 +42,13 @@ class BarberPoleView(context: Context) : GLSurfaceView(context) {
 
     fun play() {
         queueEvent {
-            renderer?.speed = 0.001f
+            renderer?.isPlaying = true
         }
     }
 
     fun pause() {
         queueEvent {
-            renderer?.speed = 0.000f
+            renderer?.isPlaying = false
         }
     }
 
