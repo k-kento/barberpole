@@ -1,6 +1,5 @@
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -118,19 +117,14 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
                 ModalBottomSheet(
                     onDismissRequest = { showSpeedBottomSheet = false },
                 ) {
-                    Column(
+                    Slider(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Slider(
-                            valueRange = 1f..2f,
-                            steps = 5,
-                            value = sliderPosition,
-                            onValueChange = { sliderPosition = it }
-                        )
-                    }
+                            .padding(horizontal = 32.dp, vertical = 32.dp),
+                        valueRange = 1f..2.0f,
+                        value = sliderPosition,
+                        onValueChange = { sliderPosition = it }
+                    )
                 }
             }
 
