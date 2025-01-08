@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Pause
@@ -75,37 +76,33 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
                 .align(Alignment.BottomCenter),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            IconButton(modifier = Modifier.size(60.dp),
-                onClick = { isPlaying = !isPlaying }) {
+            IconButton(modifier = Modifier.size(60.dp), onClick = { isPlaying = !isPlaying }) {
                 Icon(
                     modifier = Modifier.size(60.dp),
                     imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                     contentDescription = if (isPlaying) "Pause" else "Play"
                 )
             }
-            IconButton(modifier = Modifier.size(60.dp),
+            IconButton(
+                modifier = Modifier.size(60.dp),
                 onClick = { orientation = orientation.toggle() }) {
                 Icon(
-                    modifier = Modifier.size(60.dp),
-                    imageVector = when (orientation) {
+                    modifier = Modifier.size(60.dp), imageVector = when (orientation) {
                         Left -> Icons.Default.SwitchLeft
                         Right -> Icons.Default.SwitchRight
-                    },
-                    contentDescription = "Orientation"
+                    }, contentDescription = "Orientation"
                 )
             }
-            IconButton(modifier = Modifier.size(60.dp),
-                onClick = { showSpeedBottomSheet = true }) {
+            IconButton(modifier = Modifier.size(60.dp), onClick = { showSpeedBottomSheet = true }) {
                 Icon(
                     modifier = Modifier.size(60.dp),
                     imageVector = Icons.Default.Speed,
                     contentDescription = ""
                 )
             }
-            IconButton(modifier = Modifier.size(60.dp),
-                onClick = {
-                    showColorBottomSheet = true
-                }) {
+            IconButton(modifier = Modifier.size(60.dp), onClick = {
+                showColorBottomSheet = true
+            }) {
                 Icon(
                     modifier = Modifier.size(60.dp),
                     imageVector = Icons.Default.ColorLens,
@@ -117,25 +114,27 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
                 ModalBottomSheet(
                     onDismissRequest = { showSpeedBottomSheet = false },
                 ) {
-                    Slider(
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 32.dp, vertical = 32.dp),
-                        valueRange = 1f..2.0f,
-                        value = sliderPosition,
-                        onValueChange = { sliderPosition = it }
-                    )
+                            .padding(vertical = 64.dp)
+                    ) {
+                        Slider(modifier = Modifier
+                            .align(Alignment.Center)
+                            .width(200.dp),
+                            valueRange = 1f..2.0f,
+                            value = sliderPosition,
+                            onValueChange = { sliderPosition = it })
+                    }
                 }
             }
 
             if (showColorBottomSheet) {
-                ColorPicker(
-                    selectedFirstColor = firstColor,
+                ColorPicker(selectedFirstColor = firstColor,
                     onFirstColorSelected = { firstColor = it },
                     selectedSecondColor = secondColor,
                     onSecondColorSelected = { secondColor = it },
-                    onDismissed = { showColorBottomSheet = false }
-                )
+                    onDismissed = { showColorBottomSheet = false })
             }
         }
     }
