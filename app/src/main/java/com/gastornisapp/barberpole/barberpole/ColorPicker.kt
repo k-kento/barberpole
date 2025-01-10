@@ -1,15 +1,17 @@
 package com.gastornisapp.barberpole.barberpole
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -81,38 +83,20 @@ private fun ColorRow(
     onFirstColorSelected: (Color) -> Unit,
     onSecondColorSelected: (Color) -> Unit,
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        ColorItem(
-            color = color,
-            selectedColor = selectedFirstColor,
-            onColorSelected = onFirstColorSelected,
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            Modifier
+                .size(32.dp, 32.dp)
+                .background(color = color)
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        ColorItem(
-            color = color,
-            selectedColor = selectedSecondColor,
-            onColorSelected = onSecondColorSelected,
+        Spacer(modifier = Modifier.width(16.dp))
+        RadioButton(
+            selected = selectedFirstColor == color,
+            onClick = { onFirstColorSelected(color) },
+        )
+        RadioButton(
+            selected = selectedSecondColor == color,
+            onClick = { onSecondColorSelected(color) },
         )
     }
-}
-
-
-@Composable
-private fun ColorItem(
-    color: Color,
-    selectedColor: Color,
-    onColorSelected: (Color) -> Unit,
-) {
-    RadioButton(
-        colors = RadioButtonDefaults.colors(
-            selectedColor = color,
-            unselectedColor = color
-        ),
-        selected = color == selectedColor,
-        onClick = {
-            onColorSelected(color)
-        }
-    )
 }
