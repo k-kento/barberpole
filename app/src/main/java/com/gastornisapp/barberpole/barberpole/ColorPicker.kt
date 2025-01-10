@@ -1,20 +1,18 @@
 package com.gastornisapp.barberpole.barberpole
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
@@ -27,76 +25,61 @@ fun ColorPicker(
     onSecondColorSelected: (Color) -> Unit,
     onDismissed: () -> Unit
 ) {
+    val colors = listOf(Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Magenta)
+
     ModalBottomSheet(
         onDismissRequest = { onDismissed() },
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            ColorRow(
-                color = Color.Red,
-                selectedFirstColor = selectedFirstColor,
-                onFirstColorSelected = onFirstColorSelected,
-                selectedSecondColor = selectedSecondColor,
-                onSecondColorSelected = onSecondColorSelected
-            )
-            ColorRow(
-                color = Color.Blue,
-                selectedFirstColor = selectedFirstColor,
-                onFirstColorSelected = onFirstColorSelected,
-                selectedSecondColor = selectedSecondColor,
-                onSecondColorSelected = onSecondColorSelected
-            )
-            ColorRow(
-                color = Color.Green,
-                selectedFirstColor = selectedFirstColor,
-                onFirstColorSelected = onFirstColorSelected,
-                selectedSecondColor = selectedSecondColor,
-                onSecondColorSelected = onSecondColorSelected
-            )
-            ColorRow(
-                color = Color.Yellow,
-                selectedFirstColor = selectedFirstColor,
-                onFirstColorSelected = onFirstColorSelected,
-                selectedSecondColor = selectedSecondColor,
-                onSecondColorSelected = onSecondColorSelected
-            )
-            ColorRow(
-                color = Color.Magenta,
-                selectedFirstColor = selectedFirstColor,
-                onFirstColorSelected = onFirstColorSelected,
-                selectedSecondColor = selectedSecondColor,
-                onSecondColorSelected = onSecondColorSelected
-            )
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                colors.forEach { color ->
+                    ColorItem(
+                        color = color,
+                        selectedColor = selectedFirstColor,
+                        onColorSelected = onFirstColorSelected
+                    )
+                }
+            }
+            HorizontalDivider()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                colors.forEach { color ->
+                    ColorItem(
+                        color = color,
+                        selectedColor = selectedSecondColor,
+                        onColorSelected = onSecondColorSelected
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun ColorRow(
+private fun ColorItem(
     color: Color,
-    selectedFirstColor: Color,
-    selectedSecondColor: Color,
-    onFirstColorSelected: (Color) -> Unit,
-    onSecondColorSelected: (Color) -> Unit,
+    selectedColor: Color,
+    onColorSelected: (Color) -> Unit,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            Modifier
-                .size(32.dp, 32.dp)
-                .background(color = color)
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        RadioButton(
-            selected = selectedFirstColor == color,
-            onClick = { onFirstColorSelected(color) },
-        )
-        RadioButton(
-            selected = selectedSecondColor == color,
-            onClick = { onSecondColorSelected(color) },
-        )
-    }
+    Checkbox(
+        modifier = Modifier
+            .scale(2f)
+            .padding(8.dp),
+        checked = color == selectedColor,
+        onCheckedChange = { onColorSelected(color) },
+        colors = CheckboxDefaults.colors(
+            checkedColor = color,
+            uncheckedColor = color,
+            checkmarkColor = Color.Transparent
+        ),
+    )
 }
