@@ -1,6 +1,6 @@
 package com.gastornisapp.barberpole.barberpole
 
-import android.opengl.GLES20
+import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import com.gastornisapp.barberpole.ShaderProgram
@@ -22,7 +22,7 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
     var isPlaying = false
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        GLES20.glClearColor(0f, 0f, 0f, 1.0f)
+        GLES30.glClearColor(0f, 0f, 0f, 1.0f)
         shaderProgram.createProgram()
         shaderProgram.useProgram()
         barberPoleModel = BarberPoleModel(shaderProgram).apply {
@@ -42,18 +42,18 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
         }
         lastFrameTime = currentFrameTime
 
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
 
         Matrix.setIdentityM(modelMatrix, 0)
         Matrix.translateM(modelMatrix, 0, modelMatrix, 0, 0f, positionY, 0.0f)
 
-        val uViewMatrix = GLES20.glGetUniformLocation(shaderProgram.program!!, "uModelViewMatrix")
-        GLES20.glUniformMatrix4fv(uViewMatrix, 1, false, modelMatrix, 0)
+        val uViewMatrix = GLES30.glGetUniformLocation(shaderProgram.program!!, "uModelViewMatrix")
+        GLES30.glUniformMatrix4fv(uViewMatrix, 1, false, modelMatrix, 0)
         barberPoleModel?.draw()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        GLES20.glViewport(0, 0, width, height)
+        GLES30.glViewport(0, 0, width, height)
     }
 
     fun setColors(firstColor: FloatArray, secondColor: FloatArray) {

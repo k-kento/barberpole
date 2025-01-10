@@ -1,6 +1,6 @@
 package com.gastornisapp.barberpole
 
-import android.opengl.GLES20
+import android.opengl.GLES30
 import android.util.Log
 
 class ShaderProgram {
@@ -9,33 +9,33 @@ class ShaderProgram {
 
     fun createProgram() {
         // シェーダーのコンパイルとプログラムの作成
-        val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, VERTEX_SHADER_CODE)
-        val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, FRAGMENT_SHADER_CODE)
+        val vertexShader = loadShader(GLES30.GL_VERTEX_SHADER, VERTEX_SHADER_CODE)
+        val fragmentShader = loadShader(GLES30.GL_FRAGMENT_SHADER, FRAGMENT_SHADER_CODE)
 
-        program = GLES20.glCreateProgram().also {
-            GLES20.glAttachShader(it, vertexShader)
-            GLES20.glAttachShader(it, fragmentShader)
-            GLES20.glLinkProgram(it)
+        program = GLES30.glCreateProgram().also {
+            GLES30.glAttachShader(it, vertexShader)
+            GLES30.glAttachShader(it, fragmentShader)
+            GLES30.glLinkProgram(it)
         }
     }
 
     fun useProgram() {
         program?.let {
-            GLES20.glUseProgram(it)
+            GLES30.glUseProgram(it)
         }
     }
 
     // シェーダーをロードしてコンパイル
     private fun loadShader(type: Int, shaderCode: String): Int {
-        val shader = GLES20.glCreateShader(type)
-        GLES20.glShaderSource(shader, shaderCode)
-        GLES20.glCompileShader(shader)
+        val shader = GLES30.glCreateShader(type)
+        GLES30.glShaderSource(shader, shaderCode)
+        GLES30.glCompileShader(shader)
         // コンパイルエラーのチェック
         val compileStatus = IntArray(1)
-        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compileStatus, 0)
+        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, compileStatus, 0)
         if (compileStatus[0] == 0) {
-            Log.e(TAG, "[HERE ->] " + GLES20.glGetShaderInfoLog(shader))
-            Log.e(TAG, GLES20.glGetShaderSource(shader))
+            Log.e(TAG, "[HERE ->] " + GLES30.glGetShaderInfoLog(shader))
+            Log.e(TAG, GLES30.glGetShaderSource(shader))
             throw RuntimeException("Shader compilation failed")
         }
         return shader

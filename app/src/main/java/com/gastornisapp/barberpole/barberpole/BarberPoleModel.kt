@@ -1,6 +1,6 @@
 package com.gastornisapp.barberpole.barberpole
 
-import android.opengl.GLES20
+import android.opengl.GLES30
 import com.gastornisapp.barberpole.ShaderProgram
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -51,7 +51,7 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
             y += RECT_HEIGHT
         }
 
-        GLES20.glGenBuffers(2, bufferIds, 0)
+        GLES30.glGenBuffers(2, bufferIds, 0)
     }
 
     fun update(firstColor: FloatArray, secondColor: FloatArray) {
@@ -76,7 +76,7 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
             }
         }
 
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, bufferIds[0])
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, bufferIds[0])
         val vertexBuffer = ByteBuffer.allocateDirect(vertices.size * Float.SIZE_BYTES)
             .order(ByteOrder.nativeOrder())
             .asFloatBuffer()
@@ -84,15 +84,15 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
                 put(vertices)
                 position(0)
             }
-        GLES20.glBufferData(
-            GLES20.GL_ARRAY_BUFFER,
+        GLES30.glBufferData(
+            GLES30.GL_ARRAY_BUFFER,
             vertices.size * 4,
             vertexBuffer,
-            GLES20.GL_STATIC_DRAW
+            GLES30.GL_STATIC_DRAW
         )
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0)
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
 
-        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, bufferIds[1])
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, bufferIds[1])
         val indexBuffer = ByteBuffer.allocateDirect(indices.size * Short.SIZE_BYTES)
             .order(ByteOrder.nativeOrder())
             .asShortBuffer()
@@ -100,44 +100,44 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
                 put(indices)
                 position(0)
             }
-        GLES20.glBufferData(
-            GLES20.GL_ELEMENT_ARRAY_BUFFER,
+        GLES30.glBufferData(
+            GLES30.GL_ELEMENT_ARRAY_BUFFER,
             indices.size * Short.SIZE_BYTES,
             indexBuffer,
-            GLES20.GL_STATIC_DRAW
+            GLES30.GL_STATIC_DRAW
         )
-        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0)
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, 0)
 
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, bufferIds[0])
-        val positionHandle = GLES20.glGetAttribLocation(shaderProgram.program!!, "vPosition")
-        GLES20.glVertexAttribPointer(
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, bufferIds[0])
+        val positionHandle = GLES30.glGetAttribLocation(shaderProgram.program!!, "vPosition")
+        GLES30.glVertexAttribPointer(
             positionHandle,
             Short.SIZE_BYTES,
-            GLES20.GL_FLOAT,
+            GLES30.GL_FLOAT,
             false,
             VERTEX_STRIDE * Float.SIZE_BYTES,
             0,
         )
-        GLES20.glEnableVertexAttribArray(positionHandle)
+        GLES30.glEnableVertexAttribArray(positionHandle)
 
-        val colorHandle = GLES20.glGetAttribLocation(shaderProgram.program!!, "aColor")
-        GLES20.glVertexAttribPointer(
+        val colorHandle = GLES30.glGetAttribLocation(shaderProgram.program!!, "aColor")
+        GLES30.glVertexAttribPointer(
             colorHandle,
             Float.SIZE_BYTES,
-            GLES20.GL_FLOAT,
+            GLES30.GL_FLOAT,
             false,
             VERTEX_STRIDE * Float.SIZE_BYTES,
             VERTEX_DIMENSION * Float.SIZE_BYTES,
         )
-        GLES20.glEnableVertexAttribArray(colorHandle)
+        GLES30.glEnableVertexAttribArray(colorHandle)
     }
 
     fun draw() {
-        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, bufferIds[1])
-        GLES20.glDrawElements(
-            GLES20.GL_TRIANGLES,
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, bufferIds[1])
+        GLES30.glDrawElements(
+            GLES30.GL_TRIANGLES,
             indices.size,
-            GLES20.GL_UNSIGNED_SHORT,
+            GLES30.GL_UNSIGNED_SHORT,
             0
         )
     }
