@@ -25,16 +25,18 @@ fun ColorPicker(
     onSecondColorSelected: (Color) -> Unit,
     onDismissed: () -> Unit
 ) {
-    val colors = listOf(Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Magenta)
+    val colors = listOf(
+        Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Magenta, Color.Black
+    )
 
     ModalBottomSheet(
         onDismissRequest = { onDismissed() },
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(vertical = 16.dp)) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
                 colors.forEach { color ->
@@ -49,7 +51,7 @@ fun ColorPicker(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
                 colors.forEach { color ->
@@ -72,8 +74,8 @@ private fun ColorItem(
 ) {
     Checkbox(
         modifier = Modifier
-            .scale(2f)
-            .padding(8.dp),
+            .scale(1.8f)
+            .padding(2.dp),
         checked = color == selectedColor,
         onCheckedChange = { onColorSelected(color) },
         colors = CheckboxDefaults.colors(
