@@ -1,0 +1,93 @@
+/*
+  ========================================
+  Style Name   : Business Document Style
+  Version      : 1.0.0
+  Last Updated : 2025-04-18
+  ========================================
+*/
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+    /* 基準となる文字サイズ */
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333F;
+    background-color: #FFFF;
+    padding: 2rem;
+
+    /* 最大幅 */
+    max-width: 800px;
+
+    /* 中央寄せ */
+    margin: auto;
+}
+
+/* 英語などアルファベット用：lang="en" がついた要素 */
+:lang(ja) {
+    font-family: 'Noto Sans Rounded', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: #111;
+    margin-top: 2em;
+    margin-bottom: 1em;
+}
+
+h1 {
+    font-size: 2rem;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 0.3em;
+}
+
+h2 {
+    font-size: 1.5rem;
+    border-left: 4px solid #ccc;
+    padding-left: 0.5em;
+}
+
+h3 {
+    font-size: 1.2rem;
+}
+
+/* ================================
+   h4: さらに小さい見出し
+   ================================ */
+h4 {
+    font-size: 1.3rem;
+    font-weight: 500; /* 少し軽めの太さ */
+}
+
+/* ================================
+   h5: サブ見出し
+   ================================ */
+h5 {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* ================================
+   h6: 最小の見出し
+   ================================ */
+h6 {
+    font-size: 1rem;
+    font-weight: 400; /* 通常の太さ */
+}
+
+p {
+    margin-bottom: 1em;
+}
+
+ul, ol {
+    margin-left: 1.5em;
+    margin-bottom: 1em;
+}
+
+li {
+    margin-bottom: 0.5em;
+}
+
+a {
+    color: #007acc;
+}
