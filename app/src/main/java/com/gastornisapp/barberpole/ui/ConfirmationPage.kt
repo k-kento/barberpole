@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,6 +26,9 @@ import androidx.navigation.NavController
 import com.gastornisapp.barberpole.repositories.AppSettingsRepository
 import kotlinx.coroutines.launch
 
+/**
+ * 利用規約確認画面
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmationPage(
@@ -59,6 +61,7 @@ fun ConfirmationPage(
                     navController.currentBackStackEntry
                         ?.savedStateHandle
                         ?.set("url", "file:///android_asset/terms_of_service.html")
+                    navController.popBackStack("routeOfLaunchingScreen", true)
                     navController.navigate("webpage")
                 }) {
                     Text("利用規約")
@@ -91,11 +94,14 @@ fun ConfirmationPage(
                     onClick = {
                         coroutineScope.launch {
                             appSettingsRepository.saveVersion()
-                            navController.navigate("home")
+                            // 利用規約画面をポップし、ホーム画面へ遷移する。
+                            navController.navigate("home") {
+                                popUpTo("confirmation") { inclusive = true }
+                            }
                         }
                     },
                 ) {
-                    Text("同意")
+                    Text("同意する")
                 }
             }
         }
