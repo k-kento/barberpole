@@ -2,6 +2,7 @@ package com.gastornisapp.barberpole
 
 import BarberPolePage
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.gastornisapp.barberpole.repositories.AppSettingsRepository
 import com.gastornisapp.barberpole.repositories.dataStore
 import com.gastornisapp.barberpole.ui.ConfirmationPage
+import com.gastornisapp.barberpole.ui.WebPage
 import com.gastornisapp.barberpole.ui.theme.BarberPoleTheme
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -44,6 +46,14 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 composable("home") { BarberPolePage(navController) }
                                 composable("confirmation") { ConfirmationPage(navController, appSettingsRepository = appSettingsRepository) }
+                                composable("webpage") {
+                                    val url = navController.previousBackStackEntry?.savedStateHandle?.get<String>("url")
+                                    if (url != null) {
+                                        WebPage(url = url)
+                                    } else {
+                                        Log.e("MainActivity", "url == null")
+                                    }
+                                }
                             }
                         }
                     }

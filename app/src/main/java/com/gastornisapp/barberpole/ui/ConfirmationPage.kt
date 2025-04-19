@@ -5,13 +5,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -22,12 +27,15 @@ import androidx.navigation.NavController
 import com.gastornisapp.barberpole.repositories.AppSettingsRepository
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmationPage(
     navController: NavController,
     appSettingsRepository: AppSettingsRepository,
 ) {
-    Scaffold { paddingValues ->
+    Scaffold(
+        topBar = { TopAppBar(title = { Text("利用規約") }) },
+    ) { paddingValues ->
         val context = LocalContext.current
         val coroutineScope = rememberCoroutineScope()
 
@@ -42,9 +50,27 @@ fun ConfirmationPage(
                     .fillMaxSize()
             ) {
                 Text(
-                    text = "文章がここに入ります。",
-                    style = MaterialTheme.typography.bodyMedium
+                    text = "本アプリをご利用いただくには、利用規約への同意が必要です。\n" +
+                            "データの取り扱いやお客様のプライバシーについては、プライバシーポリシーをご確認ください。\n" +
+                            "内容をご確認のうえ、「同意する」ボタンをタップしてください。",
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+                TextButton(onClick = {
+                    navController.currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("url", "file:///android_asset/terms_of_service.html")
+                    navController.navigate("webpage")
+                }) {
+                    Text("利用規約")
+                }
+                TextButton(onClick = {
+                    navController.currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("url", "file:///android_asset/privacy_policy.html")
+                    navController.navigate("webpage")
+                }) {
+                    Text("プライバシーポリシー")
+                }
             }
             Row(
                 modifier = Modifier
