@@ -1,6 +1,5 @@
 package com.gastornisapp.barberpole
 
-import BarberPolePage
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -14,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.gastornisapp.barberpole.repositories.AppSettingsRepository
 import com.gastornisapp.barberpole.repositories.dataStore
 import com.gastornisapp.barberpole.ui.ConfirmationPage
+import com.gastornisapp.barberpole.ui.HomePage
 import com.gastornisapp.barberpole.ui.WebPage
 import com.gastornisapp.barberpole.ui.theme.BarberPoleTheme
 import kotlinx.coroutines.flow.take
@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 startDestination = if (isTermsAgreed) "home" else "confirmation"// 最初の画面を指定
                             ) {
-                                composable("home") { BarberPolePage(navController) }
+                                composable("home") { HomePage() }
                                 composable("confirmation") { ConfirmationPage(navController, appSettingsRepository = appSettingsRepository) }
                                 composable("webpage") {
                                     val url = navController.previousBackStackEntry?.savedStateHandle?.get<String>("url")
