@@ -14,6 +14,8 @@ import com.gastornisapp.barberpole.repositories.AppSettingsRepository
 import com.gastornisapp.barberpole.repositories.dataStore
 import com.gastornisapp.barberpole.ui.ConfirmationPage
 import com.gastornisapp.barberpole.ui.HomePage
+import com.gastornisapp.barberpole.ui.InfoPage
+import com.gastornisapp.barberpole.ui.LicensePage
 import com.gastornisapp.barberpole.ui.WebPage
 import com.gastornisapp.barberpole.ui.theme.BarberPoleTheme
 import kotlinx.coroutines.flow.take
@@ -44,7 +46,7 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 startDestination = if (isTermsAgreed) "home" else "confirmation"// 最初の画面を指定
                             ) {
-                                composable("home") { HomePage() }
+                                composable("home") { HomePage(navController) }
                                 composable("confirmation") { ConfirmationPage(navController, appSettingsRepository = appSettingsRepository) }
                                 composable("webpage") {
                                     val url = navController.previousBackStackEntry?.savedStateHandle?.get<String>("url")
@@ -54,6 +56,8 @@ class MainActivity : ComponentActivity() {
                                         Log.e("MainActivity", "url == null")
                                     }
                                 }
+                                composable("info") { InfoPage(navController) }
+                                composable("license") { LicensePage() }
                             }
                         }
                     }
