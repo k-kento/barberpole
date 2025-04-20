@@ -50,12 +50,12 @@ fun HomePage(navHostController: NavHostController) {
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2), // 列数
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = paddingValues,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(PaddingValues(16.dp))
+                .padding(PaddingValues(horizontal = 16.dp))
         ) {
             items(itemList.size) { item ->
                 Item()
@@ -69,7 +69,6 @@ private fun Item() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
             .clickable {
 
             },
