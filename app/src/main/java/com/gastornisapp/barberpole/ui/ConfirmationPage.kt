@@ -61,7 +61,6 @@ fun ConfirmationPage(
                     navController.currentBackStackEntry
                         ?.savedStateHandle
                         ?.set("url", "file:///android_asset/terms_of_service.html")
-                    navController.popBackStack("routeOfLaunchingScreen", true)
                     navController.navigate("webpage")
                 }) {
                     Text("利用規約")

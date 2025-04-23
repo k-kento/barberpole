@@ -29,7 +29,10 @@ fun InfoPage(navHostController: NavHostController) {
             ListItem({
                 Text("利用規約")
             }, modifier = Modifier.clickable {
-
+                navHostController.currentBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("url", "file:///android_asset/terms_of_service.html")
+                navHostController.navigate("webpage")
             })
             ListItem({
                 Text("プライバシーポリシー")
