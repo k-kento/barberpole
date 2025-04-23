@@ -30,10 +30,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.gastornisapp.barberpole.barberpole.BarberPoleView
-import com.gastornisapp.barberpole.barberpole.ColorPicker
-import com.gastornisapp.barberpole.barberpole.Orientation.Left
-import com.gastornisapp.barberpole.barberpole.Orientation.Right
+import com.gastornisapp.barberpole.ui.barberpole.BarberPoleView
+import com.gastornisapp.barberpole.ui.barberpole.ColorPicker
+import com.gastornisapp.barberpole.ui.barberpole.Orientation.Left
+import com.gastornisapp.barberpole.ui.barberpole.Orientation.Right
 
 
 @OptIn(ExperimentalMaterial3Api::class)

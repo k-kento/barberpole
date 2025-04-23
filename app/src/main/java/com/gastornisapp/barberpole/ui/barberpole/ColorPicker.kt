@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole.barberpole
+package com.gastornisapp.barberpole.ui.barberpole
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
