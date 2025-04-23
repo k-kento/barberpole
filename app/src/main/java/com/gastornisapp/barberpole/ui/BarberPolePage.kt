@@ -27,9 +27,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.gastornisapp.barberpole.barberpole.BarberPoleView
 import com.gastornisapp.barberpole.barberpole.ColorPicker
 import com.gastornisapp.barberpole.barberpole.Orientation.Left
