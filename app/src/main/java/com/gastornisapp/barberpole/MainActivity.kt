@@ -1,5 +1,6 @@
 package com.gastornisapp.barberpole
 
+import BarberPolePage
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -47,6 +48,7 @@ class MainActivity : ComponentActivity() {
                                 startDestination = if (isTermsAgreed) "home" else "confirmation"// 最初の画面を指定
                             ) {
                                 composable("home") { HomePage(navController) }
+                                composable("barber_pole") { BarberPolePage() }
                                 composable("confirmation") { ConfirmationPage(navController, appSettingsRepository = appSettingsRepository) }
                                 composable("webpage") {
                                     val url = navController.previousBackStackEntry?.savedStateHandle?.get<String>("url")

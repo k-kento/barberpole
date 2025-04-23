@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,9 +37,18 @@ import com.gastornisapp.barberpole.ui.barberpole.Orientation.Left
 import com.gastornisapp.barberpole.ui.barberpole.Orientation.Right
 
 
+@Composable
+fun BarberPolePage() {
+    Scaffold { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            Main()
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BarberPolePage(modifier: Modifier = Modifier) {
+private fun Main() {
     var isPlaying by remember { mutableStateOf(true) }
     var orientation by remember { mutableStateOf(Right) }
     var sliderPosition by remember { mutableFloatStateOf(1.5f) }
@@ -47,7 +57,7 @@ fun BarberPolePage(modifier: Modifier = Modifier) {
     var firstColor by remember { mutableStateOf(Color.Red) }
     var secondColor by remember { mutableStateOf(Color.Blue) }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
         val lifecycle = LocalLifecycleOwner.current.lifecycle
         AndroidView(
             modifier = Modifier

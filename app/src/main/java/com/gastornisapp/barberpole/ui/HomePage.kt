@@ -1,5 +1,6 @@
 package com.gastornisapp.barberpole.ui
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,7 +47,13 @@ fun HomePage(navHostController: NavHostController) {
             })
         },
     ) { paddingValues ->
-        val itemList = listOf(0, 1, 2, 0, 1, 2, 0, 1, 2)
+        val itemList = listOf(
+            ItemInfo(
+                title = "サインポール",
+                drawableRes = R.drawable.ic_launcher_background,
+                onClick = { navHostController.navigate("barber_pole") }
+            )
+        )
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2), // 列数
@@ -57,27 +64,27 @@ fun HomePage(navHostController: NavHostController) {
                 .fillMaxSize()
                 .padding(PaddingValues(horizontal = 16.dp))
         ) {
-            items(itemList.size) { item ->
-                Item()
+            items(itemList.size) { index ->
+                Item(itemList[index])
             }
         }
     }
 }
 
 @Composable
-private fun Item() {
+private fun Item(itemInfo: ItemInfo) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-
+                itemInfo.onClick()
             },
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+                painter = painterResource(id = itemInfo.drawableRes),
                 contentDescription = "Sample Image",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -86,9 +93,15 @@ private fun Item() {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Sample Title",
+                text = itemInfo.title,
                 modifier = Modifier.padding(16.dp),
             )
         }
     }
 }
+
+data class ItemInfo(
+    val title: String,
+    @DrawableRes val drawableRes: Int,
+    val onClick: () -> Unit
+)
