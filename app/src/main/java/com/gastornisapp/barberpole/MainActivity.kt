@@ -8,9 +8,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.gastornisapp.barberpole.repositories.AppSettingsRepository
 import com.gastornisapp.barberpole.repositories.dataStore
 import com.gastornisapp.barberpole.ui.ConfirmationPage
@@ -50,8 +52,11 @@ class MainActivity : ComponentActivity() {
                                 composable("home") { HomePage(navController) }
                                 composable("barber_pole") { BarberPolePage() }
                                 composable("confirmation") { ConfirmationPage(navController, appSettingsRepository = appSettingsRepository) }
-                                composable("webpage") {
-                                    val url = navController.previousBackStackEntry?.savedStateHandle?.get<String>("url")
+                                composable(
+                                    route = "webpage/{url}",
+                                    arguments = listOf(navArgument("url") { type = NavType.StringType })
+                                ) { backStackEntry ->
+                                    val url = backStackEntry.arguments?.getString("url")
                                     if (url != null) {
                                         WebPage(url = url)
                                     } else {

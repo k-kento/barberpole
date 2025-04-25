@@ -2,6 +2,7 @@ package com.gastornisapp.barberpole.ui
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,10 +30,8 @@ fun InfoPage(navHostController: NavHostController) {
             ListItem({
                 Text("利用規約")
             }, modifier = Modifier.clickable {
-                navHostController.currentBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("url", "file:///android_asset/terms_of_service.html")
-                navHostController.navigate("webpage")
+                val url = Uri.encode("file:///android_asset/terms_of_service.html")
+                navHostController.navigate("webpage/$url")
             })
             ListItem({
                 Text("プライバシーポリシー")
