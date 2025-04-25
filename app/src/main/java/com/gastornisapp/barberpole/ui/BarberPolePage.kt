@@ -1,3 +1,5 @@
+import android.opengl.GLSurfaceView.INVISIBLE
+import android.opengl.GLSurfaceView.VISIBLE
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -20,6 +22,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -28,8 +31,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.gastornisapp.barberpole.ui.barberpole.BarberPoleView
 import com.gastornisapp.barberpole.ui.barberpole.ColorPicker
@@ -57,15 +63,44 @@ private fun Main() {
     var firstColor by remember { mutableStateOf(Color.Red) }
     var secondColor by remember { mutableStateOf(Color.Blue) }
 
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val barberPoleView = remember { BarberPoleView(context) }
+
     Box(modifier = Modifier.fillMaxSize()) {
-        val lifecycle = LocalLifecycleOwner.current.lifecycle
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_RESUME -> {
+                        barberPoleView.onResume()
+                        barberPoleView.visibility = VISIBLE
+                    }
+
+                    Lifecycle.Event.ON_PAUSE -> {
+                        barberPoleView.onPause()
+                        // 前の画面に戻った時に、表示が一時的に残ってしまう。
+                        // この問題を緩和するため、非表示にする。
+                        barberPoleView.visibility = INVISIBLE
+                    }
+
+                    else -> {}
+                }
+            }
+
+            val lifecycle = lifecycleOwner.lifecycle
+            lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycle.removeObserver(observer)
+            }
+        }
+
         AndroidView(
             modifier = Modifier
                 .size(100.dp, 500.dp)
                 .align(Alignment.Center),
-            factory = { context -> BarberPoleView(context) },
+            factory = { barberPoleView },
             update = { view ->
-                view.lifecycle = lifecycle
                 if (isPlaying) {
                     view.play()
                 } else {
@@ -74,10 +109,6 @@ private fun Main() {
                 view.setOrientation(orientation)
                 view.setSpeed(sliderPosition / 1000)
                 view.setColors(firstColor = firstColor, secondColor = secondColor)
-            },
-            onRelease = { view ->
-                // Need to release the lifecycle to prevent a memory leak
-                view.lifecycle = null
             },
         )
         Row(
