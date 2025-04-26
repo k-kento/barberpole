@@ -1,23 +1,12 @@
 import android.opengl.GLSurfaceView.INVISIBLE
 import android.opengl.GLSurfaceView.VISIBLE
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ColorLens
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.SwitchLeft
-import androidx.compose.material.icons.filled.SwitchRight
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -31,15 +20,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.gastornisapp.barberpole.ui.barberpole.BarberPoleBottomBar
 import com.gastornisapp.barberpole.ui.barberpole.BarberPoleView
 import com.gastornisapp.barberpole.ui.barberpole.ColorPicker
-import com.gastornisapp.barberpole.ui.barberpole.Orientation.Left
 import com.gastornisapp.barberpole.ui.barberpole.Orientation.Right
 
 
@@ -66,6 +57,8 @@ private fun Main() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val barberPoleView = remember { BarberPoleView(context) }
+
+    val haptic = LocalHapticFeedback.current
 
     Box(modifier = Modifier.fillMaxSize()) {
         DisposableEffect(lifecycleOwner) {
@@ -111,72 +104,63 @@ private fun Main() {
                 view.setColors(firstColor = firstColor, secondColor = secondColor)
             },
         )
-        Row(
+
+        BarberPoleBottomBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            IconButton(modifier = Modifier.size(60.dp), onClick = { isPlaying = !isPlaying }) {
-                Icon(
-                    modifier = Modifier.size(60.dp),
-                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = if (isPlaying) "Pause" else "Play"
-                )
-            }
-            IconButton(
-                modifier = Modifier.size(60.dp),
-                onClick = { orientation = orientation.toggle() }) {
-                Icon(
-                    modifier = Modifier.size(60.dp), imageVector = when (orientation) {
-                        Left -> Icons.Default.SwitchLeft
-                        Right -> Icons.Default.SwitchRight
-                    }, contentDescription = "Orientation"
-                )
-            }
-            IconButton(modifier = Modifier.size(60.dp), onClick = { showSpeedBottomSheet = true }) {
-                Icon(
-                    modifier = Modifier.size(60.dp),
-                    imageVector = Icons.Default.Speed,
-                    contentDescription = ""
-                )
-            }
-            IconButton(modifier = Modifier.size(60.dp), onClick = {
+            isPlaying = isPlaying,
+            onPlayToggle = {
+                isPlaying = !isPlaying
+            },
+            onOrientationToggle = {
+                orientation = orientation.toggle()
+            },
+            onSpeedClick = {
+                showSpeedBottomSheet = true
+            },
+            onColorClick = {
                 showColorBottomSheet = true
-            }) {
-                Icon(
-                    modifier = Modifier.size(60.dp),
-                    imageVector = Icons.Default.ColorLens,
-                    contentDescription = ""
-                )
-            }
+            },
+            orientation = orientation
+        )
+    }
 
-            if (showSpeedBottomSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showSpeedBottomSheet = false },
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 64.dp)
-                    ) {
-                        Slider(modifier = Modifier
-                            .align(Alignment.Center)
-                            .width(200.dp),
-                            valueRange = 1f..2.0f,
-                            value = sliderPosition,
-                            onValueChange = { sliderPosition = it })
-                    }
-                }
-            }
-
-            if (showColorBottomSheet) {
-                ColorPicker(selectedFirstColor = firstColor,
-                    onFirstColorSelected = { firstColor = it },
-                    selectedSecondColor = secondColor,
-                    onSecondColorSelected = { secondColor = it },
-                    onDismissed = { showColorBottomSheet = false })
+    if (showSpeedBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showSpeedBottomSheet = false },
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 64.dp)
+            ) {
+                Slider(modifier = Modifier
+                    .align(Alignment.Center)
+                    .width(200.dp),
+                    valueRange = 1f..2.0f,
+                    value = sliderPosition,
+                    onValueChange = {
+                        haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                        sliderPosition = it
+                    })
             }
         }
+    }
+
+    if (showColorBottomSheet) {
+        ColorPicker(
+            selectedFirstColor = firstColor,
+            onFirstColorSelected = {
+                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                firstColor = it
+            },
+            selectedSecondColor = secondColor,
+            onSecondColorSelected = {
+                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                secondColor = it
+            },
+            onDismissed = { showColorBottomSheet = false }
+        )
     }
 }
