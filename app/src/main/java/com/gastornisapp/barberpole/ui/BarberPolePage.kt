@@ -12,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,58 +52,41 @@ private fun Main() {
     var sliderPosition by remember { mutableFloatStateOf(1.5f) }
     var showSpeedBottomSheet by remember { mutableStateOf(false) }
     var showColorBottomSheet by remember { mutableStateOf(false) }
-    var firstColor by remember { mutableStateOf(Color.Red) }
-    var secondColor by remember { mutableStateOf(Color.Blue) }
+    var colors by remember { mutableStateOf(Pair(Color.Red, Color.Blue)) }
 
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val barberPoleView = remember { BarberPoleView(context) }
+    val barberPoleView = remember(context) { BarberPoleView(context) }
 
     val haptic = LocalHapticFeedback.current
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        DisposableEffect(lifecycleOwner) {
-            val observer = LifecycleEventObserver { _, event ->
-                when (event) {
-                    Lifecycle.Event.ON_RESUME -> {
-                        barberPoleView.onResume()
-                        barberPoleView.visibility = VISIBLE
-                    }
+    ObserveLifecycle(barberPoleView)
 
-                    Lifecycle.Event.ON_PAUSE -> {
-                        barberPoleView.onPause()
-                        // 前の画面に戻った時に、表示が一時的に残ってしまう。
-                        // この問題を緩和するため、非表示にする。
-                        barberPoleView.visibility = INVISIBLE
-                    }
-
-                    else -> {}
-                }
-            }
-
-            val lifecycle = lifecycleOwner.lifecycle
-            lifecycle.addObserver(observer)
-
-            onDispose {
-                lifecycle.removeObserver(observer)
-            }
+    LaunchedEffect(isPlaying) {
+        if (isPlaying) {
+            barberPoleView.play()
+        } else {
+            barberPoleView.pause()
         }
+    }
 
+    LaunchedEffect(orientation) {
+        barberPoleView.setOrientation(orientation)
+    }
+
+    LaunchedEffect(sliderPosition) {
+        barberPoleView.setSpeed(sliderPosition / 1000)
+    }
+
+    LaunchedEffect(colors) {
+        barberPoleView.setColors(firstColor = colors.first, secondColor = colors.second)
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
         AndroidView(
             modifier = Modifier
                 .size(100.dp, 500.dp)
                 .align(Alignment.Center),
             factory = { barberPoleView },
-            update = { view ->
-                if (isPlaying) {
-                    view.play()
-                } else {
-                    view.pause()
-                }
-                view.setOrientation(orientation)
-                view.setSpeed(sliderPosition / 1000)
-                view.setColors(firstColor = firstColor, secondColor = secondColor)
-            },
         )
 
         BarberPoleBottomBar(
@@ -150,17 +134,46 @@ private fun Main() {
 
     if (showColorBottomSheet) {
         ColorPicker(
-            selectedFirstColor = firstColor,
+            selectedFirstColor = colors.first,
             onFirstColorSelected = {
                 haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                firstColor = it
+                colors = colors.copy(first = it)
             },
-            selectedSecondColor = secondColor,
+            selectedSecondColor = colors.second,
             onSecondColorSelected = {
                 haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                secondColor = it
+                colors = colors.copy(second = it)
             },
             onDismissed = { showColorBottomSheet = false }
         )
+    }
+}
+
+@Composable
+private fun ObserveLifecycle(view: BarberPoleView) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    view.onResume()
+                    view.visibility = VISIBLE
+                }
+
+                Lifecycle.Event.ON_PAUSE -> {
+                    view.onPause()
+                    view.visibility = INVISIBLE
+                }
+
+                else -> {}
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 }
