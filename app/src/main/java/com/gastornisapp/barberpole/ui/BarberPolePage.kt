@@ -124,6 +124,7 @@ private fun Main() {
                     .width(200.dp),
                     valueRange = 1f..2.0f,
                     value = sliderPosition,
+                    steps = 6,
                     onValueChange = {
                         haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                         sliderPosition = it
