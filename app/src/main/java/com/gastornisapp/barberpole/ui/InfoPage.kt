@@ -36,7 +36,8 @@ fun InfoPage(navHostController: NavHostController) {
             ListItem({
                 Text("プライバシーポリシー")
             }, modifier = Modifier.clickable {
-
+                val url = Uri.encode("file:///android_asset/privacy_policy.html")
+                navHostController.navigate("webpage/$url")
             })
             ListItem({
                 Text("OSS ライセンス")
