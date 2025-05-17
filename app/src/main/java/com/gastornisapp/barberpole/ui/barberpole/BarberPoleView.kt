@@ -52,6 +52,11 @@ class BarberPoleView(context: Context) : GLSurfaceView(context) {
             )
         }
     }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        renderer?.release()
+    }
 }
 
 private fun rgbToFloatArray(color: Color): FloatArray {

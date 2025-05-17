@@ -56,13 +56,14 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
     fun setColors(firstColor: FloatArray, secondColor: FloatArray) {
         firstColor.copyInto(this.firstColor)
         secondColor.copyInto(this.secondColor)
-
-        if (barberPoleModel != null) {
-            barberPoleModel?.update(firstColor, secondColor)
-        }
+        barberPoleModel?.update(firstColor, secondColor)
     }
 
     fun setOrientation(orientation: Boolean) {
         this.orientation = orientation
+    }
+
+    fun release() {
+        shaderProgram.release()
     }
 }
