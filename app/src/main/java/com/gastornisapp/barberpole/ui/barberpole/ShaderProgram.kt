@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole
+package com.gastornisapp.barberpole.ui.barberpole
 
 import android.opengl.GLES30
 import android.util.Log

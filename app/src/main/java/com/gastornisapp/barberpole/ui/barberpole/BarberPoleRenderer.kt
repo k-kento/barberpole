@@ -3,7 +3,6 @@ package com.gastornisapp.barberpole.ui.barberpole
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import com.gastornisapp.barberpole.ShaderProgram
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.abs

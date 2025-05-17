@@ -1,7 +1,6 @@
 package com.gastornisapp.barberpole.ui.barberpole
 
 import android.opengl.GLES30
-import com.gastornisapp.barberpole.ShaderProgram
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.ArrayDeque
@@ -106,7 +105,6 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
             indexBuffer,
             GLES30.GL_STATIC_DRAW
         )
-        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, 0)
 
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, bufferIds[0])
         val positionHandle = GLES30.glGetAttribLocation(shaderProgram.program!!, "vPosition")
