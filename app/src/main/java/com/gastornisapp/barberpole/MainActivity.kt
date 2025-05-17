@@ -21,6 +21,7 @@ import com.gastornisapp.barberpole.ui.InfoPage
 import com.gastornisapp.barberpole.ui.LicensePage
 import com.gastornisapp.barberpole.ui.WebPage
 import com.gastornisapp.barberpole.ui.theme.BarberPoleTheme
+import com.gastornisapp.barberpole.ui.vehicle.VehiclePage
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
                                 composable("home") { HomePage(navController) }
                                 composable("barber_pole") { BarberPolePage() }
                                 composable("confirmation") { ConfirmationPage(navController, appSettingsRepository = appSettingsRepository) }
+                                composable("vehicle") { VehiclePage() }
                                 composable(
                                     route = "webpage/{url}",
                                     arguments = listOf(navArgument("url") { type = NavType.StringType })

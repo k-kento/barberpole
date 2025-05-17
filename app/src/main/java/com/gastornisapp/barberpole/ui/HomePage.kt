@@ -52,6 +52,11 @@ fun HomePage(navHostController: NavHostController) {
                 title = "サインポール",
                 drawableRes = R.drawable.ic_launcher_background,
                 onClick = { navHostController.navigate("barber_pole") }
+            ),
+            ItemInfo(
+                title = "車",
+                drawableRes = R.drawable.ic_launcher_background,
+                onClick = { navHostController.navigate("vehicle") }
             )
         )
 

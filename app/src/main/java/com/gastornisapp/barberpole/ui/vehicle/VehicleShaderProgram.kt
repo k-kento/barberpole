@@ -1,0 +1,53 @@
+package com.gastornisapp.barberpole.ui.vehicle
+
+import android.opengl.GLES30
+import com.gastornisapp.barberpole.ui.loadShader
+
+class VehicleShaderProgram {
+
+    var uModelLocation = -1
+    var aPosition = -1
+    var uTextureLocation: Int = -1
+    var aTexCoord = -1
+
+    fun initialize() {
+        // シェーダーのコンパイルとプログラムの作成
+        val vertexShader = loadShader(GLES30.GL_VERTEX_SHADER, VERTEX_SHADER_CODE)
+        val fragmentShader = loadShader(GLES30.GL_FRAGMENT_SHADER, FRAGMENT_SHADER_CODE)
+
+        val program = GLES30.glCreateProgram().also {
+            GLES30.glAttachShader(it, vertexShader)
+            GLES30.glAttachShader(it, fragmentShader)
+            GLES30.glLinkProgram(it)
+        }
+
+        GLES30.glUseProgram(program)
+
+        aPosition = GLES30.glGetAttribLocation(program, "a_Position")
+        uTextureLocation = GLES30.glGetUniformLocation(program, "u_Texture")
+        uModelLocation = GLES30.glGetUniformLocation(program, "u_Model")
+        aTexCoord = GLES30.glGetAttribLocation(program, "a_TexCoord")
+    }
+
+    companion object {
+        private const val VERTEX_SHADER_CODE = """
+            attribute vec4 a_Position;
+            attribute vec2 a_TexCoord;
+            varying vec2 v_TexCoord;
+            uniform mat4 u_Model;
+            void main() {
+                gl_Position = u_Model * a_Position;
+                v_TexCoord = a_TexCoord;
+            }
+    """
+
+        private const val FRAGMENT_SHADER_CODE = """
+            precision mediump float;
+            uniform sampler2D u_Texture;
+            varying vec2 v_TexCoord;
+            void main() {
+                gl_FragColor = texture2D(u_Texture, v_TexCoord);
+            }
+    """
+    }
+}
