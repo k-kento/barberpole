@@ -1,7 +1,7 @@
 package com.gastornisapp.barberpole.ui.barberpole
 
 import android.opengl.GLES30
-import android.util.Log
+import com.gastornisapp.barberpole.ui.loadShader
 
 class ShaderProgram {
 
@@ -25,22 +25,6 @@ class ShaderProgram {
         }
     }
 
-    // シェーダーをロードしてコンパイル
-    private fun loadShader(type: Int, shaderCode: String): Int {
-        val shader = GLES30.glCreateShader(type)
-        GLES30.glShaderSource(shader, shaderCode)
-        GLES30.glCompileShader(shader)
-        // コンパイルエラーのチェック
-        val compileStatus = IntArray(1)
-        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, compileStatus, 0)
-        if (compileStatus[0] == 0) {
-            Log.e(TAG, "[HERE ->] " + GLES30.glGetShaderInfoLog(shader))
-            Log.e(TAG, GLES30.glGetShaderSource(shader))
-            throw RuntimeException("Shader compilation failed")
-        }
-        return shader
-    }
-
     companion object {
         private const val VERTEX_SHADER_CODE = """
         uniform mat4 uModelViewMatrix;
@@ -62,7 +46,5 @@ class ShaderProgram {
             gl_FragColor = vColor;
         }
     """
-
-        private const val TAG = "ShaderProgram"
     }
 }
