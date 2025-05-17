@@ -107,27 +107,25 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
         )
 
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, bufferIds[0])
-        val positionHandle = GLES30.glGetAttribLocation(shaderProgram.program!!, "vPosition")
         GLES30.glVertexAttribPointer(
-            positionHandle,
+            shaderProgram.positionLocation,
             Short.SIZE_BYTES,
             GLES30.GL_FLOAT,
             false,
             VERTEX_STRIDE * Float.SIZE_BYTES,
             0,
         )
-        GLES30.glEnableVertexAttribArray(positionHandle)
+        GLES30.glEnableVertexAttribArray(shaderProgram.positionLocation)
 
-        val colorHandle = GLES30.glGetAttribLocation(shaderProgram.program!!, "aColor")
         GLES30.glVertexAttribPointer(
-            colorHandle,
+            shaderProgram.colorLocation,
             Float.SIZE_BYTES,
             GLES30.GL_FLOAT,
             false,
             VERTEX_STRIDE * Float.SIZE_BYTES,
             VERTEX_DIMENSION * Float.SIZE_BYTES,
         )
-        GLES30.glEnableVertexAttribArray(colorHandle)
+        GLES30.glEnableVertexAttribArray(shaderProgram.colorLocation)
     }
 
     fun draw() {

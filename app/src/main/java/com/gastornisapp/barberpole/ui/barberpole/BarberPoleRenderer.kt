@@ -22,8 +22,7 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES30.glClearColor(0f, 0f, 0f, 1.0f)
-        shaderProgram.createProgram()
-        shaderProgram.useProgram()
+        shaderProgram.initialize()
         barberPoleModel = BarberPoleModel(shaderProgram).apply {
             update(firstColor, secondColor)
         }
@@ -46,8 +45,7 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
         Matrix.setIdentityM(modelMatrix, 0)
         Matrix.translateM(modelMatrix, 0, modelMatrix, 0, 0f, positionY, 0.0f)
 
-        val uViewMatrix = GLES30.glGetUniformLocation(shaderProgram.program!!, "uModelViewMatrix")
-        GLES30.glUniformMatrix4fv(uViewMatrix, 1, false, modelMatrix, 0)
+        GLES30.glUniformMatrix4fv(shaderProgram.modelLocation, 1, false, modelMatrix, 0)
         barberPoleModel?.draw()
     }
 
