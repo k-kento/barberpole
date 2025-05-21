@@ -1,8 +1,10 @@
 package com.gastornisapp.barberpole.ui.vehicle
 
-data class Vehicle(
+class Vehicle(
     val model: VehicleModel,
+    var velocity: Float = 0.0005f,
     var pressed: Boolean = false,
-    val velocity: Float,
-    var posX: Float
+    var distance: Float = 0f,
+    var posX: Float = 0f,
+    var posY: Float = 0f,
 )
