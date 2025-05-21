@@ -1,7 +1,11 @@
 package com.gastornisapp.barberpole.ui
 
+import android.content.Context
+import android.graphics.BitmapFactory
 import android.opengl.GLES30
+import android.opengl.GLUtils
 import android.util.Log
+import androidx.annotation.DrawableRes
 
 private const val TAG = "GlUtil"
 
