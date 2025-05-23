@@ -51,11 +51,26 @@ class VehicleManager {
 
         // 未使用車両からランダムに1台選ぶ
         val randomIndex = (inactiveVehicleIds.indices).random()
-        val vehicleId = inactiveVehicleIds.removeAt(randomIndex)
-        val vehicle = pool[vehicleId]
+        val candidateVehicleId = inactiveVehicleIds[randomIndex]
+        val candidateVehicle = pool[candidateVehicleId]
 
-        vehicle.distance = -1f // 初期位置リセット
-        activeVehicleIds.add(vehicleId)
+        val lastVehicleId = activeVehicleIds.lastOrNull()
+        val lastVehicle = lastVehicleId?.let { pool[it] }
+
+        if (lastVehicle != null) {
+            val distanceGap = lastVehicle.distance - candidateVehicle.distance
+            if (distanceGap < MIN_DISTANCE) {
+                // 近すぎるので追加しない
+                return
+            }
+        }
+
+        inactiveVehicleIds.removeAt(randomIndex)
+        activeVehicleIds.add(candidateVehicleId)
+    }
+
+    private fun resetVehicle(vehicle: Vehicle) {
+        vehicle.distance = -1f
     }
 
     private fun updatePosition(deltaTime: Long) {
@@ -83,9 +98,9 @@ class VehicleManager {
             val loop = floor((newDistance + 1f) / SCREEN_WIDTH).toInt() // 何周目か
             if (2 < loop) {
                 // 3回目は折り返さず、車両を削除
-                vehicle.distance = -1f
                 toRemove.add(vehicle.id)
                 inactiveVehicleIds.add(vehicle.id)
+                resetVehicle(vehicle)
             } else {
                 val orientation = if (loop and 1 == 0) -1 else 1
                 val posX = newDistance - loop * SCREEN_WIDTH
