@@ -17,7 +17,7 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
     private val scaleMatrix = FloatArray(16)
     private val modelMatrix = FloatArray(16)
 
-    private var lastFrameTime : Long = 0L // 前回のフレーム時間
+    private var lastFrameTime: Long = 0L // 前回のフレーム時間
     private var textureId: Int = 0
 
     private lateinit var program: VehicleShaderProgram
@@ -66,7 +66,7 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
             Matrix.translateM(modelMatrix, 0, modelMatrix, 0, vehicle.posX, vehicle.posY, 0f)
             Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, scaleMatrix, 0)
             GLES30.glUniformMatrix4fv(program.uModelLocation, 1, false, modelMatrix, 0)
-            vehicleModel.draw(textureId)
+            vehicleModel.draw(color = vehicle.color, textureId = textureId)
         }
 
         lastFrameTime = currentTime
@@ -86,9 +86,9 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
             val halfWidth = VehicleModel.VEHICLE_HEIGHT / 2f
             val halfHeight = VehicleModel.VEHICLE_WIDTH / 2f
 
-            val left   = vehicle.posX - halfWidth
-            val right  = vehicle.posX + halfWidth
-            val top    = vehicle.posY + halfHeight
+            val left = vehicle.posX - halfWidth
+            val right = vehicle.posX + halfWidth
+            val top = vehicle.posY + halfHeight
             val bottom = vehicle.posY - halfHeight
 
             if (touchX in left..right && touchY in bottom..top) {

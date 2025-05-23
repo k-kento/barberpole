@@ -9,6 +9,7 @@ class VehicleShaderProgram {
     var aPosition = -1
     var uTextureLocation: Int = -1
     var aTexCoord = -1
+    var uColorLocation = -1
 
     fun initialize() {
         // シェーダーのコンパイルとプログラムの作成
@@ -27,6 +28,7 @@ class VehicleShaderProgram {
         uTextureLocation = GLES30.glGetUniformLocation(program, "u_Texture")
         uModelLocation = GLES30.glGetUniformLocation(program, "u_Model")
         aTexCoord = GLES30.glGetAttribLocation(program, "a_TexCoord")
+        uColorLocation = GLES30.glGetUniformLocation(program, "u_ReplaceColor")
     }
 
     companion object {
@@ -45,9 +47,21 @@ class VehicleShaderProgram {
             precision mediump float;
             uniform sampler2D u_Texture;
             varying vec2 v_TexCoord;
+            uniform vec3 u_ReplaceColor;   // 差し替える色
+
             void main() {
-                gl_FragColor = texture2D(u_Texture, v_TexCoord);
+                vec4 texColor = texture2D(u_Texture, v_TexCoord);
+                
+                 // 固定した元の色
+                vec3 fixedTargetColor = vec3(1.0, 0.0, 0.0); // R=1.0, G=0.0, B=0.0
+            
+                float diff = distance(texColor.rgb, fixedTargetColor);
+                if (diff < 0.05) { // 許容できる誤差か
+                    gl_FragColor = vec4(u_ReplaceColor, texColor.a);
+                } else {
+                    gl_FragColor = texColor;
+                }
             }
-    """
+        """
     }
 }
