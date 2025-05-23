@@ -11,7 +11,7 @@ import javax.microedition.khronos.opengles.GL10
 
 class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
-    private val vehicleManager: VehicleManager = VehicleManager()
+    private lateinit var vehicleManager: VehicleManager
 
     private val scaleMatrix = FloatArray(16)
     private val modelMatrix = FloatArray(16)
@@ -34,14 +34,14 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         program = VehicleShaderProgram()
         program.initialize()
 
-        vehicleManager.initialize(program)
+        vehicleManager = VehicleManager(program)
 
         lastFrameTime = System.currentTimeMillis()
 
         textureId = loadTexture(context = context, R.drawable.bus)
 
         Matrix.setIdentityM(scaleMatrix, 0)
-        Matrix.scaleM(scaleMatrix, 0, SCALE, SCALE, 1f)
+        Matrix.scaleM(scaleMatrix, 0, VehicleModel.VEHICLE_SCALE, VehicleModel.VEHICLE_SCALE, 1f)
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -58,7 +58,7 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         val deltaFrameTime = currentTime - lastFrameTime
         lastFrameTime = currentTime
 
-        vehicleManager.updatePositions(deltaFrameTime)
+        vehicleManager.update(deltaFrameTime)
 
         for (vehicle in vehicleManager.iterator()) {
             Matrix.setIdentityM(modelMatrix, 0)
@@ -82,8 +82,8 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
         for (vehicle in vehicleManager.iterator()) {
             // 車の位置とサイズ（中心座標と半サイズ）で矩形当たり判定
-            val halfWidth = 1f * SCALE / 2f
-            val halfHeight = 1f * SCALE / 2f
+            val halfWidth = VehicleModel.VEHICLE_HEIGHT / 2f
+            val halfHeight = VehicleModel.VEHICLE_WIDTH / 2f
 
             val left   = vehicle.posX - halfWidth
             val right  = vehicle.posX + halfWidth
@@ -101,9 +101,5 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         for (vehicle in vehicleManager.iterator()) {
             vehicle.pressed = false
         }
-    }
-
-    companion object {
-        private const val SCALE = 0.1f
     }
 }

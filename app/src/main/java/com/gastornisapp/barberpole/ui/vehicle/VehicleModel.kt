@@ -83,4 +83,21 @@ class VehicleModel(private val program: VehicleShaderProgram) {
         // 描画
         GLES30.glDrawElements(GLES30.GL_TRIANGLES, indices.size, GLES30.GL_UNSIGNED_SHORT, 0)
     }
+
+    companion object {
+        /**
+         * 拡大率
+         */
+        const val VEHICLE_SCALE = 0.1f
+
+        /**
+         * 幅
+         */
+        const val VEHICLE_WIDTH = 2 * VEHICLE_SCALE
+
+        /**
+         * 高さ
+         */
+        const val VEHICLE_HEIGHT = 2 * VEHICLE_SCALE
+    }
 }
