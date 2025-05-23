@@ -3,7 +3,7 @@ package com.gastornisapp.barberpole.ui.vehicle
 import kotlin.math.floor
 import kotlin.random.Random
 
-class VehicleManager(program: VehicleShaderProgram) {
+class VehicleManager {
 
     private val activeVehicleIds = mutableListOf<Int>()
     private val inactiveVehicleIds = mutableListOf<Int>()
@@ -17,7 +17,6 @@ class VehicleManager(program: VehicleShaderProgram) {
         val vehicles = List(10) {
             Vehicle(
                 id = idCounter++,
-                model = VehicleModel(program),
                 distance = -1f,
             )
         }
@@ -108,6 +107,6 @@ class VehicleManager(program: VehicleShaderProgram) {
     }
 
     private fun getRandomSpawnTime(): Long {
-        return Random.nextLong(1000L, 3000L) // 1〜3秒の間でランダム
+        return Random.nextLong(2000L, 4000L) // 1〜3秒の間でランダム
     }
 }

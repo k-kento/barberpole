@@ -11,7 +11,8 @@ import javax.microedition.khronos.opengles.GL10
 
 class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
-    private lateinit var vehicleManager: VehicleManager
+    private val vehicleManager: VehicleManager = VehicleManager()
+    private lateinit var vehicleModel: VehicleModel
 
     private val scaleMatrix = FloatArray(16)
     private val modelMatrix = FloatArray(16)
@@ -34,7 +35,7 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         program = VehicleShaderProgram()
         program.initialize()
 
-        vehicleManager = VehicleManager(program)
+        vehicleModel = VehicleModel(program)
 
         lastFrameTime = System.currentTimeMillis()
 
@@ -65,7 +66,7 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
             Matrix.translateM(modelMatrix, 0, modelMatrix, 0, vehicle.posX, vehicle.posY, 0f)
             Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, scaleMatrix, 0)
             GLES30.glUniformMatrix4fv(program.uModelLocation, 1, false, modelMatrix, 0)
-            vehicle.model.draw(textureId)
+            vehicleModel.draw(textureId)
         }
 
         lastFrameTime = currentTime
