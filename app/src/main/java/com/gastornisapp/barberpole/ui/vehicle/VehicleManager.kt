@@ -3,6 +3,9 @@ package com.gastornisapp.barberpole.ui.vehicle
 import kotlin.math.floor
 import kotlin.random.Random
 
+// モデル空間の範囲
+// X軸 -1.0f ~ 1.0f
+// Y軸 -1.0f ~ 1.0f
 class VehicleManager {
 
     private val activeVehicleIds = mutableListOf<Int>()
@@ -14,24 +17,16 @@ class VehicleManager {
     private val toRemove = mutableListOf<Int>()
 
     init {
-        val vehicles = List(10) {
-            Vehicle(
-                id = idCounter++,
-                distance = -1f,
-            )
-        }
-
-        pool = vehicles
-
-        // 初期はすべて未使用リストに追加
-        inactiveVehicleIds.addAll(pool.map { it.id })
+        pool = List(10) { Vehicle(id = idCounter++) }
+        inactiveVehicleIds.addAll(pool.map(Vehicle::id))
     }
 
     companion object {
         // 最低車間距離
-        private const val MIN_DISTANCE = VehicleModel.VEHICLE_WIDTH + 0.1f
+        private const val MIN_DISTANCE = Vehicle.VEHICLE_WIDTH + 0.1f
         private const val LANE_HEIGHT = 0.5f
-        private const val SCREEN_WIDTH = 2f
+        private const val LANE_NUM = 3
+        private const val WIDTH = 2f
     }
 
     // 毎フレーム呼ばれる処理
@@ -65,12 +60,11 @@ class VehicleManager {
             }
         }
 
+        // 車両初期化
+        candidateVehicle.distance = -1f
+
         inactiveVehicleIds.removeAt(randomIndex)
         activeVehicleIds.add(candidateVehicleId)
-    }
-
-    private fun resetVehicle(vehicle: Vehicle) {
-        vehicle.distance = -1f
     }
 
     private fun updatePosition(deltaTime: Long) {
@@ -95,15 +89,14 @@ class VehicleManager {
             }
 
             // distance を [-1, 1] のループに変換
-            val loop = floor((newDistance + 1f) / SCREEN_WIDTH).toInt() // 何周目か
-            if (2 < loop) {
+            val loop = floor((newDistance + 1f) / WIDTH).toInt() // 何周目か
+            if (LANE_NUM <= loop) {
                 // 3回目は折り返さず、車両を削除
                 toRemove.add(vehicle.id)
                 inactiveVehicleIds.add(vehicle.id)
-                resetVehicle(vehicle)
             } else {
                 val orientation = if (loop and 1 == 0) -1 else 1
-                val posX = newDistance - loop * SCREEN_WIDTH
+                val posX = newDistance - loop * WIDTH
 
                 vehicle.posX = orientation * posX
                 vehicle.posY = -0.5f + loop * LANE_HEIGHT

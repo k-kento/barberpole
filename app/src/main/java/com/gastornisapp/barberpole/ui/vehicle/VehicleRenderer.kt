@@ -5,6 +5,7 @@ import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import com.gastornisapp.barberpole.R
+import com.gastornisapp.barberpole.ui.ScreenInfo
 import com.gastornisapp.barberpole.ui.loadTexture
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -14,8 +15,8 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
     private val vehicleManager: VehicleManager = VehicleManager()
     private lateinit var vehicleModel: VehicleModel
 
-    private val scaleMatrix = FloatArray(16)
-    private val modelMatrix = FloatArray(16)
+    private lateinit var screenInfo: ScreenInfo
+    private val projectionMatrix = FloatArray(16)
 
     private var lastFrameTime: Long = 0L // 前回のフレーム時間
     private var textureId: Int = 0
@@ -40,9 +41,6 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         lastFrameTime = System.currentTimeMillis()
 
         textureId = loadTexture(context = context, R.drawable.bus)
-
-        Matrix.setIdentityM(scaleMatrix, 0)
-        Matrix.scaleM(scaleMatrix, 0, VehicleModel.VEHICLE_SCALE, VehicleModel.VEHICLE_SCALE, 1f)
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -59,13 +57,11 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         val deltaFrameTime = currentTime - lastFrameTime
         lastFrameTime = currentTime
 
-        vehicleManager.update(deltaFrameTime)
+        vehicleManager.update(deltaTime = deltaFrameTime)
 
         for (vehicle in vehicleManager.iterator()) {
-            Matrix.setIdentityM(modelMatrix, 0)
-            Matrix.translateM(modelMatrix, 0, modelMatrix, 0, vehicle.posX, vehicle.posY, 0f)
-            Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, scaleMatrix, 0)
-            GLES30.glUniformMatrix4fv(program.uModelLocation, 1, false, modelMatrix, 0)
+            vehicle.updateModelMatrix(screenInfo)
+            GLES30.glUniformMatrix4fv(program.uModelMatrixLocation, 1, false, vehicle.modelMatrix, 0)
             vehicleModel.draw(color = vehicle.color, textureId = textureId)
         }
 
@@ -74,17 +70,30 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         GLES30.glViewport(0, 0, width, height)
+
+        val aspect = width.toFloat() / height
+
+        if (width > height) {
+            // 横画面
+            Matrix.orthoM(projectionMatrix, 0, -aspect, aspect, -1f, 1f, -1f, 1f)
+            screenInfo = ScreenInfo(-aspect, aspect, -1.0f, 1.0f)
+        } else {
+            // 縦画面
+            Matrix.orthoM(projectionMatrix, 0, -1f, 1f, -1f / aspect, 1f / aspect, -1f, 1f)
+            screenInfo = ScreenInfo(-1.0f, 1.0f, -1f / aspect, 1f / aspect)
+        }
+        GLES30.glUniformMatrix4fv(program.uProjectionMatrixLocation, 1, false, projectionMatrix, 0)
     }
 
     fun handleTouchDown(screenX: Float, screenY: Float, screenWidth: Int, screenHeight: Int) {
-        // OpenGL座標系（-1〜1）に変換
+        // モデル座標系（-1〜1）に変換
         val touchX = (screenX / screenWidth) * 2f - 1f
         val touchY = -((screenY / screenHeight) * 2f - 1f)
 
         for (vehicle in vehicleManager.iterator()) {
             // 車の位置とサイズ（中心座標と半サイズ）で矩形当たり判定
-            val halfWidth = VehicleModel.VEHICLE_HEIGHT / 2f
-            val halfHeight = VehicleModel.VEHICLE_WIDTH / 2f
+            val halfWidth = Vehicle.VEHICLE_HEIGHT / 2f
+            val halfHeight = Vehicle.VEHICLE_WIDTH / 2f
 
             val left = vehicle.posX - halfWidth
             val right = vehicle.posX + halfWidth

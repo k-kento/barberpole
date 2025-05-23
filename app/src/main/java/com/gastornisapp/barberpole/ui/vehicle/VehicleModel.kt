@@ -9,13 +9,13 @@ class VehicleModel(private val program: VehicleShaderProgram) {
     // 座標: x, y, u, v
     private val vertices = floatArrayOf(
         // 左下
-        -1f, -1f, 0f, 1f,
+        -1f, -0.5f, 0f, 1f,
         // 右下
-        1f, -1f, 1f, 1f,
+        1f, -0.5f, 1f, 1f,
         // 左上
-        -1f, 1f, 0f, 0f,
+        -1f, 0.5f, 0f, 0f,
         // 右上
-        1f, 1f, 1f, 0f
+        1f, 0.5f, 1f, 0f
     )
 
     private val indices = shortArrayOf(
@@ -72,7 +72,7 @@ class VehicleModel(private val program: VehicleShaderProgram) {
         GLES30.glVertexAttribPointer(program.aTexCoord, 2, GLES30.GL_FLOAT, false, 4 * Int.SIZE_BYTES, 2 * 4)
     }
 
-    fun draw(textureId: Int) {
+    fun draw(textureId: Int, color: FloatArray) {
         GLES30.glBindVertexArray(vaoId)
 
         // テクスチャバインド
@@ -80,24 +80,10 @@ class VehicleModel(private val program: VehicleShaderProgram) {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId)
         GLES30.glUniform1i(program.uTextureLocation, 0)
 
+        // 色を変更
+        GLES30.glUniform3fv(program.uColorLocation, 1, color, 0)
+
         // 描画
         GLES30.glDrawElements(GLES30.GL_TRIANGLES, indices.size, GLES30.GL_UNSIGNED_SHORT, 0)
-    }
-
-    companion object {
-        /**
-         * 拡大率
-         */
-        const val VEHICLE_SCALE = 0.1f
-
-        /**
-         * 幅
-         */
-        const val VEHICLE_WIDTH = 2 * VEHICLE_SCALE
-
-        /**
-         * 高さ
-         */
-        const val VEHICLE_HEIGHT = 2 * VEHICLE_SCALE
     }
 }

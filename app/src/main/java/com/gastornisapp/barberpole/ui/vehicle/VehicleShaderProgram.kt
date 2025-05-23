@@ -5,7 +5,8 @@ import com.gastornisapp.barberpole.ui.loadShader
 
 class VehicleShaderProgram {
 
-    var uModelLocation = -1
+    var uModelMatrixLocation = -1
+    var uProjectionMatrixLocation = -1
     var aPosition = -1
     var uTextureLocation: Int = -1
     var aTexCoord = -1
@@ -26,7 +27,8 @@ class VehicleShaderProgram {
 
         aPosition = GLES30.glGetAttribLocation(program, "a_Position")
         uTextureLocation = GLES30.glGetUniformLocation(program, "u_Texture")
-        uModelLocation = GLES30.glGetUniformLocation(program, "u_Model")
+        uModelMatrixLocation = GLES30.glGetUniformLocation(program, "u_ModelMatrix")
+        uProjectionMatrixLocation = GLES30.glGetUniformLocation(program, "u_ProjectionMatrix")
         aTexCoord = GLES30.glGetAttribLocation(program, "a_TexCoord")
         uColorLocation = GLES30.glGetUniformLocation(program, "u_ReplaceColor")
     }
@@ -36,9 +38,10 @@ class VehicleShaderProgram {
             attribute vec4 a_Position;
             attribute vec2 a_TexCoord;
             varying vec2 v_TexCoord;
-            uniform mat4 u_Model;
+            uniform mat4 u_ModelMatrix;
+            uniform mat4 u_ProjectionMatrix;
             void main() {
-                gl_Position = u_Model * a_Position;
+                gl_Position = u_ProjectionMatrix * u_ModelMatrix * a_Position;
                 v_TexCoord = a_TexCoord;
             }
     """
