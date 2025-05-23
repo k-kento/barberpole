@@ -61,7 +61,10 @@ class VehicleManager {
         }
 
         // 車両初期化
-        candidateVehicle.distance = -1f
+        candidateVehicle.apply {
+            distance = -1f
+            orientation = Vehicle.Orientation.left
+        }
 
         inactiveVehicleIds.removeAt(randomIndex)
         activeVehicleIds.add(candidateVehicleId)
@@ -95,11 +98,14 @@ class VehicleManager {
                 toRemove.add(vehicle.id)
                 inactiveVehicleIds.add(vehicle.id)
             } else {
-                val orientation = if (loop and 1 == 0) -1 else 1
+                // 偶数ループなら左向き、奇数なら右向き
+                val isLeft = (loop and 1) == 0
+                val direction = if (isLeft) -1 else 1
                 val posX = newDistance - loop * WIDTH
 
-                vehicle.posX = orientation * posX
+                vehicle.posX = direction * posX
                 vehicle.posY = -0.5f + loop * LANE_HEIGHT
+                vehicle.orientation = if (isLeft) Vehicle.Orientation.left else Vehicle.Orientation.right
                 vehicle.distance = newDistance
             }
         }

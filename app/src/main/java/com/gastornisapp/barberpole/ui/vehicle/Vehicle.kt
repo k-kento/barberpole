@@ -13,8 +13,9 @@ class Vehicle(val id: Int) {
         val translateX = posX * screenInfo.width / 2f
         val translateY = posY * screenInfo.height / 2f
 
+        val orientation = if (orientation == Orientation.left) -1 else 1
         Matrix.translateM(modelMatrix, 0, modelMatrix, 0, translateX, translateY, 0f)
-        Matrix.scaleM(modelMatrix, 0, VEHICLE_SCALE, VEHICLE_SCALE, 1f)
+        Matrix.scaleM(modelMatrix, 0, orientation * VEHICLE_SCALE, VEHICLE_SCALE, 1f)
     }
 
     var velocity: Float = 0.0005f
@@ -22,6 +23,7 @@ class Vehicle(val id: Int) {
     var distance: Float = 0f
     var posX: Float = 0f
     var posY: Float = 0f
+    var orientation: Orientation = Orientation.left
     val color: FloatArray = colors.random()
 
     companion object {
@@ -48,5 +50,10 @@ class Vehicle(val id: Int) {
          * 高さ
          */
         const val VEHICLE_HEIGHT = 2 * VEHICLE_SCALE
+    }
+
+    enum class Orientation {
+        left,
+        right
     }
 }
