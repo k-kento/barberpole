@@ -61,9 +61,12 @@ class VehicleManager {
         }
 
         // 車両初期化
+        val rand = Random.nextFloat()
+
         candidateVehicle.apply {
             distance = -1f
-            orientation = Vehicle.Orientation.left
+            orientation = Vehicle.Orientation.Left
+            vehicleType = if (rand < 0.8f) Vehicle.VehicleType.Car else Vehicle.VehicleType.Bus
         }
 
         inactiveVehicleIds.removeAt(randomIndex)
@@ -105,7 +108,7 @@ class VehicleManager {
 
                 vehicle.posX = direction * posX
                 vehicle.posY = -0.5f + loop * LANE_HEIGHT
-                vehicle.orientation = if (isLeft) Vehicle.Orientation.left else Vehicle.Orientation.right
+                vehicle.orientation = if (isLeft) Vehicle.Orientation.Left else Vehicle.Orientation.Right
                 vehicle.distance = newDistance
             }
         }

@@ -13,7 +13,7 @@ class Vehicle(val id: Int) {
         val translateX = posX * screenInfo.width / 2f
         val translateY = posY * screenInfo.height / 2f
 
-        val orientation = if (orientation == Orientation.left) -1 else 1
+        val orientation = if (orientation == Orientation.Left) -1 else 1
         Matrix.translateM(modelMatrix, 0, modelMatrix, 0, translateX, translateY, 0f)
         Matrix.scaleM(modelMatrix, 0, orientation * VEHICLE_SCALE, VEHICLE_SCALE, 1f)
     }
@@ -23,7 +23,8 @@ class Vehicle(val id: Int) {
     var distance: Float = 0f
     var posX: Float = 0f
     var posY: Float = 0f
-    var orientation: Orientation = Orientation.left
+    var orientation: Orientation = Orientation.Left
+    var vehicleType: VehicleType = VehicleType.Car
     val color: FloatArray = colors.random()
 
     companion object {
@@ -53,7 +54,12 @@ class Vehicle(val id: Int) {
     }
 
     enum class Orientation {
-        left,
-        right
+        Left,
+        Right
+    }
+
+    enum class VehicleType {
+        Car,
+        Bus
     }
 }

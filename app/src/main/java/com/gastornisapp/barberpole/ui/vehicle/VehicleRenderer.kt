@@ -19,7 +19,8 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
     private val projectionMatrix = FloatArray(16)
 
     private var lastFrameTime: Long = 0L // 前回のフレーム時間
-    private var textureId: Int = 0
+    private var carTextureId: Int = 0
+    private var busTextureId: Int = 0
 
     private lateinit var program: VehicleShaderProgram
 
@@ -40,7 +41,8 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
         lastFrameTime = System.currentTimeMillis()
 
-        textureId = loadTexture(context = context, R.drawable.bus)
+        carTextureId = loadTexture(context = context, R.drawable.car)
+        busTextureId = loadTexture(context = context, R.drawable.bus)
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -62,7 +64,7 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         for (vehicle in vehicleManager.iterator()) {
             vehicle.updateModelMatrix(screenInfo)
             GLES30.glUniformMatrix4fv(program.uModelMatrixLocation, 1, false, vehicle.modelMatrix, 0)
-            vehicleModel.draw(color = vehicle.color, textureId = textureId)
+            vehicleModel.draw(color = vehicle.color, textureId = if (vehicle.vehicleType == Vehicle.VehicleType.Car) carTextureId else busTextureId)
         }
 
         lastFrameTime = currentTime
