@@ -49,12 +49,12 @@ fun HomePage(navHostController: NavHostController) {
     ) { paddingValues ->
         val itemList = listOf(
             ItemInfo(
-                title = "サインポール",
+                title = "さいんぽーる",
                 drawableRes = R.drawable.ic_launcher_background,
                 onClick = { navHostController.navigate("barber_pole") }
             ),
             ItemInfo(
-                title = "車",
+                title = "くるま",
                 drawableRes = R.drawable.ic_launcher_background,
                 onClick = { navHostController.navigate("vehicle") }
             )
