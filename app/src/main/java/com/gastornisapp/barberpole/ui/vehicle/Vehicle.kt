@@ -10,6 +10,7 @@ class Vehicle(val id: Int) {
     fun updateModelMatrix(screenInfo: ScreenInfo) {
         Matrix.setIdentityM(modelMatrix, 0)
 
+        // モデル座標をスクリーンの幅に合わせた座標に変換
         val translateX = posX * screenInfo.width / 2f
         val translateY = posY * screenInfo.height / 2f
 

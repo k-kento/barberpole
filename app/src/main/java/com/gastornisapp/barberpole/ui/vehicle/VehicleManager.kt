@@ -26,7 +26,8 @@ class VehicleManager {
         private const val MIN_DISTANCE = Vehicle.VEHICLE_WIDTH + 0.1f
         private const val LANE_HEIGHT = 0.5f
         private const val LANE_NUM = 3
-        private const val WIDTH = 2f
+        // 幅。本来は、2.0であるが、画面外に少し余裕を持たせる
+        private const val WIDTH = 2.5f
     }
 
     // 毎フレーム呼ばれる処理
