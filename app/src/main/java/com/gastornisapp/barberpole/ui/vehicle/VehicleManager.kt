@@ -67,7 +67,8 @@ class VehicleManager {
         candidateVehicle.apply {
             distance = -1f
             orientation = Vehicle.Orientation.Left
-            vehicleType = if (rand < 0.8f) Vehicle.VehicleType.Car else Vehicle.VehicleType.Bus
+            vehicleType = if (rand < 0.7f) Vehicle.VehicleType.Car else Vehicle.VehicleType.Bus
+            color = Vehicle.colors.random()
         }
 
         inactiveVehicleIds.removeAt(randomIndex)

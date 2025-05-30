@@ -76,3 +76,11 @@ fun loadTexture(context: Context, @DrawableRes resId: Int): Int {
 
     return textureIds[0]
 }
+
+fun colorCodeToFloatArray(colorInt: Int): FloatArray {
+    val r = android.graphics.Color.red(colorInt) / 255f
+    val g = android.graphics.Color.green(colorInt) / 255f
+    val b = android.graphics.Color.blue(colorInt) / 255f
+    val a = android.graphics.Color.alpha(colorInt) / 255f
+    return floatArrayOf(r, g, b, a)
+}

@@ -2,6 +2,7 @@ package com.gastornisapp.barberpole.ui.vehicle
 
 import android.opengl.Matrix
 import com.gastornisapp.barberpole.ui.ScreenInfo
+import com.gastornisapp.barberpole.ui.colorCodeToFloatArray
 
 class Vehicle(val id: Int) {
 
@@ -26,16 +27,18 @@ class Vehicle(val id: Int) {
     var posY: Float = 0f
     var orientation: Orientation = Orientation.Left
     var vehicleType: VehicleType = VehicleType.Car
-    val color: FloatArray = colors.random()
+    var color: FloatArray = colors.random()
 
     companion object {
         // HSB S=65 B=100
         val colors = arrayOf(
-            floatArrayOf(1.0f, 0.901f, 0.349f), // #FFE659
-            floatArrayOf(0.349f, 1.0f, 0.643f), // #59FFA4
-            floatArrayOf(1.0f, 0.361f, 0.349f), // #FF5C59
-            floatArrayOf(0.392f, 0.349f, 1.0f), // #6459FF
-            floatArrayOf(0.431f, 0.431f, 0.431f), // #6E6E6E
+            colorCodeToFloatArray(0xFF1500), // 赤
+            colorCodeToFloatArray(0x1100FF), // 青
+            colorCodeToFloatArray(0x08FF00), // 緑
+            colorCodeToFloatArray(0xED00FF), // 紫
+            colorCodeToFloatArray(0x00D7FF), // 水色
+            colorCodeToFloatArray(0xFFF301), // 黄
+            colorCodeToFloatArray(0xFFA400), // オレンジ
         )
 
         /**
