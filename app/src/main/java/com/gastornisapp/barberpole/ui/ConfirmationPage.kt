@@ -65,7 +65,7 @@ fun ConfirmationPage(
                     Text("利用規約")
                 }
                 TextButton(onClick = {
-                    val url = Uri.encode("file:///android_asset/terms_of_service.html")
+                    val url = Uri.encode("file:///android_asset/privacy_policy.html")
                     navController.navigate("webpage/$url")
                 }) {
                     Text("プライバシーポリシー")
