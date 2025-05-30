@@ -2,6 +2,7 @@ package com.gastornisapp.barberpole.ui
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.opengl.GLES30
 import android.opengl.GLUtils
 import android.util.Log
@@ -78,9 +79,8 @@ fun loadTexture(context: Context, @DrawableRes resId: Int): Int {
 }
 
 fun colorCodeToFloatArray(colorInt: Int): FloatArray {
-    val r = android.graphics.Color.red(colorInt) / 255f
-    val g = android.graphics.Color.green(colorInt) / 255f
-    val b = android.graphics.Color.blue(colorInt) / 255f
-    val a = android.graphics.Color.alpha(colorInt) / 255f
-    return floatArrayOf(r, g, b, a)
+    val r = Color.red(colorInt) / 255f
+    val g = Color.green(colorInt) / 255f
+    val b = Color.blue(colorInt) / 255f
+    return floatArrayOf(r, g, b)
 }
