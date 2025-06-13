@@ -11,6 +11,7 @@ composeBom = "2025.05.01"
 lifecycleCommonJvm = "2.9.0"
 materialIconsExtendedAndroid = "1.7.8"
 navigationCompose = "2.9.0"
+oboe = "1.9.3"
 splashscreen = "1.0.1"
 aboutlibraries = "10.8.3"
 
@@ -36,9 +37,11 @@ androidx-lifecycle-common-jvm = { group = "androidx.lifecycle", name = "lifecycl
 androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version= "1.1.7" }
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
 aboutlibraries-compose = { module = "com.mikepenz:aboutlibraries-compose", version.ref = "aboutlibraries" }
+oboe = { module = "com.google.oboe:oboe", version.ref = "oboe" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
+android-library = { id = "com.android.library", version.ref = "agp" }
