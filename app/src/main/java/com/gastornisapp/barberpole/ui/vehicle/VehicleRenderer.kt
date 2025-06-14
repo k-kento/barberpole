@@ -4,23 +4,19 @@ import android.content.Context
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import com.gastornisapp.barberpole.R
 import com.gastornisapp.barberpole.ui.ScreenInfo
-import com.gastornisapp.barberpole.ui.loadTexture
+import com.gastornisapp.barberpole.ui.vehicle.logic.VehicleManager
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
-    private val vehicleManager: VehicleManager = VehicleManager()
-    private lateinit var vehicleModel: VehicleModel
+    private lateinit var vehicleManager: VehicleManager
 
     private lateinit var screenInfo: ScreenInfo
     private val projectionMatrix = FloatArray(16)
 
     private var lastFrameTime: Long = 0L // 前回のフレーム時間
-    private var carTextureId: Int = 0
-    private var busTextureId: Int = 0
 
     private lateinit var program: VehicleShaderProgram
 
@@ -37,12 +33,9 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         program = VehicleShaderProgram()
         program.initialize()
 
-        vehicleModel = VehicleModel(program)
+        vehicleManager = VehicleManager(context = context, program = program)
 
         lastFrameTime = System.currentTimeMillis()
-
-        carTextureId = loadTexture(context = context, R.drawable.car)
-        busTextureId = loadTexture(context = context, R.drawable.bus)
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -60,12 +53,7 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         lastFrameTime = currentTime
 
         vehicleManager.update(deltaTime = deltaFrameTime)
-
-        for (vehicle in vehicleManager.iterator()) {
-            vehicle.updateModelMatrix(screenInfo)
-            GLES30.glUniformMatrix4fv(program.uModelMatrixLocation, 1, false, vehicle.modelMatrix, 0)
-            vehicleModel.draw(color = vehicle.color, textureId = if (vehicle.vehicleType == Vehicle.VehicleType.Car) carTextureId else busTextureId)
-        }
+        vehicleManager.render()
 
         lastFrameTime = currentTime
     }
@@ -94,8 +82,8 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
         for (vehicle in vehicleManager.iterator()) {
             // 車の位置とサイズ（中心座標と半サイズ）で矩形当たり判定
-            val halfWidth = Vehicle.VEHICLE_HEIGHT / 2f
-            val halfHeight = Vehicle.VEHICLE_WIDTH / 2f
+            val halfWidth = vehicle.scaledHeight / 2f
+            val halfHeight = vehicle.scaledWidth / 2f
 
             val left = vehicle.posX - halfWidth
             val right = vehicle.posX + halfWidth

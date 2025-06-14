@@ -1,44 +1,33 @@
-package com.gastornisapp.barberpole.ui.vehicle
+package com.gastornisapp.barberpole.ui.vehicle.renderer
 
 import android.opengl.GLES30
+import com.gastornisapp.barberpole.ui.vehicle.VehicleShaderProgram
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class VehicleModel(private val program: VehicleShaderProgram) {
-
+abstract class VehicleRenderModel(
     // 座標: x, y, u, v
-    private val vertices = floatArrayOf(
-        // 左下
-        -1f, -0.5f, 0f, 1f,
-        // 右下
-        1f, -0.5f, 1f, 1f,
-        // 左上
-        -1f, 0.5f, 0f, 0f,
-        // 右上
-        1f, 0.5f, 1f, 0f
-    )
-
-    private val indices = shortArrayOf(
-        0, 1, 2,
-        2, 1, 3
-    )
+    private val vertices: FloatArray,
+    private val indices: ShortArray,
+    private val program: VehicleShaderProgram,
+    private val textureId: Int,
+) {
 
     private val vaoId: Int
-    private val textureId: Int
+
+    abstract val width: Float
+    abstract val height: Float
 
     init {
         val vao = IntArray(1)
         val vbo = IntArray(1)
         val ibo = IntArray(1)
-        val textureIds = IntArray(1)
 
         GLES30.glGenVertexArrays(1, vao, 0)
         GLES30.glGenBuffers(1, vbo, 0)
         GLES30.glGenBuffers(1, ibo, 0)
-        GLES30.glGenTextures(1, textureIds, 0)
 
         vaoId = vao[0]
-        textureId = textureIds[0]
 
         // VAOバインド
         GLES30.glBindVertexArray(vaoId)
@@ -72,7 +61,7 @@ class VehicleModel(private val program: VehicleShaderProgram) {
         GLES30.glVertexAttribPointer(program.aTexCoord, 2, GLES30.GL_FLOAT, false, 4 * Int.SIZE_BYTES, 2 * 4)
     }
 
-    fun draw(textureId: Int, color: FloatArray) {
+    fun draw(color: FloatArray) {
         GLES30.glBindVertexArray(vaoId)
 
         // テクスチャバインド
