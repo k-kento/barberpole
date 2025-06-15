@@ -79,27 +79,10 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         // モデル座標系（-1〜1）に変換
         val touchX = (screenX / screenWidth) * 2f - 1f
         val touchY = -((screenY / screenHeight) * 2f - 1f)
-
-        for (vehicle in vehicleManager.iterator()) {
-            // 車の位置とサイズ（中心座標と半サイズ）で矩形当たり判定
-            val halfWidth = vehicle.scaledHeight / 2f
-            val halfHeight = vehicle.scaledWidth / 2f
-
-            val left = vehicle.posX - halfWidth
-            val right = vehicle.posX + halfWidth
-            val top = vehicle.posY + halfHeight
-            val bottom = vehicle.posY - halfHeight
-
-            if (touchX in left..right && touchY in bottom..top) {
-                vehicle.pressed = true
-                break
-            }
-        }
+        vehicleManager.handleTouchDown(touchX=touchX, touchY=touchY)
     }
 
     fun handleTouchUp() {
-        for (vehicle in vehicleManager.iterator()) {
-            vehicle.pressed = false
-        }
+        vehicleManager.handleTouchUp()
     }
 }

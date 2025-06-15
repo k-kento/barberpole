@@ -1,9 +1,6 @@
 package com.gastornisapp.barberpole.ui.vehicle.logic
 
-import android.opengl.GLES30
-import android.opengl.Matrix
 import com.gastornisapp.barberpole.ui.colorCodeToFloatArray
-import com.gastornisapp.barberpole.ui.vehicle.VehicleShaderProgram
 import com.gastornisapp.barberpole.ui.vehicle.VehicleRenderModel
 
 abstract class VehicleLogicModel(
@@ -12,7 +9,6 @@ abstract class VehicleLogicModel(
     private val scale: Float,
 ) {
 
-    private val modelMatrix = FloatArray(16)
     var velocity: Float = 0.0004f
     var pressed: Boolean = false
     var distance: Float = 0f
@@ -31,22 +27,9 @@ abstract class VehicleLogicModel(
      */
     val scaledHeight: Float = VehicleRenderModel.HEIGHT * scale
 
-    fun render(program: VehicleShaderProgram) {
-        updateModelMatrix(program)
-        draw()
-    }
-
-    private fun draw() {
+    fun render() {
+        renderModel.updateModelMatrix(posX = posX, posY = posY, orientation = orientation.value, scale = scale)
         renderModel.draw(color = color)
-    }
-
-    private fun updateModelMatrix(program: VehicleShaderProgram) {
-        Matrix.setIdentityM(modelMatrix, 0)
-        // 車の向き
-        val flipX = if (orientation == Orientation.Left) -1 else 1
-        Matrix.translateM(modelMatrix, 0, modelMatrix, 0, posX, posY, 0f)
-        Matrix.scaleM(modelMatrix, 0, flipX * scale, scale, 1f)
-        GLES30.glUniformMatrix4fv(program.uModelMatrixLocation, 1, false, modelMatrix, 0)
     }
 
     fun checkFollowingDistance(frontVehicleLogicModel: VehicleLogicModel): Boolean {
@@ -71,8 +54,8 @@ abstract class VehicleLogicModel(
         )
     }
 
-    enum class Orientation {
-        Left,
-        Right
+    enum class Orientation(val value: Int) {
+        Left(-1),
+        Right(1)
     }
 }

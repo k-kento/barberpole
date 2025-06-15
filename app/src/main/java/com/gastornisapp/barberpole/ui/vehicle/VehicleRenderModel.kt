@@ -1,6 +1,7 @@
 package com.gastornisapp.barberpole.ui.vehicle
 
 import android.opengl.GLES30
+import android.opengl.Matrix
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -31,6 +32,8 @@ class VehicleRenderModel(
             0, 1, 2,
             2, 1, 3
         )
+
+        private val modelMatrix = FloatArray(16)
     }
 
     private val vaoId: Int
@@ -91,5 +94,12 @@ class VehicleRenderModel(
 
         // 描画
         GLES30.glDrawElements(GLES30.GL_TRIANGLES, indices.size, GLES30.GL_UNSIGNED_SHORT, 0)
+    }
+
+    fun updateModelMatrix(posX: Float, posY: Float, orientation: Int, scale: Float) {
+        Matrix.setIdentityM(modelMatrix, 0)
+        Matrix.translateM(modelMatrix, 0, modelMatrix, 0, posX, posY, 0f)
+        Matrix.scaleM(modelMatrix, 0, orientation * scale, scale, 1f)
+        GLES30.glUniformMatrix4fv(program.uModelMatrixLocation, 1, false, modelMatrix, 0)
     }
 }

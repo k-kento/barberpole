@@ -44,13 +44,6 @@ class VehicleManager(context: Context, val program: VehicleShaderProgram) {
         inactiveVehicleIds.addAll(pool.map(VehicleLogicModel::id))
     }
 
-    companion object {
-        private const val LANE_HEIGHT = 0.5f
-        private const val LANE_NUM = 3
-        // 幅。本来は、2.0であるが、画面外に少し余裕を持たせる
-        private const val WIDTH = 2.5f
-    }
-
     // 毎フレーム呼ばれる処理
     fun update(deltaTime: Long) {
         elapsedTime += deltaTime
@@ -63,8 +56,8 @@ class VehicleManager(context: Context, val program: VehicleShaderProgram) {
     }
 
     fun render() {
-        for (vehicle in iterator()) {
-            vehicle.render(program = program)
+        for (vehicle in activeVehicleIds.map { pool[it] }) {
+            vehicle.render()
         }
     }
 
@@ -142,11 +135,38 @@ class VehicleManager(context: Context, val program: VehicleShaderProgram) {
         }
     }
 
-    fun iterator(): Iterable<VehicleLogicModel> {
-        return activeVehicleIds.map { pool[it] }
+    fun handleTouchDown(touchX: Float, touchY: Float) {
+        for (vehicle in activeVehicleIds.map { pool[it] }) {
+            // 車の位置とサイズ（中心座標と半サイズ）で矩形当たり判定
+            val halfWidth = vehicle.scaledHeight / 2f
+            val halfHeight = vehicle.scaledWidth / 2f
+
+            val left = vehicle.posX - halfWidth
+            val right = vehicle.posX + halfWidth
+            val top = vehicle.posY + halfHeight
+            val bottom = vehicle.posY - halfHeight
+
+            if (touchX in left..right && touchY in bottom..top) {
+                vehicle.pressed = true
+                break
+            }
+        }
+    }
+
+    fun handleTouchUp() {
+        for (vehicle in activeVehicleIds.map { pool[it] }) {
+            vehicle.pressed = false
+        }
     }
 
     private fun getRandomSpawnTime(): Long {
         return Random.nextLong(2000L, 4000L) // 1〜3秒の間でランダム
+    }
+
+    companion object {
+        private const val LANE_HEIGHT = 0.5f
+        private const val LANE_NUM = 3
+        // 幅。本来は、2.0であるが、画面外に少し余裕を持たせる
+        private const val WIDTH = 2.5f
     }
 }
