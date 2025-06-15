@@ -4,11 +4,12 @@ import android.opengl.GLES30
 import android.opengl.Matrix
 import com.gastornisapp.barberpole.ui.colorCodeToFloatArray
 import com.gastornisapp.barberpole.ui.vehicle.VehicleShaderProgram
-import com.gastornisapp.barberpole.ui.vehicle.renderer.VehicleRenderModel
+import com.gastornisapp.barberpole.ui.vehicle.VehicleRenderModel
 
 abstract class VehicleLogicModel(
     val id: Int,
     private val renderModel: VehicleRenderModel,
+    private val scale: Float,
 ) {
 
     private val modelMatrix = FloatArray(16)
@@ -20,17 +21,15 @@ abstract class VehicleLogicModel(
     var orientation: Orientation = Orientation.Left
     var color: FloatArray = colors.random()
 
-    val scale: Float = 0.25f
-
     /**
      * 幅
      */
-    val scaledWidth: Float = renderModel.width * scale
+    val scaledWidth: Float = VehicleRenderModel.WIDTH * scale
 
     /**
      * 高さ
      */
-    val scaledHeight: Float = renderModel.height * scale
+    val scaledHeight: Float = VehicleRenderModel.HEIGHT * scale
 
     fun render(program: VehicleShaderProgram) {
         updateModelMatrix(program)

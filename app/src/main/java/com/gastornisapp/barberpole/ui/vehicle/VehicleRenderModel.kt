@@ -1,22 +1,39 @@
-package com.gastornisapp.barberpole.ui.vehicle.renderer
+package com.gastornisapp.barberpole.ui.vehicle
 
 import android.opengl.GLES30
-import com.gastornisapp.barberpole.ui.vehicle.VehicleShaderProgram
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-abstract class VehicleRenderModel(
+class VehicleRenderModel(
     // 座標: x, y, u, v
-    private val vertices: FloatArray,
-    private val indices: ShortArray,
     private val program: VehicleShaderProgram,
     private val textureId: Int,
 ) {
 
-    private val vaoId: Int
+    companion object {
 
-    abstract val width: Float
-    abstract val height: Float
+        const val WIDTH: Float = 2f
+        const val HEIGHT: Float = 2f
+
+        // 座標: x, y, u, v
+        private val vertices = floatArrayOf(
+            // 左下
+            -1f, -1f, 0f, 1f,
+            // 右下
+            1f, -1f, 1f, 1f,
+            // 左上
+            -1f, 1f, 0f, 0f,
+            // 右上
+            1f, 1f, 1f, 0f
+        )
+
+        private val indices = shortArrayOf(
+            0, 1, 2,
+            2, 1, 3
+        )
+    }
+
+    private val vaoId: Int
 
     init {
         val vao = IntArray(1)

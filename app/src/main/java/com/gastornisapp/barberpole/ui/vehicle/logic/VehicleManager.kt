@@ -3,9 +3,8 @@ package com.gastornisapp.barberpole.ui.vehicle.logic
 import android.content.Context
 import com.gastornisapp.barberpole.R
 import com.gastornisapp.barberpole.ui.loadTexture
+import com.gastornisapp.barberpole.ui.vehicle.VehicleRenderModel
 import com.gastornisapp.barberpole.ui.vehicle.VehicleShaderProgram
-import com.gastornisapp.barberpole.ui.vehicle.renderer.BusRenderModel
-import com.gastornisapp.barberpole.ui.vehicle.renderer.CarRenderModel
 import kotlin.math.floor
 import kotlin.random.Random
 
@@ -26,8 +25,8 @@ class VehicleManager(context: Context, val program: VehicleShaderProgram) {
         val carTextureId = loadTexture(context = context, R.drawable.car)
         val busTextureId = loadTexture(context = context, R.drawable.bus)
 
-        val carRenderModel = CarRenderModel(program = program, textureId = carTextureId)
-        val busRenderModel = BusRenderModel(program = program, textureId = busTextureId)
+        val carRenderModel = VehicleRenderModel(program = program, textureId = carTextureId)
+        val busRenderModel = VehicleRenderModel(program = program, textureId = busTextureId)
 
         val pool = mutableListOf<VehicleLogicModel>()
 
