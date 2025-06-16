@@ -8,6 +8,8 @@ class VehicleView(context: Context) : GLSurfaceView(context) {
 
     private var renderer: VehicleRenderer?
 
+    var onVehicleTouchStart: (() -> Unit)? = null
+
     init {
         setEGLContextClientVersion(3)
         renderer = VehicleRenderer(this.context.applicationContext)
@@ -28,11 +30,16 @@ class VehicleView(context: Context) : GLSurfaceView(context) {
             }
             MotionEvent.ACTION_DOWN -> {
                 queueEvent {
-                    renderer?.handleTouchDown(x, y, width, height)
+                    val touch = renderer?.handleTouchDown(x, y, width, height)
+                    if (touch == true) {
+                        post {
+                            onVehicleTouchStart?.invoke()
+                        }
+                    }
                 }
                 return true
             }
-           else -> return super.onTouchEvent(event);
+           else -> return super.onTouchEvent(event)
         }
     }
 

@@ -109,11 +109,11 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         GLES30.glUniformMatrix4fv(program.uProjectionMatrixLocation, 1, false, projectionMatrix, 0)
     }
 
-    fun handleTouchDown(screenX: Float, screenY: Float, screenWidth: Int, screenHeight: Int) {
+    fun handleTouchDown(screenX: Float, screenY: Float, screenWidth: Int, screenHeight: Int) : Boolean {
         // モデル座標系（-1〜1）に変換
         val touchX = (screenX / screenWidth) * screenInfo.width - screenInfo.right
         val touchY = -((screenY / screenHeight) * screenInfo.height - screenInfo.top)
-        vehicleManager.handleTouchDown(touchX = touchX, touchY = touchY)
+        return vehicleManager.handleTouchDown(touchX = touchX, touchY = touchY)
     }
 
     fun handleTouchUp() {
