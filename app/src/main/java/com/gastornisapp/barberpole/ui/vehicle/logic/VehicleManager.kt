@@ -62,7 +62,7 @@ class VehicleManager {
         val lastVehicle = lastVehicleId?.let { pool[it] }
 
         if (lastVehicle != null) {
-            if (candidateVehicle.checkFollowingDistance(lastVehicle)) {
+            if (!candidateVehicle.isFollowingDistanceSafe(lastVehicle, screenInfo)) {
                 // 近すぎるので追加しない
                 return
             }
@@ -92,7 +92,7 @@ class VehicleManager {
                 val frontVehicleId = activeVehicleIds[index - 1]
                 val frontVehicle = pool.getOrNull(frontVehicleId)
                 if (frontVehicle != null) {
-                    if (vehicle.checkFollowingDistance(frontVehicle)) {
+                    if (!vehicle.isFollowingDistanceSafe(frontVehicle, screenInfo)) {
                         continue
                     }
                 }
@@ -104,6 +104,8 @@ class VehicleManager {
                 // 3回目は折り返さず、車両を削除
                 toRemove.add(vehicle.id)
                 inactiveVehicleIds.add(vehicle.id)
+
+                // 車両追加時に位置をチェックするため、削除時に位置を初期化する
                 vehicle.distance = -1 * screenInfo.right
             } else {
                 // 偶数ループなら左向き、奇数なら右向き

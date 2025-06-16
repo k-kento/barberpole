@@ -88,12 +88,12 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
         val aspect = width.toFloat() / height
 
-        if (width > height) {
+        screenInfo = if (width > height) {
             // 横画面
-            screenInfo = ScreenInfo(-aspect, aspect, -1.0f, 1.0f)
+            ScreenInfo(-aspect, aspect, -1.0f, 1.0f)
         } else {
             // 縦画面
-            screenInfo = ScreenInfo(-1.0f, 1.0f, -1f / aspect, 1f / aspect)
+            ScreenInfo(-1.0f, 1.0f, -1f / aspect, 1f / aspect)
         }
 
         vehicleManager.screenInfo = screenInfo
