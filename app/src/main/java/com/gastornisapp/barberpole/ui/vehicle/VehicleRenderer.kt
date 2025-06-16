@@ -4,10 +4,16 @@ import android.content.Context
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import com.gastornisapp.barberpole.R
 import com.gastornisapp.barberpole.ui.ScreenInfo
+import com.gastornisapp.barberpole.ui.loadTexture
+import com.gastornisapp.barberpole.ui.vehicle.logic.CarLogicModel
+import com.gastornisapp.barberpole.ui.vehicle.logic.BusLogicModel
+import com.gastornisapp.barberpole.ui.vehicle.logic.VehicleLogicModel
 import com.gastornisapp.barberpole.ui.vehicle.logic.VehicleManager
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import kotlin.reflect.KClass
 
 class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
@@ -19,6 +25,8 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
     private var lastFrameTime: Long = 0L // 前回のフレーム時間
 
     private lateinit var program: VehicleShaderProgram
+
+    private var rendererModels = mutableMapOf<KClass<out VehicleLogicModel>, VehicleRendererModel>()
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
 
@@ -33,7 +41,13 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         program = VehicleShaderProgram()
         program.initialize()
 
-        vehicleManager = VehicleManager(context = context, program = program)
+        val carTextureId = loadTexture(context = context, R.drawable.car)
+        val busTextureId = loadTexture(context = context, R.drawable.bus)
+
+        rendererModels[CarLogicModel::class] = VehicleRendererModel(program = program, textureId = carTextureId)
+        rendererModels[BusLogicModel::class] = VehicleRendererModel(program = program, textureId = busTextureId)
+
+        vehicleManager = VehicleManager()
 
         lastFrameTime = System.currentTimeMillis()
     }
@@ -52,8 +66,19 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         val deltaFrameTime = currentTime - lastFrameTime
         lastFrameTime = currentTime
 
-        vehicleManager.update(deltaTime = deltaFrameTime)
-        vehicleManager.render()
+        vehicleManager.update(deltaTime = deltaFrameTime, screenInfo = screenInfo)
+
+        for (vehicle in vehicleManager.activeVehicles()) {
+            rendererModels[vehicle::class]?.apply {
+                updateModelMatrix(
+                    posX = vehicle.posX,
+                    posY = vehicle.posY,
+                    orientation = vehicle.orientation.value,
+                    scale = vehicle.scale,
+                )
+                draw(color = vehicle.color)
+            }
+        }
 
         lastFrameTime = currentTime
     }
@@ -65,21 +90,30 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
         if (width > height) {
             // 横画面
-            Matrix.orthoM(projectionMatrix, 0, -aspect, aspect, -1f, 1f, -1f, 1f)
             screenInfo = ScreenInfo(-aspect, aspect, -1.0f, 1.0f)
         } else {
             // 縦画面
-            Matrix.orthoM(projectionMatrix, 0, -1f, 1f, -1f / aspect, 1f / aspect, -1f, 1f)
             screenInfo = ScreenInfo(-1.0f, 1.0f, -1f / aspect, 1f / aspect)
         }
+
+        vehicleManager.screenInfo = screenInfo
+
+        Matrix.orthoM(
+            projectionMatrix,
+            0,
+            screenInfo.left, screenInfo.right,
+            screenInfo.bottom, screenInfo.top,
+            -1f, 1f
+        )
+
         GLES30.glUniformMatrix4fv(program.uProjectionMatrixLocation, 1, false, projectionMatrix, 0)
     }
 
     fun handleTouchDown(screenX: Float, screenY: Float, screenWidth: Int, screenHeight: Int) {
         // モデル座標系（-1〜1）に変換
-        val touchX = (screenX / screenWidth) * 2f - 1f
-        val touchY = -((screenY / screenHeight) * 2f - 1f)
-        vehicleManager.handleTouchDown(touchX=touchX, touchY=touchY)
+        val touchX = (screenX / screenWidth) * screenInfo.width - screenInfo.right
+        val touchY = -((screenY / screenHeight) * screenInfo.height - screenInfo.top)
+        vehicleManager.handleTouchDown(touchX = touchX, touchY = touchY)
     }
 
     fun handleTouchUp() {

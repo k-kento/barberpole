@@ -5,7 +5,7 @@ import android.opengl.Matrix
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class VehicleRenderModel(
+class VehicleRendererModel(
     // 座標: x, y, u, v
     private val program: VehicleShaderProgram,
     private val textureId: Int,

@@ -1,17 +1,13 @@
 package com.gastornisapp.barberpole.ui.vehicle.logic
 
-import android.content.Context
-import com.gastornisapp.barberpole.R
-import com.gastornisapp.barberpole.ui.loadTexture
-import com.gastornisapp.barberpole.ui.vehicle.VehicleRenderModel
-import com.gastornisapp.barberpole.ui.vehicle.VehicleShaderProgram
+import com.gastornisapp.barberpole.ui.ScreenInfo
 import kotlin.math.floor
 import kotlin.random.Random
 
 // モデル空間の範囲
 // X軸 -1.0f ~ 1.0f
 // Y軸 -1.0f ~ 1.0f
-class VehicleManager(context: Context, val program: VehicleShaderProgram) {
+class VehicleManager {
 
     private val activeVehicleIds = mutableListOf<Int>()
     private val inactiveVehicleIds = mutableListOf<Int>()
@@ -20,22 +16,17 @@ class VehicleManager(context: Context, val program: VehicleShaderProgram) {
     private var nextSpawnTime = getRandomSpawnTime()
     private var idCounter = 0
     private val toRemove = mutableListOf<Int>()
+    var screenInfo = ScreenInfo(0f, 0f, 0f, 0f)
 
     init {
-        val carTextureId = loadTexture(context = context, R.drawable.car)
-        val busTextureId = loadTexture(context = context, R.drawable.bus)
-
-        val carRenderModel = VehicleRenderModel(program = program, textureId = carTextureId)
-        val busRenderModel = VehicleRenderModel(program = program, textureId = busTextureId)
-
         val pool = mutableListOf<VehicleLogicModel>()
 
         repeat(30) {
             // 0〜9 の乱数 → 0〜6 なら車、7〜9 ならバス → 7:3 の確率
             if ((0..9).random() < 7) {
-                pool.add(CarLogicModel(idCounter++, renderModel = carRenderModel))
+                pool.add(CarLogicModel(idCounter++))
             } else {
-                pool.add(BusLogicModel(idCounter++, renderModel = busRenderModel))
+                pool.add(BusLogicModel(idCounter++))
             }
         }
 
@@ -44,21 +35,19 @@ class VehicleManager(context: Context, val program: VehicleShaderProgram) {
         inactiveVehicleIds.addAll(pool.map(VehicleLogicModel::id))
     }
 
+    fun activeVehicles(): List<VehicleLogicModel> {
+        return activeVehicleIds.map { pool[it] }
+    }
+
     // 毎フレーム呼ばれる処理
-    fun update(deltaTime: Long) {
+    fun update(deltaTime: Long, screenInfo: ScreenInfo) {
         elapsedTime += deltaTime
         if (nextSpawnTime <= elapsedTime) {
             addVehicle()
             elapsedTime = 0L
             nextSpawnTime = getRandomSpawnTime()
         }
-        updatePosition(deltaTime)
-    }
-
-    fun render() {
-        for (vehicle in activeVehicleIds.map { pool[it] }) {
-            vehicle.render()
-        }
+        updatePosition(deltaTime = deltaTime, screenInfo = screenInfo)
     }
 
     private fun addVehicle() {
@@ -80,7 +69,7 @@ class VehicleManager(context: Context, val program: VehicleShaderProgram) {
         }
 
         candidateVehicle.apply {
-            distance = -1f
+            distance = -1 * screenInfo.right
             orientation = VehicleLogicModel.Orientation.Left
             color = VehicleLogicModel.colors.random()
         }
@@ -89,7 +78,7 @@ class VehicleManager(context: Context, val program: VehicleShaderProgram) {
         activeVehicleIds.add(candidateVehicleId)
     }
 
-    private fun updatePosition(deltaTime: Long) {
+    private fun updatePosition(deltaTime: Long, screenInfo: ScreenInfo) {
         for (index in 0 until activeVehicleIds.size) {
             val vehicle = pool.getOrNull(activeVehicleIds[index]) ?: continue
             // タップされている時、その車両を移動させない。
@@ -109,18 +98,18 @@ class VehicleManager(context: Context, val program: VehicleShaderProgram) {
                 }
             }
 
-            // distance を [-1, 1] のループに変換
-            val loop = floor((newDistance + 1f) / WIDTH).toInt() // 何周目か
+            // distance を [screenInfo.left, screenInfo.right] のループに変換
+            val loop = floor((newDistance + screenInfo.right) / screenInfo.width).toInt() // 何周目か
             if (LANE_NUM <= loop) {
                 // 3回目は折り返さず、車両を削除
                 toRemove.add(vehicle.id)
                 inactiveVehicleIds.add(vehicle.id)
-                vehicle.distance = -1f
+                vehicle.distance = -1 * screenInfo.right
             } else {
                 // 偶数ループなら左向き、奇数なら右向き
                 val isLeft = (loop and 1) == 0
                 val direction = if (isLeft) -1 else 1
-                val posX = newDistance - loop * WIDTH
+                val posX = newDistance - loop * screenInfo.width
 
                 vehicle.posX = direction * posX
                 vehicle.posY = -0.5f + loop * LANE_HEIGHT
@@ -166,7 +155,5 @@ class VehicleManager(context: Context, val program: VehicleShaderProgram) {
     companion object {
         private const val LANE_HEIGHT = 0.5f
         private const val LANE_NUM = 3
-        // 幅。本来は、2.0であるが、画面外に少し余裕を持たせる
-        private const val WIDTH = 2.5f
     }
 }

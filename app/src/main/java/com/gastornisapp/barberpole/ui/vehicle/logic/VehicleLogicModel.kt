@@ -1,12 +1,11 @@
 package com.gastornisapp.barberpole.ui.vehicle.logic
 
 import com.gastornisapp.barberpole.ui.colorCodeToFloatArray
-import com.gastornisapp.barberpole.ui.vehicle.VehicleRenderModel
+import com.gastornisapp.barberpole.ui.vehicle.VehicleRendererModel
 
-abstract class VehicleLogicModel(
+sealed class VehicleLogicModel(
     val id: Int,
-    private val renderModel: VehicleRenderModel,
-    private val scale: Float,
+    val scale: Float,
 ) {
 
     var velocity: Float = 0.0004f
@@ -20,23 +19,18 @@ abstract class VehicleLogicModel(
     /**
      * 幅
      */
-    val scaledWidth: Float = VehicleRenderModel.WIDTH * scale
+    val scaledWidth: Float = VehicleRendererModel.WIDTH * scale
 
     /**
      * 高さ
      */
-    val scaledHeight: Float = VehicleRenderModel.HEIGHT * scale
-
-    fun render() {
-        renderModel.updateModelMatrix(posX = posX, posY = posY, orientation = orientation.value, scale = scale)
-        renderModel.draw(color = color)
-    }
+    val scaledHeight: Float = VehicleRendererModel.HEIGHT * scale
 
     fun checkFollowingDistance(frontVehicleLogicModel: VehicleLogicModel): Boolean {
         // 中心間距離
         val distanceBetweenCenters = frontVehicleLogicModel.distance - distance
         // 衝突しないための最低距離
-        val minDistance = scaledWidth / 2f + frontVehicleLogicModel.scaledWidth / 2f
+        val minDistance = (scaledWidth + frontVehicleLogicModel.scaledWidth) / 2f
 
         return distanceBetweenCenters < minDistance
     }
