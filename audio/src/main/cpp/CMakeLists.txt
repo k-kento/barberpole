@@ -1,12 +1,17 @@
 cmake_minimum_required(VERSION 3.22.1)
 
-project(native-lib)
+project(audio-lib)
 
-# Build our own native library
-add_library (native-lib SHARED AudioEngine.cpp)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)   # 必須にする
 
-# Find the Oboe package
+add_library (audio-lib SHARED audio_engine.cpp jni_bridge.cpp wav_loader.cpp)
+
 find_package (oboe REQUIRED CONFIG)
 
-# Specify the libraries which our native library is dependent on, including Oboe
-target_link_libraries(native-lib log oboe::oboe)
+target_link_libraries(
+        audio-lib
+        log
+        oboe::oboe
+        android
+)
