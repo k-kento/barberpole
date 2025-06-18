@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.datastore)
     implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries.compose)
+    implementation(project(":audio"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
