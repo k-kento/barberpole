@@ -10,6 +10,15 @@ import androidx.annotation.DrawableRes
 
 private const val TAG = "GlUtil"
 
+fun loadVertexShader(shaderCode: String): Int {
+    return loadShader(GLES30.GL_VERTEX_SHADER, shaderCode)
+}
+
+fun loadFragmentShader(shaderCode: String): Int {
+    return loadShader(GLES30.GL_FRAGMENT_SHADER, shaderCode)
+}
+
+
 // シェーダーをロードしてコンパイル
 fun loadShader(type: Int, shaderCode: String): Int {
     val shader = GLES30.glCreateShader(type)
