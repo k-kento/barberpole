@@ -15,25 +15,34 @@ class HarmonyView(context: Context) : GLSurfaceView(context) {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        val x = event.x
-        val y = event.y
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
+                val index = event.actionIndex
+                val pointerId = event.getPointerId(index)
+                val x = event.getX(index)
+                val y = event.getY(index)
 
-        when (event.action) {
-            MotionEvent.ACTION_UP -> {
                 queueEvent {
-                    renderer.handleTouchUp()
+                    renderer.handleTouchDown(
+                        x = x, y = y,
+                        width = width, height = height,
+                        pointerId = pointerId
+                    )
+                }
+            }
+
+            MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_UP -> {
+                val index = event.actionIndex
+                val pointerId = event.getPointerId(index)
+
+                queueEvent {
+                    renderer.handleTouchUp(pointerId = pointerId)
                 }
                 performClick()
-                return true
             }
-            MotionEvent.ACTION_DOWN -> {
-                queueEvent {
-                    renderer.handleTouchDown(x, y, width, height)
-                }
-                return true
-            }
-            else -> return super.onTouchEvent(event)
         }
+
+        return true
     }
 
     override fun performClick(): Boolean {
