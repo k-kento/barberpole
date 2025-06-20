@@ -20,6 +20,7 @@ import com.gastornisapp.barberpole.ui.HomePage
 import com.gastornisapp.barberpole.ui.InfoPage
 import com.gastornisapp.barberpole.ui.LicensePage
 import com.gastornisapp.barberpole.ui.WebPage
+import com.gastornisapp.barberpole.ui.harmony.HarmonyPage
 import com.gastornisapp.barberpole.ui.theme.BarberPoleTheme
 import com.gastornisapp.barberpole.ui.vehicle.VehiclePage
 import kotlinx.coroutines.flow.take
@@ -54,6 +55,7 @@ class MainActivity : ComponentActivity() {
                                 composable("barber_pole") { BarberPolePage() }
                                 composable("confirmation") { ConfirmationPage(navController, appSettingsRepository = appSettingsRepository) }
                                 composable("vehicle") { VehiclePage() }
+                                composable("harmony") { HarmonyPage() }
                                 composable(
                                     route = "webpage/{url}",
                                     arguments = listOf(navArgument("url") { type = NavType.StringType })
