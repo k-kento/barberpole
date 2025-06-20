@@ -18,6 +18,9 @@ class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
     private val buttonRenderModel: ButtonRendererModel = ButtonRendererModel()
 
+    // どのボタンが押されているか
+    private val activePointers = mutableMapOf<Int, ButtonLogicModel>()
+
     private val buttonLogicModels = (0 until 5).map { i ->
         val angle = Math.toRadians((90 + i * 72).toDouble()) // 90度スタートで上に1つ
         val r = 0.6f  // 半径
@@ -87,7 +90,7 @@ class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
         }
     }
 
-    fun handleTouchDown(x: Float, y: Float, width: Int, height: Int): Boolean {
+    fun handleTouchDown(x: Float, y: Float, width: Int, height: Int, pointerId: Int){
         // スクリーン座標(x,y)をOpenGL座標系(-1..1)に変換
         val aspect = width.toFloat() / height
         val normalizedX = (x / width.toFloat()) * 2f - 1f
@@ -104,15 +107,16 @@ class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
             val bottom = it.y - radius
 
             val isPressed = (glX in left..right) && (glY in bottom..top)
-            it.isPressed = isPressed
+            if (isPressed) {
+                activePointers[pointerId] = it
+                it.isPressed = true
+            }
         }
-
-        return false
     }
 
-    fun handleTouchUp() {
-        buttonLogicModels.forEach { button ->
-            button.isPressed = false
-        }
+    fun handleTouchUp(pointerId: Int) {
+        val button = activePointers[pointerId]
+        button?.isPressed = false
+        activePointers.remove(pointerId)
     }
 }
