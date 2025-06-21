@@ -4,6 +4,7 @@ import android.content.Context
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import com.gastornisapp.barberpole.ui.gl.model.RippleShaderProgram
 import com.gastornisapp.barberpole.ui.loadFragmentShader
 import com.gastornisapp.barberpole.ui.loadVertexShader
 import javax.microedition.khronos.egl.EGLConfig
@@ -11,15 +12,17 @@ import javax.microedition.khronos.opengles.GL10
 
 class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
-    private var lastFrameTime: Long = 0L // 前回のフレーム時間
+    private var startTime: Long = 0
 
     private val mvpMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
 
-    private val buttonRenderModel: ButtonRendererModel = ButtonRendererModel()
+    private lateinit var buttonRenderModel: ButtonRendererModel
+    private lateinit var rippleRendererModel: RippleRendererModel
 
     // どのボタンが押されているか
     private val activePointers = mutableMapOf<Int, ButtonLogicModel>()
+
 
     private val buttonLogicModels = (0 until 5).map { i ->
         val angle = Math.toRadians((90 + i * 72).toDouble()) // 90度スタートで上に1つ
@@ -31,6 +34,9 @@ class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
     }.toSet()
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+
+        buttonRenderModel = ButtonRendererModel()
+        rippleRendererModel = RippleRendererModel()
 
         GLES30.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
 
@@ -56,23 +62,27 @@ class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
         buttonRenderModel.initialize(buttonShaderProgram)
 
+        val rippleShaderProgram = RippleShaderProgram()
+        rippleShaderProgram.initialize(context)
+        rippleRendererModel.initialize(rippleShaderProgram)
+
         buttonLogicModels.forEach {
             it.updateModelMatrix()
         }
 
-        lastFrameTime = System.currentTimeMillis()
+        startTime = System.currentTimeMillis()
     }
 
     override fun onDrawFrame(gl: GL10?) {
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
 
-        val currentTime = System.currentTimeMillis()
-
-        val deltaFrameTime = currentTime - lastFrameTime
-
-        lastFrameTime = currentTime
+        val elapsed = (System.currentTimeMillis() - startTime) / 1000f
 
         buttonLogicModels.forEach {
+            if (it.isPressed) {
+                Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, it.effectModelMatrix, 0)
+                rippleRendererModel.draw(mvpMatrix = mvpMatrix, time = elapsed)
+            }
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, it.modelMatrix, 0)
             buttonRenderModel.draw(mvpMatrix = mvpMatrix, it.isPressed)
         }
@@ -90,7 +100,7 @@ class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
         }
     }
 
-    fun handleTouchDown(x: Float, y: Float, width: Int, height: Int, pointerId: Int){
+    fun handleTouchDown(x: Float, y: Float, width: Int, height: Int, pointerId: Int) {
         // スクリーン座標(x,y)をOpenGL座標系(-1..1)に変換
         val aspect = width.toFloat() / height
         val normalizedX = (x / width.toFloat()) * 2f - 1f
