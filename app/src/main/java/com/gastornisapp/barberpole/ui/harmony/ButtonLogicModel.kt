@@ -26,5 +26,6 @@ data class ButtonLogicModel(
 
     companion object {
         const val SCALE = 0.25f
+        val color = floatArrayOf(0f, 1f, 0f, 1f)
     }
 }
