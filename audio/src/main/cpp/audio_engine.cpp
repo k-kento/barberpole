@@ -46,24 +46,35 @@ void AudioEngine::stop() {
 
 oboe::DataCallbackResult AudioEngine::onAudioReady(oboe::AudioStream *audioStream, void *audioData, int32_t numFrames) {
     auto *outputBuffer = static_cast<int16_t *>(audioData);
-    size_t framesAvailable = (pcmData.size() / channels) - readIndex;
-    size_t framesToCopy = std::min<size_t>(numFrames, framesAvailable);
+    int framesCopied = 0;
 
-    // PCMデータをコピー
-    for (size_t i = 0; i < framesToCopy * channels; i++) {
-        outputBuffer[i] = pcmData[readIndex * channels + i];
+    // 再生終了判定用
+    bool isFinished = false;
+
+    while (framesCopied < numFrames) {
+        size_t framesAvailable = (pcmData.size() / channels) - readIndex;
+
+        if (framesAvailable == 0) {
+            // 再生終了 → 残りを無音にしてループ終了
+            memset(outputBuffer + framesCopied * channels, 0, (numFrames - framesCopied) * channels * sizeof(int16_t));
+            isFinished = true;
+            break;
+        }
+
+        size_t framesToCopy = std::min<size_t>(numFrames - framesCopied, framesAvailable);
+
+        memcpy(outputBuffer + framesCopied * channels,
+               pcmData.data() + readIndex * channels,
+               framesToCopy * channels * sizeof(int16_t));
+
+        readIndex += framesToCopy;
+        framesCopied += framesToCopy;
     }
 
-    // 足りない分はゼロで埋める
-    for (size_t i = framesToCopy * channels; i < numFrames * channels; i++) {
-        outputBuffer[i] = 0;
-    }
-
-    readIndex += framesToCopy;
-
-    if (pcmData.size() / channels <= readIndex) {
-        return oboe::DataCallbackResult::Stop;  // 再生終了
+    // 最後のデータ再生が終わったらストリームを停止
+    if (isFinished) {
+        return oboe::DataCallbackResult::Stop;
     } else {
-        return oboe::DataCallbackResult::Continue;  // 継続再生
+        return oboe::DataCallbackResult::Continue;
     }
 }
