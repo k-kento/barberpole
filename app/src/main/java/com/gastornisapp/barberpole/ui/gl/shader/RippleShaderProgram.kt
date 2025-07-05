@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole.ui.gl.model
+package com.gastornisapp.barberpole.ui.gl.shader
 
 import android.opengl.GLES30
 

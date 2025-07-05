@@ -1,7 +1,7 @@
 package com.gastornisapp.barberpole.ui.harmony
 
 import android.opengl.GLES30
-import com.gastornisapp.barberpole.ui.gl.model.RippleShaderProgram
+import com.gastornisapp.barberpole.ui.gl.shader.RippleShaderProgram
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
