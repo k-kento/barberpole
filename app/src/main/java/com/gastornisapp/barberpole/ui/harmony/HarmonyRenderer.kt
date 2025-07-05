@@ -4,9 +4,9 @@ import android.content.Context
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import com.gastornisapp.barberpole.ui.gl.model.RippleShaderProgram
-import com.gastornisapp.barberpole.ui.loadFragmentShader
-import com.gastornisapp.barberpole.ui.loadVertexShader
+import com.gastornisapp.barberpole.ui.gl.model.CircleRendererModel
+import com.gastornisapp.barberpole.ui.gl.shader.CircleShaderProgram
+import com.gastornisapp.barberpole.ui.gl.shader.RippleShaderProgram
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -17,12 +17,11 @@ class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
     private val mvpMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
 
-    private lateinit var buttonRenderModel: ButtonRendererModel
+    private lateinit var buttonRenderModel: CircleRendererModel
     private lateinit var rippleRendererModel: RippleRendererModel
 
     // どのボタンが押されているか
     private val activePointers = mutableMapOf<Int, ButtonLogicModel>()
-
 
     private val buttonLogicModels = (0 until 5).map { i ->
         val angle = Math.toRadians((90 + i * 72).toDouble()) // 90度スタートで上に1つ
@@ -34,8 +33,7 @@ class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
     }.toSet()
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-
-        buttonRenderModel = ButtonRendererModel()
+        buttonRenderModel = CircleRendererModel()
         rippleRendererModel = RippleRendererModel()
 
         GLES30.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
@@ -45,22 +43,9 @@ class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
         // 出力色 = ソース色 × srcFactor + 背景色 × dstFactor
         GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
 
-        val asset = context.assets
-        val vertexShaderSrc = asset.open("shaders/button.vsh").bufferedReader(Charsets.UTF_8).use { it.readText() }
-        val vertexShader = loadVertexShader(vertexShaderSrc)
+        val circleShaderProgram = CircleShaderProgram()
 
-        val fragmentShaderSrc = asset.open("shaders/button.fsh").bufferedReader(Charsets.UTF_8).use { it.readText() }
-        val fragmentShader = loadFragmentShader(fragmentShaderSrc)
-
-        val buttonShaderProgram = GLES30.glCreateProgram().also {
-            GLES30.glAttachShader(it, vertexShader)
-            GLES30.glAttachShader(it, fragmentShader)
-            GLES30.glLinkProgram(it)
-        }
-
-        GLES30.glUseProgram(buttonShaderProgram)
-
-        buttonRenderModel.initialize(buttonShaderProgram)
+        buttonRenderModel.initialize(circleShaderProgram)
 
         val rippleShaderProgram = RippleShaderProgram()
         rippleShaderProgram.initialize(context)
@@ -84,7 +69,7 @@ class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
                 rippleRendererModel.draw(mvpMatrix = mvpMatrix, time = elapsed)
             }
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, it.modelMatrix, 0)
-            buttonRenderModel.draw(mvpMatrix = mvpMatrix, it.isPressed)
+            buttonRenderModel.draw(mvpMatrix = mvpMatrix, ButtonLogicModel.color)
         }
     }
 
@@ -110,7 +95,7 @@ class HarmonyRenderer(private val context: Context) : GLSurfaceView.Renderer {
         val glY = if (width > height) normalizedY else normalizedY / aspect
 
         buttonLogicModels.forEach {
-            val radius = ButtonLogicModel.SCALE * ButtonRendererModel.SIZE / 2
+            val radius = ButtonLogicModel.SCALE * CircleRendererModel.SIZE / 2
             val left = it.x - radius
             val right = it.x + radius
             val top = it.y + radius
