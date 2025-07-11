@@ -5,22 +5,54 @@
 #include <cstring>
 #include <iostream>
 
+#pragma pack(push, 1)
+struct RiffHeader {
+    char id[4];       // "RIFF"
+    uint32_t size;    // ファイルサイズ - 8
+    char format[4];   // "WAVE"
+};
+
+struct FmtChunk {
+    char id[4];          // "fmt "
+    uint32_t size;       // fmt チャンクサイズ（16 or 18 or 40）
+    uint16_t audioFormat;
+    uint16_t numChannels;
+    uint32_t sampleRate;
+    uint32_t byteRate;
+    uint16_t blockAlign;
+    uint16_t bitsPerSample;
+    // 追加データがある場合もあるが、ここでは省略（必要なら追加）
+};
+
+struct DataChunk {
+    char id[4];
+    uint32_t size;
+};
+
+#pragma pack(pop)
+
 WavLoader::WavLoader(AAssetManager* assetManager) : mAssetManager(assetManager) {}
 
 WavLoader::~WavLoader() = default;
 
 bool WavLoader::load(const char* filename) {
-    if (!mAssetManager) return false;
+    if (!mAssetManager) {
+        LOGE("AssetManager is null in WavLoader");
+        return false;
+    }
 
     AAsset* asset = AAssetManager_open(mAssetManager, filename, AASSET_MODE_BUFFER);
-    if (!asset) return false;
+    if (!asset) {
+        LOGE("Failed to open asset: %s", filename);
+        return false;
+    }
 
     // RIFFヘッダ読み込み
     RiffHeader riff{};
     AAsset_read(asset, &riff, sizeof(riff));
 
     if (std::strncmp(riff.id, "RIFF", 4) != 0 || std::strncmp(riff.format, "WAVE", 4) != 0) {
-        // WAV形式ではない
+        LOGE("File is not a valid WAV file: %s", filename);
         AAsset_close(asset);
         return false;
     }
@@ -30,13 +62,14 @@ bool WavLoader::load(const char* filename) {
     AAsset_read(asset, &fmt, sizeof(fmt));
 
     if (std::strncmp(fmt.id, "fmt ", 4) != 0) {
-        // 不正なフォーマット
+        LOGE("Invalid fmt chunk in WAV file: %s", filename);
         AAsset_close(asset);
         return false;
     }
 
     // PCM のみ受け付ける
     if (fmt.audioFormat != 1) {
+        LOGE("Unsupported audio format in WAV file (only PCM is supported): %s", filename);
         AAsset_close(asset);
         return false;
     }
@@ -47,7 +80,7 @@ bool WavLoader::load(const char* filename) {
     }
 
     // "data" チャンクを探す
-    GenericChunk dataChunk{};
+    DataChunk dataChunk{};
     while (AAsset_read(asset, &dataChunk, sizeof(dataChunk)) == sizeof(dataChunk)) {
         if (std::strncmp(dataChunk.id, "data", 4) == 0) {
             // 見つけた → chunk.size がPCMデータ長
@@ -67,7 +100,13 @@ bool WavLoader::load(const char* filename) {
     int bytesRead = AAsset_read(asset, mPcmData.data(), dataChunk.size);
     AAsset_close(asset);
 
-    return bytesRead == static_cast<int>(dataChunk.size);
+    if (bytesRead != static_cast<int>(dataChunk.size)) {
+        LOGE("Failed to read all PCM data from WAV file: %s", filename);
+        return false;
+    }
+
+    LOGD("Successfully parsed WAV file: %s", filename);
+    return true;
 }
 
 const std::vector<int16_t>& WavLoader::getPcmData() const {

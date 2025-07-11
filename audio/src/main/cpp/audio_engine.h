@@ -9,7 +9,7 @@
 
 class AudioEngine : public oboe::AudioStreamCallback {
 public:
-    bool load(int sr, int ch, std::vector<int16_t>& pcm);
+    bool load(int sr, int ch, const std::vector<int16_t>& pcm);
     void start();
     void stop();
 private:

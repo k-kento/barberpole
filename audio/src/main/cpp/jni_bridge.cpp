@@ -5,55 +5,67 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <android/log.h>
+#include <algorithm> // for std::transform
+#include <string>      // for std::string
 
-std::unique_ptr<AudioEngine> audioEngine;
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_gastornisapp_soundlib_AudioLib_createNativeEngine(JNIEnv *env, jobject) {
+    auto *engine = new AudioEngine();
+    return reinterpret_cast<jlong>(engine);
+}
 
-extern "C" JNIEXPORT void JNICALL Java_com_gastornisapp_soundlib_AudioLib_load(JNIEnv* env, jobject, jobject assetManager, jstring type) {
-    AAssetManager* gAssetManager = AAssetManager_fromJava(env, assetManager);
-    if (!gAssetManager) return;
-
-    const char* typeStr = env->GetStringUTFChars(type, nullptr);
-
-    std::string fileName;
-
-    if (strcmp(typeStr, "taiko") == 0) {
-        fileName = "taiko_drums.wav";
-    } else {
-        fileName = "taiko_drums.wav";
+extern "C" JNIEXPORT void JNICALL Java_com_gastornisapp_soundlib_AudioLib_load(JNIEnv *env, jobject, jlong nativeHandle, jobject assetManager, jstring fileName) {
+    AudioEngine *engine = reinterpret_cast<AudioEngine *>(nativeHandle);
+    if (!engine) {
+        LOGE("Engine is null");
+        return;
     }
 
+    AAssetManager *gAssetManager = AAssetManager_fromJava(env, assetManager);
+    if (!gAssetManager) {
+        LOGE("AssetManager is null");
+        return;
+    }
+
+    const char* fileNameCStr = env->GetStringUTFChars(fileName, nullptr);
+    if (!fileNameCStr) {
+        LOGE("Failed to get UTF chars from jstring");
+        return;
+    }
+    std::string fileNameStr(fileNameCStr);
+    env->ReleaseStringUTFChars(fileName, fileNameCStr);
+
     WavLoader loader(gAssetManager);
-    if (loader.load(fileName.c_str())) {
+    if (loader.load(fileNameCStr)) {
+        LOGD("Successfully loaded WAV file: %s", fileNameCStr);
         std::vector<int16_t> pcm = loader.getPcmData();
         uint16_t ch = loader.getChannels();
         uint32_t sr = loader.getSampleRate();
-
-        audioEngine = std::make_unique<AudioEngine>();
-
-        if (!(audioEngine->load(sr, ch, pcm))) {
-            LOGE("AudioEngine failed to load.");
+        if (!(engine->load(sr, ch, pcm))) {
+            LOGE("AudioEngine failed to load PCM data for: %s", fileNameCStr);
+        } else {
+            LOGD("AudioEngine successfully loaded PCM data for: %s", fileNameCStr);
         }
     } else {
-        LOGE("failed to load.");
+        LOGE("WavLoader failed to load: %s", fileNameCStr);
     }
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_gastornisapp_soundlib_AudioLib_start(JNIEnv *env, jobject /* this */) {
-    if (audioEngine) {
-        audioEngine->start();
+extern "C" JNIEXPORT void JNICALL Java_com_gastornisapp_soundlib_AudioLib_start(JNIEnv *env, jobject, jlong nativeHandle) {
+    AudioEngine *engine = reinterpret_cast<AudioEngine *>(nativeHandle);
+    if (engine) {
+        engine->start();
     }
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_gastornisapp_soundlib_AudioLib_stop(JNIEnv *env, jobject /* this */) {
-    if (audioEngine) {
-        audioEngine->stop();
+extern "C" JNIEXPORT void JNICALL Java_com_gastornisapp_soundlib_AudioLib_stop(JNIEnv *env, jobject, jlong nativeHandle) {
+    AudioEngine *engine = reinterpret_cast<AudioEngine *>(nativeHandle);
+    if (engine) {
+        engine->stop();
     }
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_gastornisapp_soundlib_AudioLib_release(JNIEnv *env, jobject /* this */) {
-    if (audioEngine) {
-        audioEngine->stop();      // 念のため停止
-        audioEngine.reset();      // 破棄（unique_ptrなので自動でdeleteされる）
-        LOGI("AudioEngine released");
-    }
+extern "C" JNIEXPORT void JNICALL Java_com_gastornisapp_soundlib_AudioLib_release(JNIEnv *env, jobject, jlong nativeHandle) {
+    AudioEngine *engine = reinterpret_cast<AudioEngine *>(nativeHandle);
+    delete engine;
 }

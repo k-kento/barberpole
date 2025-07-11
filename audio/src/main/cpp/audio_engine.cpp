@@ -6,10 +6,10 @@
 #include "audio_engine.h"
 #include "log_util.h"
 
-bool AudioEngine::load(int sr, int ch, std::vector<int16_t>& pcm) {
+bool AudioEngine::load(int sr, int ch, const std::vector<int16_t>& pcm) {
     sampleRate = sr;
     channels = ch;
-    pcmData = std::move(pcm);
+    pcmData = pcm;
 
     // Oboeストリーム初期化
     oboe::AudioStreamBuilder builder;
