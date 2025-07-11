@@ -21,8 +21,10 @@ import com.gastornisapp.barberpole.ui.InfoPage
 import com.gastornisapp.barberpole.ui.LicensePage
 import com.gastornisapp.barberpole.ui.WebPage
 import com.gastornisapp.barberpole.ui.harmony.HarmonyPage
+import com.gastornisapp.barberpole.ui.percussion.PercussionPage
 import com.gastornisapp.barberpole.ui.theme.BarberPoleTheme
 import com.gastornisapp.barberpole.ui.vehicle.VehiclePage
+import com.gastornisapp.soundlib.AudioLib
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
@@ -37,6 +39,9 @@ class MainActivity : ComponentActivity() {
         appSettingsRepository = AppSettingsRepository(applicationContext.dataStore)
 
         lifecycleScope.launch {
+
+            AudioLib.initialize()
+
             appSettingsRepository.version
                 .take(1)
                 .collect { version ->
@@ -56,6 +61,7 @@ class MainActivity : ComponentActivity() {
                                 composable("confirmation") { ConfirmationPage(navController, appSettingsRepository = appSettingsRepository) }
                                 composable("vehicle") { VehiclePage() }
                                 composable("harmony") { HarmonyPage() }
+                                composable("percussion") { PercussionPage() }
                                 composable(
                                     route = "webpage/{url}",
                                     arguments = listOf(navArgument("url") { type = NavType.StringType })
