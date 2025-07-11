@@ -1,6 +1,6 @@
 package com.gastornisapp.barberpole.ui
 
-data class ScreenInfo(
+data class ViewBounds(
     val left: Float,
     val right: Float,
     val bottom: Float,

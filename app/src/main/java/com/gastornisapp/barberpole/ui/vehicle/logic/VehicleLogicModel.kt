@@ -1,6 +1,6 @@
 package com.gastornisapp.barberpole.ui.vehicle.logic
 
-import com.gastornisapp.barberpole.ui.ScreenInfo
+import com.gastornisapp.barberpole.ui.ViewBounds
 import com.gastornisapp.barberpole.ui.colorCodeToFloatArray
 import com.gastornisapp.barberpole.ui.vehicle.VehicleRendererModel
 
@@ -31,10 +31,10 @@ sealed class VehicleLogicModel(
      * 前方車両との追従距離をチェックする
      *
      * @param frontVehicle 前方の車両
-     * @param screenInfo   画面情報（幅など）
+     * @param viewBounds   画面情報（幅など）
      * @return true: 追従距離が十分に確保されている / false: 接近しすぎている
      */
-    fun isFollowingDistanceSafe(frontVehicle: VehicleLogicModel, screenInfo: ScreenInfo): Boolean {
+    fun isFollowingDistanceSafe(frontVehicle: VehicleLogicModel, viewBounds: ViewBounds): Boolean {
         // 中心点同士の距離（この車両の距離との差）
         val centerToCenterDistance = frontVehicle.distance - this.distance
 
@@ -42,7 +42,7 @@ sealed class VehicleLogicModel(
         val combinedHalfWidths = (this.scaledWidth + frontVehicle.scaledWidth) / 2f
 
         // 衝突を避けるために必要な最小距離（画面幅の1/20を目安とする）
-        val requiredClearance = screenInfo.width / 20f
+        val requiredClearance = viewBounds.width / 20f
 
         // 実際の間隔（中心間距離 - 車体サイズ）が必要最低距離より大きいかで判定
         val actualClearance = centerToCenterDistance - combinedHalfWidths
