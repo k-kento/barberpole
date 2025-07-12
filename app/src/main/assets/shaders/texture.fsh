@@ -14,8 +14,6 @@ out vec4 outColor;
 
 void main() {
     vec4 texColor = texture(u_Texture, v_TexCoord);
-
-    // RGB に u_Color を掛けて色を変える（αはそのまま）
-    texColor.rgb *= u_Color;
+    texColor.rgb = u_Color;
     outColor = texColor;
 }
