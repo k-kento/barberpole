@@ -6,7 +6,7 @@ import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import com.gastornisapp.barberpole.R
 import com.gastornisapp.barberpole.ui.ViewBounds
-import com.gastornisapp.barberpole.ui.loadTexture
+import com.gastornisapp.barberpole.ui.utils.loadTexture
 import com.gastornisapp.barberpole.ui.vehicle.logic.CarLogicModel
 import com.gastornisapp.barberpole.ui.vehicle.logic.BusLogicModel
 import com.gastornisapp.barberpole.ui.vehicle.logic.VehicleLogicModel

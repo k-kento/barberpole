@@ -2,8 +2,8 @@ package com.gastornisapp.barberpole.ui.percussion
 
 import android.opengl.Matrix
 import com.gastornisapp.barberpole.ui.ViewBounds
-import com.gastornisapp.barberpole.ui.adjustPressedColor
-import com.gastornisapp.barberpole.ui.colorCodeToFloatArray
+import com.gastornisapp.barberpole.ui.utils.adjustPressedColor
+import com.gastornisapp.barberpole.ui.utils.colorCodeToFloatArray
 import com.gastornisapp.soundlib.AudioResource
 
 class PercussionLogicModel(

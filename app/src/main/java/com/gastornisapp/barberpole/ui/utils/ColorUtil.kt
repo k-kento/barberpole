@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole.ui
+package com.gastornisapp.barberpole.ui.utils
 
 import android.graphics.Color
 import kotlin.math.max

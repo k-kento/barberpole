@@ -1,7 +1,7 @@
 package com.gastornisapp.barberpole.ui.vehicle.logic
 
 import com.gastornisapp.barberpole.ui.ViewBounds
-import com.gastornisapp.barberpole.ui.colorCodeToFloatArray
+import com.gastornisapp.barberpole.ui.utils.colorCodeToFloatArray
 import com.gastornisapp.barberpole.ui.vehicle.VehicleRendererModel
 
 sealed class VehicleLogicModel(
