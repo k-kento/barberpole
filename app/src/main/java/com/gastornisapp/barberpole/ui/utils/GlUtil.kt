@@ -8,9 +8,12 @@ import android.graphics.drawable.VectorDrawable
 import android.opengl.GLES30
 import android.opengl.GLUtils
 import android.util.Log
+import android.util.SizeF
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
+import com.gastornisapp.barberpole.ui.ViewBounds
+import androidx.core.graphics.scale
 
 private const val TAG = "GlUtil"
 
@@ -54,41 +57,6 @@ fun loadShader(type: Int, shaderCode: String): Int {
     }
 
     return shader
-}
-
-fun loadTexture(context: Context, @DrawableRes resId: Int): Int {
-    // 1. テクスチャIDを生成
-    val textureIds = IntArray(1)
-    GLES30.glGenTextures(1, textureIds, 0)
-
-    if (textureIds[0] == 0) {
-        throw RuntimeException("Failed to generate texture ID")
-    }
-
-    // 2. Bitmapを読み込む
-    val bitmap = BitmapFactory.decodeResource(context.resources, resId)
-
-    // 3. テクスチャをバインド
-    GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureIds[0])
-
-    // 4. テクスチャのパラメータ設定
-    // 線形補間で画像を拡大縮小する
-    GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR)
-    GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
-    // 境界外の UV に対して端の色を使う
-    GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE)
-    GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE)
-
-    // 5. BitmapをOpenGLのテクスチャにアップロード
-    GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0)
-
-    // 6. Bitmapを解放
-    bitmap?.recycle()
-
-    // 7. バインド解除
-    GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
-
-    return textureIds[0]
 }
 
 object GlUtil {
@@ -144,7 +112,7 @@ object GlUtil {
                     val decoded = BitmapFactory.decodeResource(context.resources, resId, options)
                         ?: throw IllegalArgumentException("Bitmap decode failed")
 
-                    Bitmap.createScaledBitmap(decoded, width, height, true).also {
+                    decoded.scale(width, height).also {
                         if (decoded != it) decoded.recycle()
                     }
                 } else {
@@ -182,5 +150,25 @@ object GlUtil {
         }
 
         return inSampleSize
+    }
+
+    fun calculateModelSizePx(
+        baseWidth: Float,           // モデルの元の幅（例: 2f）
+        baseHeight: Float = baseWidth, // モデルの元の高さ（指定なければ正方形）
+        scale: Float,               // モデルスケール
+        viewBounds: ViewBounds,     // OpenGL上のビュー領域
+        screenWidthPx: Int,         // 実画面ピクセル横幅
+        screenHeightPx: Int         // 実画面ピクセル縦幅
+    ): SizeF {
+        val glWidth = viewBounds.width
+        val glHeight = viewBounds.height
+
+        val pxPerGlUnitX = screenWidthPx / glWidth
+        val pxPerGlUnitY = screenHeightPx / glHeight
+
+        val widthPx = baseWidth * scale * pxPerGlUnitX
+        val heightPx = baseHeight * scale * pxPerGlUnitY
+
+        return SizeF(widthPx, heightPx)
     }
 }

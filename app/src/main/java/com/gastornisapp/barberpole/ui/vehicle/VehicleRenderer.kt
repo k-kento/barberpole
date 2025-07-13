@@ -6,7 +6,7 @@ import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import com.gastornisapp.barberpole.R
 import com.gastornisapp.barberpole.ui.ViewBounds
-import com.gastornisapp.barberpole.ui.utils.loadTexture
+import com.gastornisapp.barberpole.ui.utils.GlUtil
 import com.gastornisapp.barberpole.ui.vehicle.logic.CarLogicModel
 import com.gastornisapp.barberpole.ui.vehicle.logic.BusLogicModel
 import com.gastornisapp.barberpole.ui.vehicle.logic.VehicleLogicModel
@@ -41,8 +41,8 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         program = VehicleShaderProgram()
         program.initialize()
 
-        val carTextureId = loadTexture(context = context, R.drawable.car)
-        val busTextureId = loadTexture(context = context, R.drawable.bus)
+        val carTextureId = GlUtil.loadTexture(context = context, R.drawable.car)
+        val busTextureId = GlUtil.loadTexture(context = context, R.drawable.bus)
 
         rendererModels[CarLogicModel::class] = VehicleRendererModel(program = program, textureId = carTextureId)
         rendererModels[BusLogicModel::class] = VehicleRendererModel(program = program, textureId = busTextureId)
