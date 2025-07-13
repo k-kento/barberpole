@@ -43,7 +43,7 @@ fun PercussionPage() {
             factory = {
                 PercussionView(context = it).apply {
                     onClicked = { type ->
-                        audioLibs[type]?.start()
+                        audioLibs[type.toAudioResource()]?.start()
                     }
                 }
             },

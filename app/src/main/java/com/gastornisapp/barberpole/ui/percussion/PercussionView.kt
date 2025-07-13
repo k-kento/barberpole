@@ -4,12 +4,11 @@ import android.content.Context
 import android.opengl.GLSurfaceView
 import android.view.MotionEvent
 import android.view.SurfaceHolder
-import com.gastornisapp.soundlib.AudioResource
 
 class PercussionView(context: Context) : GLSurfaceView(context) {
     private val renderer: PercussionRenderer
 
-    var onClicked: ((AudioResource) -> Unit)? = null
+    var onClicked: ((PercussionType) -> Unit)? = null
 
     init {
         setEGLContextClientVersion(3)

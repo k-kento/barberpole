@@ -2,13 +2,11 @@ package com.gastornisapp.barberpole.ui.gl.model
 
 import android.opengl.GLES30
 import com.gastornisapp.barberpole.ui.gl.shader.TexturedShaderProgram
-import com.gastornisapp.barberpole.ui.utils.colorCodeToFloatArray
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 class TexturedQuadRenderer(
     private val program: TexturedShaderProgram, // 汎用のシェーダープログラム
-    private val textureId: Int
 ) {
     companion object {
         private val VERTICES = floatArrayOf(
@@ -67,7 +65,7 @@ class TexturedQuadRenderer(
         GLES30.glBindVertexArray(0)
     }
 
-    fun draw(mvpMatrix: FloatArray, color: FloatArray) {
+    fun draw(mvpMatrix: FloatArray, color: FloatArray, textureId: Int) {
         program.useProgram()
 
         GLES30.glUniformMatrix4fv(program.uMvpMatrixLocation, 1, false, mvpMatrix, 0)
