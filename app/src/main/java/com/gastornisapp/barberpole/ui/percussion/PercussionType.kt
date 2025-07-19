@@ -9,7 +9,7 @@ enum class PercussionType(@DrawableRes val drawableRes: Int, val color: Int) {
     Pan(drawableRes = R.drawable.pan, 0xFF9800),
     Shaker(drawableRes = R.drawable.conga, 0xFFEB3B),
     Taiko(drawableRes = R.drawable.conga, 0x4CAF50),
-    Tambourines(drawableRes = R.drawable.conga, 0x2196F3),
+    Tambourines(drawableRes = R.drawable.tamburins, 0x2196F3),
     Stick(drawableRes = R.drawable.stick, 0x3F51B5),
     Bell(drawableRes = R.drawable.bell, 0x9C27B0),
     Conga(drawableRes = R.drawable.conga, 0x000000),
