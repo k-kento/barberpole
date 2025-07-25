@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole.ui.utils
+package com.gastornisapp.barberpole.ui.gl
 
 import android.content.Context
 import android.graphics.Bitmap

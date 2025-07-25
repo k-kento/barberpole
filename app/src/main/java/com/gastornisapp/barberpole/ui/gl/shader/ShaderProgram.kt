@@ -2,8 +2,8 @@ package com.gastornisapp.barberpole.ui.gl.shader
 
 import android.content.Context
 import android.opengl.GLES30
-import com.gastornisapp.barberpole.ui.utils.loadFragmentShader
-import com.gastornisapp.barberpole.ui.utils.loadVertexShader
+import com.gastornisapp.barberpole.ui.gl.loadFragmentShader
+import com.gastornisapp.barberpole.ui.gl.loadVertexShader
 
 abstract class ShaderProgram(val vertexShaderFile: String, val fragmentShaderFile: String) {
 

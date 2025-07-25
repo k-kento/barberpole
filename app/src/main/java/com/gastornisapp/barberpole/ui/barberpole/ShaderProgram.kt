@@ -1,7 +1,7 @@
 package com.gastornisapp.barberpole.ui.barberpole
 
 import android.opengl.GLES30
-import com.gastornisapp.barberpole.ui.utils.loadShader
+import com.gastornisapp.barberpole.ui.gl.loadShader
 
 class ShaderProgram {
 

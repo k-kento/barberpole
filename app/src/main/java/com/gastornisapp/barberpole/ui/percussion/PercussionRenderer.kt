@@ -10,7 +10,7 @@ import com.gastornisapp.barberpole.ui.gl.model.CircleRendererModel
 import com.gastornisapp.barberpole.ui.gl.model.TexturedQuadRenderer
 import com.gastornisapp.barberpole.ui.gl.shader.CircleShaderProgram
 import com.gastornisapp.barberpole.ui.gl.shader.TexturedShaderProgram
-import com.gastornisapp.barberpole.ui.utils.GlUtil
+import com.gastornisapp.barberpole.ui.gl.GlUtil
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -148,6 +148,6 @@ class PercussionRenderer(private val context: Context) : GLSurfaceView.Renderer 
     }
 
     fun release() {
-
+        circleRendererModel.release()
     }
 }
