@@ -51,15 +51,14 @@ sealed class VehicleLogicModel(
     }
 
     companion object {
-        // HSB S=65 B=100
         val colors = arrayOf(
-            colorCodeToFloatArray(0xFF1500), // 赤
-            colorCodeToFloatArray(0x1100FF), // 青
-            colorCodeToFloatArray(0x08FF00), // 緑
-            colorCodeToFloatArray(0xED00FF), // 紫
-            colorCodeToFloatArray(0x00D7FF), // 水色
-            colorCodeToFloatArray(0xFFF301), // 黄
-            colorCodeToFloatArray(0xFFA400), // オレンジ
+            colorCodeToFloatArray(0xF44336),
+            colorCodeToFloatArray(0xFF9800),
+            colorCodeToFloatArray(0xFFEB3B),
+            colorCodeToFloatArray(0x4CAF50),
+            colorCodeToFloatArray(0x2196F3),
+            colorCodeToFloatArray(0x3F51B5),
+            colorCodeToFloatArray(0x9C27B0),
         )
     }
 
