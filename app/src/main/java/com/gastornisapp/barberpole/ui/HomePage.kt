@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
@@ -33,6 +33,7 @@ import com.gastornisapp.barberpole.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(navHostController: NavHostController) {
+    val items = createItems()
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("") }, actions = {
@@ -40,36 +41,13 @@ fun HomePage(navHostController: NavHostController) {
                     navHostController.navigate("info")
                 }) {
                     Icon(
-                        imageVector = Icons.Default.Info, // infoアイコン
+                        imageVector = Icons.Default.Info,
                         contentDescription = "Info"
                     )
                 }
             })
         },
     ) { paddingValues ->
-        val itemList = listOf(
-            ItemInfo(
-                title = "さいんぽーる",
-                drawableRes = R.drawable.ic_launcher_background,
-                onClick = { navHostController.navigate("barber_pole") }
-            ),
-            ItemInfo(
-                title = "くるま",
-                drawableRes = R.drawable.ic_launcher_background,
-                onClick = { navHostController.navigate("vehicle") }
-            ),
-            ItemInfo(
-                title = "ハーモニー",
-                drawableRes = R.drawable.ic_launcher_background,
-                onClick = { navHostController.navigate("harmony") }
-            ),
-            ItemInfo(
-                title = "たいこ",
-                drawableRes = R.drawable.ic_launcher_background,
-                onClick = { navHostController.navigate("percussion") }
-            )
-        )
-
         LazyVerticalGrid(
             columns = GridCells.Fixed(2), // 列数
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -77,22 +55,24 @@ fun HomePage(navHostController: NavHostController) {
             contentPadding = paddingValues,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(PaddingValues(horizontal = 16.dp))
+                .padding(horizontal = 16.dp)
         ) {
-            items(itemList.size) { index ->
-                Item(itemList[index])
+            items(items) { item ->
+                Item(item) {
+                    navHostController.navigate(it.route)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun Item(itemInfo: ItemInfo) {
+private fun Item(itemInfo: ItemInfo, onClicked: (PageType) -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                itemInfo.onClick()
+                onClicked(itemInfo.route)
             },
     ) {
         Column(
@@ -115,8 +95,28 @@ private fun Item(itemInfo: ItemInfo) {
     }
 }
 
-data class ItemInfo(
+private fun createItems(): List<ItemInfo> {
+    return listOf(
+        ItemInfo(
+            title = "さいんぽーる",
+            drawableRes = R.drawable.ic_launcher_background,
+            PageType.BarberPole
+        ),
+        ItemInfo(
+            title = "くるま",
+            drawableRes = R.drawable.ic_launcher_background,
+            PageType.Vehicle
+        ),
+        ItemInfo(
+            title = "たいこ",
+            drawableRes = R.drawable.ic_launcher_background,
+            PageType.Percussion
+        )
+    )
+}
+
+private data class ItemInfo(
     val title: String,
-    @DrawableRes val drawableRes: Int,
-    val onClick: () -> Unit
+    @param:DrawableRes val drawableRes: Int,
+    val route: PageType
 )

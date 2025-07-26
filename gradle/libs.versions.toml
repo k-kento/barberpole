@@ -12,17 +12,20 @@ composeBom = "2025.07.00"
 lifecycleCommonJvm = "2.9.2"
 materialIconsExtendedAndroid = "1.7.8"
 navigationCompose = "2.9.2"
+navigationTesting = "2.9.2"
 oboe = "1.9.3"
 splashscreen = "1.0.1"
 aboutlibraries = "12.2.4"
 googleGmsGoogleServices = "4.4.3"
 firebase-bom = "34.0.0"
 hilt = "2.57"
+navigationTestingAndroid = "2.9.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationTesting" }
 oboe = { module = "com.google.oboe:oboe", version.ref = "oboe" }
 androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version = "1.1.7" }
 
@@ -54,6 +57,7 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-navigation-testing-android = { group = "androidx.navigation", name = "navigation-testing-android", version.ref = "navigationTestingAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -3,6 +3,7 @@ package com.gastornisapp.barberpole.ui
 import BarberPolePage
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,16 +16,16 @@ import com.gastornisapp.barberpole.ui.vehicle.VehiclePage
 
 @Composable
 fun AppNavGraph(
-    startDestination: String
+    startDestination: String,
+    navController: NavHostController = rememberNavController()
 ) {
-    val navController = rememberNavController()
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
         composable(PageType.Home.route) { HomePage(navController) }
         composable(PageType.BarberPole.route) { BarberPolePage() }
-        composable(PageType.Confirmation.route) { ConfirmationPage(navController,) }
+        composable(PageType.Confirmation.route) { ConfirmationPage(navController) }
         composable(PageType.Vehicle.route) { VehiclePage() }
         composable(PageType.Harmony.route) { HarmonyPage() }
         composable(PageType.Percussion.route) { PercussionPage() }
