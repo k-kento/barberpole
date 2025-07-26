@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole.ui
+package com.gastornisapp.barberpole.ui.confiramtion
 
 import android.app.Activity
 import android.net.Uri
@@ -18,14 +18,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.gastornisapp.barberpole.repositories.AppSettingsRepository
-import kotlinx.coroutines.launch
 
 /**
  * 利用規約確認画面
@@ -34,13 +35,23 @@ import kotlinx.coroutines.launch
 @Composable
 fun ConfirmationPage(
     navController: NavController,
-    appSettingsRepository: AppSettingsRepository,
+    viewModel: ConfirmationViewModel = hiltViewModel()
 ) {
     Scaffold(
         topBar = { TopAppBar(title = { Text("利用規約") }) },
     ) { paddingValues ->
         val context = LocalContext.current
-        val coroutineScope = rememberCoroutineScope()
+
+        val isTermsAccepted by viewModel.isTermsAccepted.collectAsState()
+
+        LaunchedEffect(isTermsAccepted) {
+            if (isTermsAccepted) {
+                // 利用規約画面をポップし、ホーム画面へ遷移する。
+                navController.navigate("home") {
+                    popUpTo("confirmation") { inclusive = true }
+                }
+            }
+        }
 
         Box(
             Modifier
@@ -88,13 +99,7 @@ fun ConfirmationPage(
 
                 Button(
                     onClick = {
-                        coroutineScope.launch {
-                            appSettingsRepository.saveVersion()
-                            // 利用規約画面をポップし、ホーム画面へ遷移する。
-                            navController.navigate("home") {
-                                popUpTo("confirmation") { inclusive = true }
-                            }
-                        }
+                        viewModel.acceptTerms()
                     },
                 ) {
                     Text("同意する")
