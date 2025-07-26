@@ -3,6 +3,9 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.aboutlibraries)
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.hilt.android.gradle)
 }
 
 android {
@@ -56,7 +59,12 @@ dependencies {
     implementation(libs.androidx.datastore)
     implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries.compose)
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
+    kapt(libs.hilt.compiler)
     implementation(project(":audio"))
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.config)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
