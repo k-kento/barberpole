@@ -1,0 +1,45 @@
+package com.gastornisapp.barberpole.ui
+
+import BarberPolePage
+import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.gastornisapp.barberpole.ui.confiramtion.ConfirmationPage
+import com.gastornisapp.barberpole.ui.harmony.HarmonyPage
+import com.gastornisapp.barberpole.ui.percussion.PercussionPage
+import com.gastornisapp.barberpole.ui.vehicle.VehiclePage
+
+@Composable
+fun AppNavGraph(
+    startDestination: String
+) {
+    val navController = rememberNavController()
+    NavHost(
+        navController = navController,
+        startDestination = startDestination
+    ) {
+        composable(PageType.Home.route) { HomePage(navController) }
+        composable(PageType.BarberPole.route) { BarberPolePage() }
+        composable(PageType.Confirmation.route) { ConfirmationPage(navController,) }
+        composable(PageType.Vehicle.route) { VehiclePage() }
+        composable(PageType.Harmony.route) { HarmonyPage() }
+        composable(PageType.Percussion.route) { PercussionPage() }
+        composable(
+            route = PageType.WebPage.route,
+            arguments = listOf(navArgument("url") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val url = backStackEntry.arguments?.getString("url")
+            if (url != null) {
+                WebPage(url = url)
+            } else {
+                Log.e("MainActivity", "url == null")
+            }
+        }
+        composable(PageType.Info.route) { InfoPage(navController) }
+        composable(PageType.License.route) { LicensePage() }
+    }
+}
