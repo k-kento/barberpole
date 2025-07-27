@@ -1,9 +1,12 @@
 package com.gastornisapp.barberpole.data
 
+import android.content.Context
+import android.content.pm.PackageManager
 import com.gastornisapp.barberpole.domain.model.Notice
 import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
 
 class DefaultAppSettingsRepository(
+    private val context: Context,
     private val remoteConfigDataSource: RemoteConfigDataSource,
     private val appPreferencesDataSource: AppPreferencesDataSource
 ) : AppSettingsRepository {
@@ -52,6 +55,15 @@ class DefaultAppSettingsRepository(
     override suspend fun setPrivacyPolicyAccepted() {
         val latestVersion = remoteConfigDataSource.getLatestPrivacyPolicyVersion()
         appPreferencesDataSource.setPrivacyPolicyAcceptedVersion(latestVersion)
+    }
+
+    override fun getVersionName(): String? {
+        return try {
+            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            packageInfo.versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
+        }
     }
 }
 

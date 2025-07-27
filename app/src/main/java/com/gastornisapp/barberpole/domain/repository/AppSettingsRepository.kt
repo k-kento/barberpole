@@ -16,4 +16,6 @@ interface AppSettingsRepository {
 
     suspend fun isPrivacyPolicyAccepted(): Boolean
     suspend fun setPrivacyPolicyAccepted()
+
+    fun getVersionName(): String?
 }

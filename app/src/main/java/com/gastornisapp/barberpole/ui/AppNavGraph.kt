@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.gastornisapp.barberpole.ui.confiramtion.ConfirmationPage
 import com.gastornisapp.barberpole.ui.harmony.HarmonyPage
+import com.gastornisapp.barberpole.ui.info.InfoPage
 import com.gastornisapp.barberpole.ui.percussion.PercussionPage
 import com.gastornisapp.barberpole.ui.vehicle.VehiclePage
 
