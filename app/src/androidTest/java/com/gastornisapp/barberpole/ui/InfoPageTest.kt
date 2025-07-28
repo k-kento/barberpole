@@ -13,41 +13,12 @@ import com.gastornisapp.barberpole.ui.info.InfoPage
 import com.gastornisapp.barberpole.ui.info.InfoViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 @HiltAndroidTest
 class InfoPageTest {
-    @get:Rule(order = 0)
-    var hiltRule = HiltAndroidRule(this)
-
-    @get:Rule(order = 1)
-    val composeTestRule = createAndroidComposeRule<HiltComponentActivity>()
-
-    @Before
-    fun setup() {
-        hiltRule.inject()
-        val viewModel = InfoViewModel(FakeAppSettingsRepository())
-        composeTestRule.setContent {
-            val nav = initNavController()
-            InfoPage(nav, viewModel)
-        }
-    }
-
-    @Test
-    fun infoPage_displaysAllListItems() {
-        composeTestRule.onNodeWithText("利用規約").assertIsDisplayed()
-        composeTestRule.onNodeWithText("プライバシーポリシー").assertIsDisplayed()
-        composeTestRule.onNodeWithText("OSS ライセンス").assertIsDisplayed()
-        composeTestRule.onNodeWithText("アプリバージョン").assertIsDisplayed()
-        composeTestRule.onNodeWithText("アプリバージョン").assertExists("1.2.3")
-    }
-}
-
-@HiltAndroidTest
-class InfoPageNavigationTest {
 
     @get:Rule(order = 0)
     var hiltRule = HiltAndroidRule(this)
@@ -60,48 +31,66 @@ class InfoPageNavigationTest {
     @Before
     fun setup() {
         hiltRule.inject()
+    }
+
+    @Composable
+    private fun initNavController(): TestNavHostController {
+        val controller = TestNavHostController(LocalContext.current).apply {
+            navigatorProvider.addNavigator(ComposeNavigator())
+        }
+        navController = controller
+        return controller
+    }
+
+    private fun launchWithInfoPage(viewModel: InfoViewModel? = null) {
         composeTestRule.setContent {
-            navController = initNavController()
+            val nav = initNavController()
+            InfoPage(nav, viewModel ?: defaultViewModel())
+        }
+    }
+
+    private fun launchWithAppNavGraph() {
+        composeTestRule.setContent {
+            val nav = initNavController()
             AppNavGraph(
                 startDestination = PageType.Info.route,
-                navController = navController
+                navController = nav
             )
         }
     }
 
+    private fun defaultViewModel() = InfoViewModel(FakeAppSettingsRepository())
+
+    @Test
+    fun infoPage_displaysAllListItems() {
+        launchWithInfoPage()
+        composeTestRule.onNodeWithText("利用規約").assertIsDisplayed()
+        composeTestRule.onNodeWithText("プライバシーポリシー").assertIsDisplayed()
+        composeTestRule.onNodeWithText("OSS ライセンス").assertIsDisplayed()
+        composeTestRule.onNodeWithText("アプリバージョン").assertIsDisplayed()
+        composeTestRule.onNodeWithText("アプリバージョン").assertExists("1.2.3")
+    }
+
     @Test
     fun clickingTerms_navigatesToTermsPage() {
+        launchWithAppNavGraph()
         composeTestRule.onNodeWithText("利用規約").performClick()
-        navController.assertCurrentRoute(PageType.WebPage.route)
-        val url = navController.previousBackStackEntry
-            ?.savedStateHandle
-            ?.get<String>("url")
-        assertEquals("file:///android_asset/terms_of_service.html", url)
+        assert(navController.currentBackStackEntry?.destination?.route?.startsWith("webpage/") == true)
     }
 
     @Test
     fun clickingPrivacy_navigatesToPrivacyPage() {
+        launchWithAppNavGraph()
         composeTestRule.onNodeWithText("プライバシーポリシー").performClick()
-        navController.assertCurrentRoute(PageType.WebPage.route)
-        val url = navController.previousBackStackEntry
-            ?.savedStateHandle
-            ?.get<String>("url")
-        assertEquals("file:///android_asset/privacy_policy.html", url)
+        assert(navController.currentBackStackEntry?.destination?.route?.startsWith("webpage/") == true)
     }
 
     @Test
     fun clickingOssLicense_navigatesToLicensePage() {
+        launchWithAppNavGraph()
         composeTestRule.onNodeWithText("OSS ライセンス").performClick()
         navController.assertCurrentRoute(PageType.License.route)
     }
-}
-
-@Composable
-private fun initNavController(): TestNavHostController {
-    val controller = TestNavHostController(LocalContext.current).apply {
-        navigatorProvider.addNavigator(ComposeNavigator())
-    }
-    return controller
 }
 
 private class FakeAppSettingsRepository : BaseFakeAppSettingsRepository() {

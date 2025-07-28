@@ -1,11 +1,14 @@
 package com.gastornisapp.barberpole.ui
 
 import BarberPolePage
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.gastornisapp.barberpole.ui.confiramtion.ConfirmationPage
 import com.gastornisapp.barberpole.ui.harmony.HarmonyPage
 import com.gastornisapp.barberpole.ui.info.InfoPage
@@ -27,12 +30,16 @@ fun AppNavGraph(
         composable(PageType.Vehicle.route) { VehiclePage() }
         composable(PageType.Harmony.route) { HarmonyPage() }
         composable(PageType.Percussion.route) { PercussionPage() }
-        composable(PageType.WebPage.route) {
-            val url = navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.get<String>("url")
-                ?: return@composable
-            WebPage(url = url)
+        composable(
+            route = PageType.WebPage.route,
+            arguments = listOf(navArgument("url") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val url = backStackEntry.arguments?.getString("url")
+            if (url != null) {
+                WebPage(url = url)
+            } else {
+                Log.e("MainActivity", "url == null")
+            }
         }
         composable(PageType.Info.route) { InfoPage(navController) }
         composable(PageType.License.route) { LicensePage() }
