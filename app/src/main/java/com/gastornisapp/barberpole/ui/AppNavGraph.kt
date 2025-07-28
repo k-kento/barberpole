@@ -1,7 +1,6 @@
 package com.gastornisapp.barberpole.ui
 
 import BarberPolePage
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -32,14 +31,15 @@ fun AppNavGraph(
         composable(PageType.Percussion.route) { PercussionPage() }
         composable(
             route = PageType.WebPage.route,
-            arguments = listOf(navArgument("url") { type = NavType.StringType })
+            arguments = listOf(
+                navArgument("url") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
         ) { backStackEntry ->
-            val url = backStackEntry.arguments?.getString("url")
-            if (url != null) {
-                WebPage(url = url)
-            } else {
-                Log.e("MainActivity", "url == null")
-            }
+            val url = backStackEntry.arguments?.getString("url") ?: error("url is null")
+            WebPage(url = url)
         }
         composable(PageType.Info.route) { InfoPage(navController) }
         composable(PageType.License.route) { LicensePage() }

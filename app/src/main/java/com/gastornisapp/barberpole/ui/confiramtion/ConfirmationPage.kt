@@ -1,7 +1,6 @@
 package com.gastornisapp.barberpole.ui.confiramtion
 
 import android.app.Activity
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +26,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.gastornisapp.barberpole.Constants
+import com.gastornisapp.barberpole.ext.navigateToWebPage
 
 /**
  * 利用規約確認画面
@@ -70,14 +71,12 @@ fun ConfirmationPage(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 TextButton(onClick = {
-                    val url = Uri.encode("file:///android_asset/terms_of_service.html")
-                    navController.navigate("webpage/$url")
+                    navController.navigateToWebPage(Constants.termsUrl)
                 }) {
                     Text("利用規約")
                 }
                 TextButton(onClick = {
-                    val url = Uri.encode("file:///android_asset/privacy_policy.html")
-                    navController.navigate("webpage/$url")
+                    navController.navigateToWebPage(Constants.privacyUrl)
                 }) {
                     Text("プライバシーポリシー")
                 }
