@@ -1,6 +1,5 @@
 package com.gastornisapp.barberpole.ui.info
 
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.gastornisapp.barberpole.ui.PageType
 
 @Composable
 fun InfoPage(navController: NavHostController, viewModel: InfoViewModel = hiltViewModel()) {
@@ -28,14 +28,16 @@ fun InfoPage(navController: NavHostController, viewModel: InfoViewModel = hiltVi
             ListItem({
                 Text("利用規約")
             }, modifier = Modifier.clickable {
-                val url = Uri.encode("file:///android_asset/terms_of_service.html")
-                navController.navigate("webpage/$url")
+                val url = "file:///android_asset/terms_of_service.html"
+                navController.currentBackStackEntry?.savedStateHandle?.set("url", url)
+                navController.navigate(PageType.WebPage.route)
             })
             ListItem({
                 Text("プライバシーポリシー")
             }, modifier = Modifier.clickable {
-                val url = Uri.encode("file:///android_asset/privacy_policy.html")
-                navController.navigate("webpage/$url")
+                val url = "file:///android_asset/privacy_policy.html"
+                navController.currentBackStackEntry?.savedStateHandle?.set("url", url)
+                navController.navigate(PageType.WebPage.route)
             })
             ListItem({
                 Text("OSS ライセンス")
