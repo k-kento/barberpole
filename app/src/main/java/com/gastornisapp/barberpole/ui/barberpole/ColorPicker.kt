@@ -19,12 +19,15 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ColorPicker(
+    show: Boolean,
     selectedFirstColor: Color,
     selectedSecondColor: Color,
     onFirstColorSelected: (Color) -> Unit,
     onSecondColorSelected: (Color) -> Unit,
     onDismissed: () -> Unit
 ) {
+    if (!show) return
+
     val colors = listOf(
         Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Magenta, Color.Black
     )

@@ -12,7 +12,7 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
     private var barberPoleModel: BarberPoleModel? = null
     private val shaderProgram = ShaderProgram()
     private val modelMatrix = FloatArray(16)
-    private var orientation = true
+    var orientation = true
     private val firstColor = FloatArray(4)
     private val secondColor = FloatArray(4)
     private var positionY = 0.0f // オブジェクトのy座標
@@ -57,10 +57,6 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
         firstColor.copyInto(this.firstColor)
         secondColor.copyInto(this.secondColor)
         barberPoleModel?.update(firstColor, secondColor)
-    }
-
-    fun setOrientation(orientation: Boolean) {
-        this.orientation = orientation
     }
 
     fun release() {
