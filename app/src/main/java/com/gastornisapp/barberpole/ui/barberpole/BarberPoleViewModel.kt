@@ -5,12 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
-open class BarberPoleViewModel @Inject constructor(
-) : ViewModel() {
+class BarberPoleViewModel() : ViewModel() {
 
     var isPlaying by mutableStateOf(true)
         private set
@@ -21,10 +17,10 @@ open class BarberPoleViewModel @Inject constructor(
     var sliderPosition by mutableStateOf(1.5f)
         private set
 
-    var showSpeedBottomSheet by mutableStateOf(false)
+    var speedSheetVisible by mutableStateOf(false)
         private set
 
-    var showColorBottomSheet by mutableStateOf(false)
+    var colorSheetVisible by mutableStateOf(false)
         private set
 
     var colors by mutableStateOf(Pair(Color.Red, Color.Blue))
@@ -42,15 +38,15 @@ open class BarberPoleViewModel @Inject constructor(
         sliderPosition = value
     }
 
-    fun setColors(first: Color, second: Color) {
+    fun updateColors(first: Color, second: Color) {
         colors = first to second
     }
 
-    fun updateShowSpeedBottomSheet(show: Boolean) {
-        showSpeedBottomSheet = show
+    fun updateSpeedSheetVisible(visible: Boolean) {
+        speedSheetVisible = visible
     }
 
-    fun updateShowColorBottomSheet(show: Boolean) {
-        showColorBottomSheet = show
+    fun updateColorSheetVisible(visible: Boolean) {
+        colorSheetVisible = visible
     }
 }

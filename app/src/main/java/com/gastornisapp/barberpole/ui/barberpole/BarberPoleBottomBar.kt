@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gastornisapp.barberpole.ui.barberpole.Orientation.Left
 import com.gastornisapp.barberpole.ui.barberpole.Orientation.Right
@@ -36,10 +37,14 @@ fun BarberPoleBottomBar(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        IconButton(modifier = Modifier.size(60.dp), onClick = {
-            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-            onPlayToggle()
-        }) {
+        IconButton(
+            modifier = Modifier
+                .size(60.dp)
+                .testTag("BarberPoleBottomBar_PlayButton"),
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                onPlayToggle()
+            }) {
             Icon(
                 modifier = Modifier.size(60.dp),
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
@@ -47,7 +52,9 @@ fun BarberPoleBottomBar(
             )
         }
         IconButton(
-            modifier = Modifier.size(60.dp),
+            modifier = Modifier
+                .size(60.dp)
+                .testTag("BarberPoleBottomBar_OrientationButton"),
             onClick = {
                 onOrientationToggle()
                 haptic.performHapticFeedback(HapticFeedbackType.Confirm)
@@ -59,18 +66,25 @@ fun BarberPoleBottomBar(
                 }, contentDescription = "Orientation"
             )
         }
-        IconButton(modifier = Modifier.size(60.dp), onClick = {
-            onSpeedClick()
-        }) {
+        IconButton(
+            modifier = Modifier
+                .size(60.dp)
+                .testTag("BarberPoleBottomBar_SpeedButton"), onClick = {
+                onSpeedClick()
+            }) {
             Icon(
                 modifier = Modifier.size(60.dp),
                 imageVector = Icons.Default.Speed,
                 contentDescription = ""
             )
         }
-        IconButton(modifier = Modifier.size(60.dp), onClick = {
-            onColorClick()
-        }) {
+        IconButton(
+            modifier = Modifier
+                .size(60.dp)
+                .testTag("BarberPoleBottomBar_ColorButton"),
+            onClick = {
+                onColorClick()
+            }) {
             Icon(
                 modifier = Modifier.size(60.dp),
                 imageVector = Icons.Default.ColorLens,
@@ -79,3 +93,4 @@ fun BarberPoleBottomBar(
         }
     }
 }
+

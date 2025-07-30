@@ -10,6 +10,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,6 +25,7 @@ fun SpeedBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        modifier = Modifier.testTag("SpeedBottomSheet")
     ) {
         Box(
             modifier = Modifier
@@ -33,7 +35,8 @@ fun SpeedBottomSheet(
             Slider(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .width(200.dp),
+                    .width(200.dp)
+                    .testTag("SpeedBottomSheet_SpeedSlider"),
                 valueRange = 1f..2.0f,
                 value = sliderPosition,
                 steps = 6,

@@ -9,12 +9,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gastornisapp.barberpole.ui.barberpole.BarberPoleBottomBar
 import com.gastornisapp.barberpole.ui.barberpole.BarberPoleViewComposable
 import com.gastornisapp.barberpole.ui.barberpole.BarberPoleViewModel
-import com.gastornisapp.barberpole.ui.barberpole.ColorPicker
+import com.gastornisapp.barberpole.ui.barberpole.ColorBottomSheet
 import com.gastornisapp.barberpole.ui.barberpole.SpeedBottomSheet
 
 @Composable
@@ -27,7 +28,8 @@ fun BarberPolePage(viewModel: BarberPoleViewModel = hiltViewModel()) {
                 BarberPoleViewComposable(
                     modifier = Modifier
                         .size(100.dp, 500.dp)
-                        .align(Alignment.Center),
+                        .align(Alignment.Center)
+                        .testTag("BarberPoleViewComposable"),
                     isPlaying = viewModel.isPlaying,
                     orientation = viewModel.orientation,
                     sliderPosition = viewModel.sliderPosition,
@@ -38,38 +40,39 @@ fun BarberPolePage(viewModel: BarberPoleViewModel = hiltViewModel()) {
                 BarberPoleBottomBar(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.BottomCenter),
+                        .align(Alignment.BottomCenter)
+                        .testTag("BarberPoleBottomBar"),
                     isPlaying = viewModel.isPlaying,
                     onPlayToggle = viewModel::togglePlay,
                     onOrientationToggle = viewModel::toggleOrientation,
-                    onSpeedClick = { viewModel.updateShowSpeedBottomSheet(true) },
-                    onColorClick = { viewModel.updateShowColorBottomSheet(true) },
+                    onSpeedClick = { viewModel.updateSpeedSheetVisible(true) },
+                    onColorClick = { viewModel.updateColorSheetVisible(true) },
                     orientation = viewModel.orientation
                 )
 
                 SpeedBottomSheet(
-                    show = viewModel.showSpeedBottomSheet,
+                    show = viewModel.speedSheetVisible,
                     sliderPosition = viewModel.sliderPosition,
                     onValueChange = {
                         haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                         viewModel.updateSliderPosition(it)
                     },
-                    onDismiss = { viewModel.updateShowSpeedBottomSheet(false) }
+                    onDismiss = { viewModel.updateSpeedSheetVisible(false) }
                 )
 
-                ColorPicker(
-                    show = viewModel.showColorBottomSheet,
+                ColorBottomSheet(
+                    show = viewModel.colorSheetVisible,
                     selectedFirstColor = viewModel.colors.first,
                     onFirstColorSelected = {
                         haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                        viewModel.setColors(it, viewModel.colors.second)
+                        viewModel.updateColors(it, viewModel.colors.second)
                     },
                     selectedSecondColor = viewModel.colors.second,
                     onSecondColorSelected = {
                         haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                        viewModel.setColors(viewModel.colors.first, it)
+                        viewModel.updateColors(viewModel.colors.first, it)
                     },
-                    onDismissed = { viewModel.updateShowColorBottomSheet(false) }
+                    onDismissed = { viewModel.updateColorSheetVisible(false) }
                 )
             }
         }
