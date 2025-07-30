@@ -1,5 +1,6 @@
 package com.gastornisapp.barberpole.ui.barberpole
 
+import android.content.Context
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
@@ -7,10 +8,10 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.abs
 
-class BarberPoleRenderer : GLSurfaceView.Renderer {
+class BarberPoleRenderer(val context: Context) : GLSurfaceView.Renderer {
 
-    private var barberPoleModel: BarberPoleModel? = null
-    private val shaderProgram = ShaderProgram()
+    private lateinit var barberPoleModel: BarberPoleModel
+    private val barberPoleShader = BarberPoleShader()
     private val modelMatrix = FloatArray(16)
     var orientation = true
     private val firstColor = FloatArray(4)
@@ -21,15 +22,16 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
     var isPlaying = false
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        GLES30.glClearColor(0f, 0f, 0f, 1.0f)
-        shaderProgram.initialize()
-        barberPoleModel = BarberPoleModel(shaderProgram).apply {
-            update(firstColor, secondColor)
+        GLES30.glClearColor(0f, 2f, 0f, 1.0f)
+        barberPoleShader.initialize(context = context)
+        barberPoleModel = BarberPoleModel(barberPoleShader).apply {
+            updateColorsBuffer(firstColor, secondColor)
         }
         lastFrameTime = System.currentTimeMillis()
     }
 
     override fun onDrawFrame(gl: GL10?) {
+        barberPoleShader.useProgram()
         val currentFrameTime = System.currentTimeMillis()
         if (isPlaying) {
             val deltaFrameTime = currentFrameTime - lastFrameTime
@@ -45,8 +47,8 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
         Matrix.setIdentityM(modelMatrix, 0)
         Matrix.translateM(modelMatrix, 0, modelMatrix, 0, 0f, positionY, 0.0f)
 
-        GLES30.glUniformMatrix4fv(shaderProgram.modelLocation, 1, false, modelMatrix, 0)
-        barberPoleModel?.draw()
+        GLES30.glUniformMatrix4fv(barberPoleShader.modelLocation, 1, false, modelMatrix, 0)
+        barberPoleModel.draw()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -56,10 +58,11 @@ class BarberPoleRenderer : GLSurfaceView.Renderer {
     fun setColors(firstColor: FloatArray, secondColor: FloatArray) {
         firstColor.copyInto(this.firstColor)
         secondColor.copyInto(this.secondColor)
-        barberPoleModel?.update(firstColor, secondColor)
+        barberPoleModel.updateColorsBuffer(firstColor, secondColor)
     }
 
     fun release() {
-        shaderProgram.release()
+        barberPoleShader.release()
+        barberPoleModel.release()
     }
 }

@@ -16,8 +16,8 @@ class BarberPoleView(context: Context) : GLSurfaceView(context) {
     private var secondColor = Color.Black
 
     init {
-        setEGLContextClientVersion(2)
-        renderer = BarberPoleRenderer()
+        setEGLContextClientVersion(3)
+        renderer = BarberPoleRenderer(context = this.context.applicationContext)
         setRenderer(renderer)
     }
 
