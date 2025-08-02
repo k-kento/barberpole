@@ -3,6 +3,7 @@ package com.gastornisapp.barberpole.ui.barberpole
 import android.content.Context
 import android.opengl.GLSurfaceView
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 
 class BarberPoleView(context: Context) : GLSurfaceView(context) {
 
@@ -51,11 +52,7 @@ class BarberPoleView(context: Context) : GLSurfaceView(context) {
         if (orientation == this.orientation) return
         this.orientation = orientation
         queueEvent {
-            val value = when (orientation) {
-                Orientation.Left -> false
-                Orientation.Right -> true
-            }
-            renderer?.orientation = value
+            renderer?.orientation = orientation
         }
     }
 
@@ -65,8 +62,8 @@ class BarberPoleView(context: Context) : GLSurfaceView(context) {
         this.secondColor = secondColor
         queueEvent {
             renderer?.setColors(
-                firstColor = rgbToFloatArray(firstColor),
-                secondColor = rgbToFloatArray(secondColor)
+                firstColor = firstColor.toArgb(),
+                secondColor = secondColor.toArgb()
             )
         }
     }
@@ -74,24 +71,5 @@ class BarberPoleView(context: Context) : GLSurfaceView(context) {
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         renderer?.release()
-    }
-}
-
-private fun rgbToFloatArray(color: Color): FloatArray {
-    val red = color.red
-    val green = color.green
-    val blue = color.blue
-    return floatArrayOf(red, green, blue, 0f)
-}
-
-enum class Orientation {
-    Left,
-    Right;
-
-    fun toggle(): Orientation {
-        return when (this) {
-            Left -> Right
-            Right -> Left
-        }
     }
 }

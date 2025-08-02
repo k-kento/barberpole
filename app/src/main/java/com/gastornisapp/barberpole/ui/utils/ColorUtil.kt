@@ -35,3 +35,10 @@ fun colorCodeToFloatArray(colorInt: Int): FloatArray {
     val b = Color.blue(colorInt) / 255f
     return floatArrayOf(r, g, b)
 }
+
+fun colorToFloatArray(colorInt: Int): FloatArray {
+    val r = Color.red(colorInt) / 255f
+    val g = Color.green(colorInt) / 255f
+    val b = Color.blue(colorInt) / 255f
+    return floatArrayOf(r, g, b, 0f)
+}
