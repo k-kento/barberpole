@@ -8,24 +8,20 @@ import com.gastornisapp.barberpole.domain.model.Notice
 @Composable
 fun NoticeDialog(
     notice: Notice,
-    onDismissRequest: () -> Unit,
-    onDetailsClick: ((String) -> Unit)? = null
+    onDismissRequest: (String) -> Unit,
+    onDetailsClick: ((String) -> Unit)
 ) {
     AlertDialog(
-        onDismissRequest = onDismissRequest,
-        title = {
-            Text(text = notice.title)
+        onDismissRequest = {
+            // ダイアログ外部タップ時に onDismissRequest が連続で呼び出されるため使用しない
         },
-        text = {
-            Text(text = notice.message)
-        },
+        title = { Text(text = notice.title) },
+        text = { Text(text = notice.message) },
         confirmButton = {
             val url = notice.url
             if (url != null && Patterns.WEB_URL.matcher(url).matches()) {
                 TextButton(
-                    onClick = {
-                        onDetailsClick?.invoke(notice.url)
-                    }
+                    onClick = { onDetailsClick(notice.url) }
                 ) {
                     Text("詳細を見る")
                 }
@@ -33,9 +29,7 @@ fun NoticeDialog(
         },
         dismissButton = {
             TextButton(
-                onClick = {
-                    onDismissRequest()
-                }
+                onClick = { onDismissRequest(notice.id) }
             ) {
                 Text("閉じる")
             }
