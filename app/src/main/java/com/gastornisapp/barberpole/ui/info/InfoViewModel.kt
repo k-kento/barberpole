@@ -16,7 +16,9 @@ open class InfoViewModel @Inject constructor(
     val versionName: State<String> = _versionName
 
     init {
-        _versionName.value = appSettingsRepository.getVersionName() ?: ""
+        appSettingsRepository.getCurrentAppVersion().onSuccess {
+            _versionName.value = it.toString()
+        }
     }
 
 }
