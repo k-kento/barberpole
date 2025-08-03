@@ -78,7 +78,5 @@ dependencies {
     androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.ui.test.junit4)
     kaptAndroidTest(libs.hilt.android.compiler)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-    testImplementation(kotlin("test"))
+    androidTestImplementation(libs.mockk.android)
 }
