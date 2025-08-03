@@ -1,44 +1,49 @@
 package com.gastornisapp.barberpole.data
 
+import android.util.Log
+import com.gastornisapp.barberpole.data.db.NoticeConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.remoteConfigSettings
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.json.Json
 
 class DefaultRemoteConfigDataSource() : RemoteConfigDataSource {
     private val remoteConfig: FirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
 
     companion object {
-        private const val KEY_ANNOUNCEMENT = "announcement"
-        private const val KEY_FORCE_UPDATE = "force_update_required"
+        private const val KEY_REQUIRED_APP_VERSION = "required_app_version"
         private const val KEY_TOS_VERSION = "latest_terms_of_service_version"
         private const val KEY_PRIVACY_POLICY_VERSION = "latest_privacy_policy_version"
-    }
 
-    init {
-        // オプション: 開発中はキャッシュ時間を短く
-        remoteConfig.setConfigSettingsAsync(
-            remoteConfigSettings {
-                // 通常は1時間、開発中は0
-                minimumFetchIntervalInSeconds = 3600
-            }
-        )
+        private val jsonParser = Json { ignoreUnknownKeys = true } // 拡張性をもたせる
+
+        private const val NOTICE_KEY = "notice"
+
+        private const val TAG = "DefaultRemoteConfigDataSource"
     }
 
     override suspend fun fetchRemoteConfig(): Result<Unit> {
         return try {
-            remoteConfig.fetchAndActivate().await()
+            val result = remoteConfig.fetchAndActivate().await()
+            Log.d(TAG, "fetchAndActivate result: $result")
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override fun getAnnouncement(): String {
-        return remoteConfig.getString(KEY_ANNOUNCEMENT)
+    override suspend fun getNoticeConfig(): Result<NoticeConfig> {
+        val jsonString = remoteConfig.getString(NOTICE_KEY)
+        return try {
+            val config = jsonParser.decodeFromString<NoticeConfig>(jsonString)
+            Result.success(config)
+        } catch (e: Exception) {
+            Log.e("RemoteConfig", "JSON parse error", e)
+            Result.failure(e)
+        }
     }
 
-    override fun isForceUpdateRequired(): Boolean {
-        return remoteConfig.getBoolean(KEY_FORCE_UPDATE)
+    override fun getRequiredAppVersion(): String {
+        return remoteConfig.getString(KEY_REQUIRED_APP_VERSION)
     }
 
     override fun getLatestTermsOfServiceVersion(): Int {

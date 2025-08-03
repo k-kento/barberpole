@@ -1,10 +1,12 @@
 package com.gastornisapp.barberpole.data
 
+import com.gastornisapp.barberpole.data.db.NoticeConfig
+
 interface RemoteConfigDataSource {
     suspend fun fetchRemoteConfig(): Result<Unit>
 
-    fun getAnnouncement(): String
-    fun isForceUpdateRequired(): Boolean
+    suspend fun getNoticeConfig(): Result<NoticeConfig>
+    fun getRequiredAppVersion(): String
     fun getLatestTermsOfServiceVersion(): Int
     fun getLatestPrivacyPolicyVersion(): Int
 }

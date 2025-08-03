@@ -1,18 +1,21 @@
 package com.gastornisapp.barberpole.data
 
 import android.content.Context
-import android.content.pm.PackageManager
-import com.gastornisapp.barberpole.domain.model.Notice
+import com.gastornisapp.barberpole.data.db.ReadNotice
+import com.gastornisapp.barberpole.data.db.ReadNoticeDao
 import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
+import com.gastornisapp.barberpole.domain.model.Notice
+import com.gastornisapp.barberpole.domain.model.SemVer
 
 class DefaultAppSettingsRepository(
     private val context: Context,
     private val remoteConfigDataSource: RemoteConfigDataSource,
-    private val appPreferencesDataSource: AppPreferencesDataSource
+    private val appPreferencesDataSource: AppPreferencesDataSource,
+    private val readNoticeDao: ReadNoticeDao,
 ) : AppSettingsRepository {
 
-    override suspend fun refreshConfig(): Boolean {
-        TODO("Not yet implemented")
+    override suspend fun refreshConfig(): Result<Unit> {
+        return remoteConfigDataSource.fetchRemoteConfig()
     }
 
     override fun isForceUpdateRequired(currentVersionCode: Int): Boolean {
@@ -27,12 +30,31 @@ class DefaultAppSettingsRepository(
         TODO("Not yet implemented")
     }
 
-    override fun isNoticeEnabled(): Boolean {
-        TODO("Not yet implemented")
+    override suspend fun getNotice(): Result<List<Notice>> {
+        return remoteConfigDataSource.getNoticeConfig().mapCatching { config ->
+            config.notices.map {
+                Notice(
+                    id = it.id,
+                    title = it.title,
+                    message = it.message,
+                    url = it.url,
+                    startAt = it.startAt,
+                    endAt = it.endAt
+                )
+            }
+        }
     }
 
-    override fun getNotice(): Notice? {
-        TODO("Not yet implemented")
+    override suspend fun setNoticeId(noticeId: String): Result<Unit> {
+        return runCatching {
+            readNoticeDao.insert(ReadNotice(noticeId))
+        }
+    }
+
+    override suspend fun isNoticeRead(noticeId: String): Result<Boolean> {
+        return runCatching {
+            readNoticeDao.exists(noticeId)
+        }
     }
 
     override suspend fun isTermsOfServiceAccepted(): Boolean {
@@ -57,13 +79,15 @@ class DefaultAppSettingsRepository(
         appPreferencesDataSource.setPrivacyPolicyAcceptedVersion(latestVersion)
     }
 
-    override fun getVersionName(): String? {
-        return try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            packageInfo.versionName
-        } catch (e: PackageManager.NameNotFoundException) {
-            null
-        }
+    override fun getCurrentAppVersion(): Result<SemVer> = runCatching {
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        val version = packageInfo.versionName ?: throw IllegalStateException("versionName is null")
+        SemVer.parse(version)
+    }
+
+    override fun getRequiredAppVersion(): Result<SemVer> = runCatching {
+        val version = remoteConfigDataSource.getRequiredAppVersion()
+        SemVer.parse(version)
     }
 }
 
