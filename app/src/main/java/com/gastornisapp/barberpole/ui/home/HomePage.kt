@@ -1,5 +1,6 @@
-package com.gastornisapp.barberpole.ui
+package com.gastornisapp.barberpole.ui.home
 
+import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -23,22 +24,37 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.gastornisapp.barberpole.R
+import com.gastornisapp.barberpole.ext.navigateToWebPage
+import com.gastornisapp.barberpole.ui.PageType
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomePage(navHostController: NavHostController) {
+fun HomePage(
+    navController: NavHostController,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+
+    val isForceUpdateRequired by viewModel.isForceUpdateRequired.collectAsState()
+    val notice by viewModel.currentNotice.collectAsState()
     val items = createItems()
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("") }, actions = {
                 IconButton(onClick = {
-                    navHostController.navigate("info")
+                    navController.navigate("info")
                 }) {
                     Icon(
                         imageVector = Icons.Default.Info,
@@ -59,9 +75,27 @@ fun HomePage(navHostController: NavHostController) {
         ) {
             items(items) { item ->
                 Item(item) {
-                    navHostController.navigate(it.route)
+                    navController.navigate(it.route)
                 }
             }
+        }
+
+        if (isForceUpdateRequired) {
+            ForceUpdateDialog(onUpdateClick = {
+                val webIntent = Intent(
+                    Intent.ACTION_VIEW,
+                    "https://play.google.com/store/apps/details?id=${context.packageName}".toUri()
+                )
+                context.startActivity(webIntent)
+            })
+        }
+
+        notice?.let {
+            NoticeDialog(
+                notice = it,
+                onDetailsClick = navController::navigateToWebPage,
+                onDismissRequest = viewModel::onNoticeDismissed // 複数回呼ばれることがあるため注意する
+            )
         }
     }
 }
