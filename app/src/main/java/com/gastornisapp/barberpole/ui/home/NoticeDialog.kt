@@ -3,6 +3,8 @@ package com.gastornisapp.barberpole.ui.home
 import android.util.Patterns
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.gastornisapp.barberpole.domain.model.Notice
 
 @Composable
@@ -12,6 +14,7 @@ fun NoticeDialog(
     onDetailsClick: ((String) -> Unit)
 ) {
     AlertDialog(
+        modifier = Modifier.testTag("NoticeDialog"),
         onDismissRequest = {
             // ダイアログ外部タップ時に onDismissRequest が連続で呼び出されるため使用しない
         },
