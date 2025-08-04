@@ -38,8 +38,7 @@ class HomePageTest {
     @JvmField
     val mockViewModel: HomeViewModel = mockk(relaxed = true)
 
-    private val isForceUpdateRequired = MutableStateFlow(false)
-    private val currentNotice = MutableStateFlow<Notice?>(null)
+    private val dialogStatus = MutableStateFlow<DialogStatus>(DialogStatus.None)
 
     private lateinit var navController: TestNavHostController
 
@@ -47,8 +46,7 @@ class HomePageTest {
     fun setup() {
         hiltRule.inject()
 
-        every { mockViewModel.isForceUpdateRequired } returns isForceUpdateRequired
-        every { mockViewModel.currentNotice } returns currentNotice
+        every { mockViewModel.dialogStatus } returns dialogStatus
 
         composeTestRule.setContent {
             navController = TestNavHostController(LocalContext.current)
@@ -97,21 +95,24 @@ class HomePageTest {
     // region view model to ui
 
     @Test
-    fun forceUpdateDialog() {
+    fun dialog_none_displays_no_dialogs() {
+        dialogStatus.value = DialogStatus.None
         composeTestRule.onNodeWithTag("ForceUpdateDialog").assertIsNotDisplayed()
-        isForceUpdateRequired.value = true
-        composeTestRule.onNodeWithTag("ForceUpdateDialog").assertIsDisplayed()
-        isForceUpdateRequired.value = false
-        composeTestRule.onNodeWithTag("ForceUpdateDialog").assertIsNotDisplayed()
+        composeTestRule.onNodeWithTag("NoticeDialog").assertIsNotDisplayed()
     }
 
     @Test
-    fun noticeDialog() {
+    fun dialog_forceUpdateRequired_displays_forceUpdateDialog_only() {
+        dialogStatus.value = DialogStatus.ForceUpdateRequired
+        composeTestRule.onNodeWithTag("ForceUpdateDialog").assertIsDisplayed()
         composeTestRule.onNodeWithTag("NoticeDialog").assertIsNotDisplayed()
-        currentNotice.value = Notice(id = "", title = "", message = "", startAt = 0, endAt = 0)
+    }
+
+    @Test
+    fun dialog_showNotice_displays_noticeDialog_only() {
+        dialogStatus.value = DialogStatus.ShowNotice(Notice("id", "title", "message", startAt = 0, endAt = 0))
+        composeTestRule.onNodeWithTag("ForceUpdateDialog").assertIsNotDisplayed()
         composeTestRule.onNodeWithTag("NoticeDialog").assertIsDisplayed()
-        currentNotice.value = null
-        composeTestRule.onNodeWithTag("NoticeDialog").assertIsNotDisplayed()
     }
 
     // end region view model to ui

@@ -46,8 +46,7 @@ fun HomePage(
 ) {
     val context = LocalContext.current
 
-    val isForceUpdateRequired by viewModel.isForceUpdateRequired.collectAsState()
-    val notice by viewModel.currentNotice.collectAsState()
+    val dialogStatus by viewModel.dialogStatus.collectAsState()
     val items = createItems()
 
     Scaffold(
@@ -80,22 +79,26 @@ fun HomePage(
             }
         }
 
-        if (isForceUpdateRequired) {
-            ForceUpdateDialog(onUpdateClick = {
-                val webIntent = Intent(
-                    Intent.ACTION_VIEW,
-                    "https://play.google.com/store/apps/details?id=${context.packageName}".toUri()
-                )
-                context.startActivity(webIntent)
-            })
-        }
+        when (val status = dialogStatus) {
+            DialogStatus.ForceUpdateRequired -> {
+                ForceUpdateDialog(onUpdateClick = {
+                    val webIntent = Intent(
+                        Intent.ACTION_VIEW,
+                        "https://play.google.com/store/apps/details?id=${context.packageName}".toUri()
+                    )
+                    context.startActivity(webIntent)
+                })
+            }
 
-        notice?.let {
-            NoticeDialog(
-                notice = it,
-                onDetailsClick = navController::navigateToWebPage,
-                onDismissRequest = viewModel::onNoticeDismissed // 複数回呼ばれることがあるため注意する
-            )
+            is DialogStatus.ShowNotice -> {
+                NoticeDialog(
+                    notice = status.notice,
+                    onDetailsClick = navController::navigateToWebPage,
+                    onDismissRequest = viewModel::onNoticeDismissed // 複数回呼ばれることがあるため注意する
+                )
+            }
+
+            DialogStatus.None -> Unit
         }
     }
 }
