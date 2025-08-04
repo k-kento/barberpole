@@ -69,7 +69,20 @@ dependencies {
     implementation(project(":audio"))
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.config)
-    testImplementation(libs.junit)
+
+//    debugImplementation(libs.androidx.ui.tooling)
+//    debugImplementation(libs.androidx.ui.test.manifest)
+
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    // JUnit 5 本体
+    testImplementation(libs.junit.jupiter)
+    // パラメータ化テストサポート
+    testImplementation(libs.junit.jupiter.params)
+    // Android Gradle Plugin で JUnit 5 を有効にするためのプラグイン
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(kotlin("test"))
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -79,4 +92,9 @@ dependencies {
     androidTestImplementation(libs.ui.test.junit4)
     kaptAndroidTest(libs.hilt.android.compiler)
     androidTestImplementation(libs.mockk.android)
+}
+
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

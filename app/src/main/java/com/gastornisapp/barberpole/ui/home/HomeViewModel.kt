@@ -2,71 +2,59 @@ package com.gastornisapp.barberpole.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gastornisapp.barberpole.di.MainDispatcher
 import com.gastornisapp.barberpole.domain.model.Notice
-import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
+import com.gastornisapp.barberpole.usecase.ForceUpdateUseCase
+import com.gastornisapp.barberpole.usecase.NoticeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.LinkedList
-import java.util.Queue
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val appSettingsRepository: AppSettingsRepository
+    private val forceUpdateUseCase: ForceUpdateUseCase,
+    private val noticeUseCase: NoticeUseCase,
+    @param:MainDispatcher
+    private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val _isForceUpdateRequired = MutableStateFlow(false)
-    val isForceUpdateRequired: StateFlow<Boolean> = _isForceUpdateRequired
-
-    private val _noticeQueue: Queue<Notice> = LinkedList()
-    private val _currentNotice = MutableStateFlow<Notice?>(null)
-    val currentNotice: StateFlow<Notice?> = _currentNotice
+    private val _dialogStatus = MutableStateFlow<DialogStatus>(DialogStatus.None)
+    val dialogStatus: StateFlow<DialogStatus> = _dialogStatus
 
     init {
-        val isForceUpdateRequired = isForceUpdateRequired()
-        _isForceUpdateRequired.value = isForceUpdateRequired
-        if (!isForceUpdateRequired) {
-            // 強制アップデートが必要な場合は、何もしない
-            viewModelScope.launch {
-                loadNotices()
-            }
+        viewModelScope.launch(dispatcher) {
+            updateDialogStatus()
         }
     }
 
     fun onNoticeDismissed(noticeId: String) {
-        _currentNotice.value = null
-        _noticeQueue.poll()?.let {
-            viewModelScope.launch {
-                appSettingsRepository.setNoticeId(it.id)
-            }
-        }
-        _currentNotice.value = _noticeQueue.peek()
-    }
-
-    private fun isForceUpdateRequired(): Boolean {
-        val requiredVersion = appSettingsRepository.getRequiredAppVersion().getOrNull() ?: return false
-        val currentVersion = appSettingsRepository.getCurrentAppVersion().getOrNull() ?: return false
-        return currentVersion < requiredVersion
-    }
-
-    private suspend fun loadNotices() {
-        appSettingsRepository.getNotice().onSuccess { notices ->
-            val readStatusMap = mutableMapOf<String, Boolean>()
-
-            for (notice in notices) {
-                readStatusMap[notice.id] = appSettingsRepository.isNoticeRead(notice.id).getOrDefault(false)
-            }
-
-            val nowSec = System.currentTimeMillis() / 1000
-            val filtered = notices.filter {
-                it.startAt <= nowSec && nowSec <= it.endAt && readStatusMap[it.id] == false
-            }
-
-            _noticeQueue.clear()
-            _noticeQueue.addAll(filtered)
-            _currentNotice.value = _noticeQueue.peek()
+        viewModelScope.launch(dispatcher) {
+            noticeUseCase.setNoticeId(noticeId)
+            updateDialogStatus()
         }
     }
+
+    private suspend fun updateDialogStatus() {
+        val isForceUpdateRequired = forceUpdateUseCase.isForceUpdateRequired()
+        if (isForceUpdateRequired) {
+            _dialogStatus.value = DialogStatus.ForceUpdateRequired
+            return
+        }
+
+        val currentNotice = noticeUseCase.getCurrentNotice().getOrNull()
+        _dialogStatus.value = if (currentNotice != null) {
+            DialogStatus.ShowNotice(currentNotice)
+        } else {
+            DialogStatus.None
+        }
+    }
+}
+
+sealed class DialogStatus {
+    object None : DialogStatus()
+    object ForceUpdateRequired : DialogStatus()
+    data class ShowNotice(val notice: Notice) : DialogStatus()
 }
