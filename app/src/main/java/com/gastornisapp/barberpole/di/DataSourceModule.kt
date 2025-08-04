@@ -4,11 +4,13 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.room.Room
 import com.gastornisapp.barberpole.data.AppPreferencesDataSource
 import com.gastornisapp.barberpole.data.DefaultAppPreferencesDataSource
 import com.gastornisapp.barberpole.data.DefaultRemoteConfigDataSource
 import com.gastornisapp.barberpole.data.RemoteConfigDataSource
-import dagger.Binds
+import com.gastornisapp.barberpole.data.db.AppDatabase
+import com.gastornisapp.barberpole.data.db.ReadNoticeDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,14 +28,28 @@ object DataSourceModule {
         return DefaultRemoteConfigDataSource()
     }
 
-
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
     @Provides
     @Singleton
-    fun provideAAppPreferencesDataSource(@ApplicationContext context: Context): AppPreferencesDataSource {
+    fun provideAppPreferencesDataSource(@ApplicationContext context: Context): AppPreferencesDataSource {
         val dataStore = context.dataStore
         return DefaultAppPreferencesDataSource(dataStore)
     }
-}
 
+    @Provides
+    @Singleton
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "app.db"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideReadNoticeDao(db: AppDatabase): ReadNoticeDao {
+        return db.readNoticeDao()
+    }
+}

@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt.android.gradle)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -44,6 +45,17 @@ android {
     testOptions {
         unitTests.isIncludeAndroidResources = true
     }
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/NOTICE"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -64,7 +76,11 @@ dependencies {
     implementation(libs.aboutlibraries.compose)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation.testing.android)
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx) // Coroutine対応
     kapt(libs.hilt.compiler)
     implementation(project(":audio"))
     implementation(platform(libs.firebase.bom))
@@ -81,6 +97,7 @@ dependencies {
     testImplementation(libs.junit.jupiter.params)
     // Android Gradle Plugin で JUnit 5 を有効にするためのプラグイン
     testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation("org.robolectric:robolectric:4.15.1")
     testImplementation(kotlin("test"))
 
     androidTestImplementation(libs.androidx.junit)

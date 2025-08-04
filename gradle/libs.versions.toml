@@ -1,6 +1,7 @@
 [versions]
 agp = "8.10.1"
 hiltNavigationCompose = "1.2.0"
+junitJupiter = "5.13.4"
 kotlin = "2.2.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -17,6 +18,7 @@ mockkAndroid = "1.14.5"
 navigationCompose = "2.9.2"
 navigationTesting = "2.9.2"
 oboe = "1.9.3"
+roomKtx = "2.7.2"
 splashscreen = "1.0.1"
 aboutlibraries = "12.2.4"
 googleGmsGoogleServices = "4.4.3"
@@ -33,6 +35,9 @@ androidx-navigation-testing = { module = "androidx.navigation:navigation-testing
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomKtx" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomKtx" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }

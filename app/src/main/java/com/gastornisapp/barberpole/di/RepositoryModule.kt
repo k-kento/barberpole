@@ -4,6 +4,7 @@ import android.content.Context
 import com.gastornisapp.barberpole.data.AppPreferencesDataSource
 import com.gastornisapp.barberpole.data.DefaultAppSettingsRepository
 import com.gastornisapp.barberpole.data.RemoteConfigDataSource
+import com.gastornisapp.barberpole.data.db.ReadNoticeDao
 import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
 import dagger.Module
 import dagger.Provides
@@ -21,12 +22,14 @@ object RepositoryModule {
     fun provideAppSettingsRepository(
         @ApplicationContext context: Context,
         remoteConfigDataSource: RemoteConfigDataSource,
-        appPreferencesDataSource: AppPreferencesDataSource
+        appPreferencesDataSource: AppPreferencesDataSource,
+        readNoticeDao: ReadNoticeDao
     ): AppSettingsRepository {
         return DefaultAppSettingsRepository(
             context = context,
             remoteConfigDataSource = remoteConfigDataSource,
-            appPreferencesDataSource = appPreferencesDataSource
+            appPreferencesDataSource = appPreferencesDataSource,
+            readNoticeDao = readNoticeDao
         )
     }
 }

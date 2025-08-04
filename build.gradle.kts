@@ -8,4 +8,5 @@ plugins {
     alias(libs.plugins.google.gms.google.services) apply false
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.hilt.android.gradle) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
 }
