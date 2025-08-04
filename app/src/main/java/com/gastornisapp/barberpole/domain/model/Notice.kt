@@ -1,6 +1,6 @@
 package com.gastornisapp.barberpole.domain.model
 
-class Notice(
+data class Notice(
     val id: String,
     val title: String,
     val message: String,
