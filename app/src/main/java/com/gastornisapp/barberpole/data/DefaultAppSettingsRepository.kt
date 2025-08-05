@@ -57,26 +57,28 @@ class DefaultAppSettingsRepository(
         }
     }
 
-    override suspend fun isTermsOfServiceAccepted(): Boolean {
-        val latestVersion = remoteConfigDataSource.getLatestTermsOfServiceVersion()
-        val acceptedVersion = appPreferencesDataSource.getTermsOfServiceAcceptedVersion() ?: -1
-        return latestVersion <= acceptedVersion
+    override suspend fun getLatestTermsOfServiceVersion(): Int {
+        return remoteConfigDataSource.getLatestTermsOfServiceVersion()
     }
 
-    override suspend fun setTermsOfServiceAccepted() {
-        val latestVersion = remoteConfigDataSource.getLatestTermsOfServiceVersion()
-        appPreferencesDataSource.setTermsOfServiceAcceptedVersion(latestVersion)
+    override suspend fun getTermsOfServiceAcceptedVersion(): Int? {
+        return appPreferencesDataSource.getTermsOfServiceAcceptedVersion()
     }
 
-    override suspend fun isPrivacyPolicyAccepted(): Boolean {
-        val latestVersion = remoteConfigDataSource.getLatestPrivacyPolicyVersion()
-        val acceptedVersion = appPreferencesDataSource.getPrivacyPolicyAcceptedVersion() ?: -1
-        return latestVersion <= acceptedVersion
+    override suspend fun setTermsOfServiceAcceptedVersion(version: Int) {
+        return appPreferencesDataSource.setTermsOfServiceAcceptedVersion(version)
     }
 
-    override suspend fun setPrivacyPolicyAccepted() {
-        val latestVersion = remoteConfigDataSource.getLatestPrivacyPolicyVersion()
-        appPreferencesDataSource.setPrivacyPolicyAcceptedVersion(latestVersion)
+    override suspend fun getLatestPrivacyPolicyVersion(): Int {
+        return remoteConfigDataSource.getLatestPrivacyPolicyVersion()
+    }
+
+    override suspend fun getPrivacyPolicyAcceptedVersion(): Int? {
+        return appPreferencesDataSource.getPrivacyPolicyAcceptedVersion()
+    }
+
+    override suspend fun setPrivacyPolicyAcceptedVersion(version: Int) {
+        appPreferencesDataSource.setPrivacyPolicyAcceptedVersion(version)
     }
 
     override fun getCurrentAppVersion(): Result<SemVer> = runCatching {
