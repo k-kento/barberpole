@@ -6,6 +6,7 @@ plugins {
 android {
     namespace = "com.gastornisapp.soundlib"
     compileSdk = 35
+    ndkVersion = "29.0.13846066"
 
     defaultConfig {
         minSdk = 29
