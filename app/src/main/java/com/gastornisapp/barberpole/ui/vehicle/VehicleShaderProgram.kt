@@ -1,7 +1,7 @@
 package com.gastornisapp.barberpole.ui.vehicle
 
 import android.opengl.GLES30
-import com.gastornisapp.barberpole.ui.loadShader
+import com.gastornisapp.barberpole.ui.gl.loadShader
 
 class VehicleShaderProgram {
 

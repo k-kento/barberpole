@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "328335210",
+    "project_id": "barberpole-1db49",
+    "storage_bucket": "barberpole-1db49.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328335210:android:b180b257869c9cf53f6f13",
+        "android_client_info": {
+          "package_name": "com.gastornisapp.barberpole"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1dACeiCjvwBm0unRkCm3JbG2Y6RmOk-g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

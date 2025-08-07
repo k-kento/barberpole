@@ -3,94 +3,92 @@ package com.gastornisapp.barberpole.ui.barberpole
 import android.opengl.GLES30
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.ArrayDeque
-import java.util.Queue
+import java.nio.FloatBuffer
 import kotlin.math.PI
 import kotlin.math.sin
 
-class BarberPoleModel(private val shaderProgram: ShaderProgram) {
+class BarberPoleModel(private val shader: BarberPoleShader) {
 
-    private val vertices: FloatArray = FloatArray(RECT_COUNT * VERTEX_COUNT * VERTEX_STRIDE)
-    private val indices: ShortArray = ShortArray(RECT_COUNT * INDEX_COUNT)
+    private val vertices: FloatArray
+    private val indices: ShortArray
     private val bufferIds = IntArray(2)
+    private val vaoId = IntArray(1)
+
+    private val vertexBuffer: FloatBuffer
+
 
     init {
-        val halfWidth = 1f
+        vertices = initVertexData()
+        indices = initIndexData()
 
-        var index = 0
+        vertexBuffer = ByteBuffer
+            .allocateDirect(vertices.size * Float.SIZE_BYTES)
+            .order(ByteOrder.nativeOrder())
+            .asFloatBuffer()
 
+        initVao()
+    }
+
+    private fun initVertexData(): FloatArray {
+        val result = FloatArray(RECT_COUNT * VERTEX_COUNT * VERTEX_STRIDE)
         var y = -TOTAL_HEIGHT / 2
         val yGap = sin(PI / 4).toFloat()
 
         for (i in 0 until RECT_COUNT) {
-            val baseIndex = i * VERTEX_COUNT * VERTEX_STRIDE
-            // 頂点座標の設定
-            // 左上
-            vertices[baseIndex] = -halfWidth
-            vertices[baseIndex + 1] = y
-            // 右上
-            vertices[baseIndex + VERTEX_STRIDE] = -halfWidth
-            vertices[baseIndex + VERTEX_STRIDE + 1] = RECT_HEIGHT + y
-            // 左下
-            vertices[baseIndex + 2 * VERTEX_STRIDE] = halfWidth
-            vertices[baseIndex + 2 * VERTEX_STRIDE + 1] = y + yGap
-            // 右下
-            vertices[baseIndex + 3 * VERTEX_STRIDE] = halfWidth
-            vertices[baseIndex + 3 * VERTEX_STRIDE + 1] = RECT_HEIGHT + y + yGap
-
-            // インデックスの設定
-            val indexValue = i * VERTEX_COUNT
-            indices[index++] = (indexValue).toShort()
-            indices[index++] = (indexValue + 1).toShort()
-            indices[index++] = (indexValue + 2).toShort()
-            indices[index++] = (indexValue + 1).toShort()
-            indices[index++] = (indexValue + 2).toShort()
-            indices[index++] = (indexValue + 3).toShort()
-
+            val base = i * VERTEX_COUNT * VERTEX_STRIDE
+            result[base] = -1f
+            result[base + 1] = y
+            result[base + VERTEX_STRIDE] = -1f
+            result[base + VERTEX_STRIDE + 1] = RECT_HEIGHT + y
+            result[base + 2 * VERTEX_STRIDE] = 1f
+            result[base + 2 * VERTEX_STRIDE + 1] = y + yGap
+            result[base + 3 * VERTEX_STRIDE] = 1f
+            result[base + 3 * VERTEX_STRIDE + 1] = RECT_HEIGHT + y + yGap
             y += RECT_HEIGHT
         }
-
-        GLES30.glGenBuffers(2, bufferIds, 0)
+        return result
     }
 
-    fun update(firstColor: FloatArray, secondColor: FloatArray) {
-
-        val whiteColor = floatArrayOf(1.0f, 1.0f, 1.0f, 0.0f)
-
-        val colors: Queue<FloatArray> = ArrayDeque()
-        colors.add(firstColor)
-        colors.add(whiteColor)
-        colors.add(secondColor)
-        colors.add(whiteColor)
-
-        var index = 0
+    private fun initIndexData(): ShortArray {
+        val result = ShortArray(RECT_COUNT * INDEX_COUNT)
+        var idx = 0
         for (i in 0 until RECT_COUNT) {
-            val color = colors.poll()!!
-            colors.add(color)
-            repeat(4) {
-                // 頂点座標部分をスキップ
-                index += 2
-                color.copyInto(vertices, index)
-                index += 4
-            }
+            val base = i * VERTEX_COUNT
+            result[idx++] = base.toShort()
+            result[idx++] = (base + 1).toShort()
+            result[idx++] = (base + 2).toShort()
+            result[idx++] = (base + 1).toShort()
+            result[idx++] = (base + 2).toShort()
+            result[idx++] = (base + 3).toShort()
         }
+        return result
+    }
 
+    private fun initVao() {
+        GLES30.glGenVertexArrays(1, vaoId, 0)
+        GLES30.glGenBuffers(2, bufferIds, 0)
+        GLES30.glBindVertexArray(vaoId[0])
+        initBuffers()
+        initAttributes()
+        GLES30.glBindVertexArray(0)
+    }
+
+    private fun initBuffers() {
+        // 頂点バッファ
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, bufferIds[0])
-        val vertexBuffer = ByteBuffer.allocateDirect(vertices.size * Float.SIZE_BYTES)
-            .order(ByteOrder.nativeOrder())
-            .asFloatBuffer()
-            .apply {
-                put(vertices)
-                position(0)
-            }
+        vertexBuffer.apply {
+            clear()
+            put(vertices)
+            position(0)
+        }
         GLES30.glBufferData(
             GLES30.GL_ARRAY_BUFFER,
-            vertices.size * 4,
+            vertices.size * Float.SIZE_BYTES,
             vertexBuffer,
             GLES30.GL_STATIC_DRAW
         )
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
 
+        // インデックスバッファ
         GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, bufferIds[1])
         val indexBuffer = ByteBuffer.allocateDirect(indices.size * Short.SIZE_BYTES)
             .order(ByteOrder.nativeOrder())
@@ -105,31 +103,66 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
             indexBuffer,
             GLES30.GL_STATIC_DRAW
         )
+    }
 
+    private fun initAttributes() {
+        val strideBytes = VERTEX_STRIDE * Float.SIZE_BYTES
+
+        // 位置属性
+        GLES30.glEnableVertexAttribArray(shader.positionLocation)
+        GLES30.glVertexAttribPointer(
+            shader.positionLocation,
+            VERTEX_DIMENSION,
+            GLES30.GL_FLOAT,
+            false,
+            strideBytes,
+            0
+        )
+
+        // 色属性
+        GLES30.glEnableVertexAttribArray(shader.colorLocation)
+        GLES30.glVertexAttribPointer(
+            shader.colorLocation,
+            COLOR_DIMENSION,
+            GLES30.GL_FLOAT,
+            false,
+            strideBytes,
+            VERTEX_DIMENSION * Float.SIZE_BYTES
+        )
+    }
+
+    fun updateColorsBuffer(firstColor: FloatArray, secondColor: FloatArray) {
+        val white = floatArrayOf(1f, 1f, 1f, 0f)
+        val cycle = arrayOf(firstColor, white, secondColor, white)
+
+        var index = 0
+        for (i in 0 until RECT_COUNT) {
+            val color = cycle[i % cycle.size]
+            repeat(VERTEX_COUNT) {
+                index += VERTEX_DIMENSION
+                color.copyInto(vertices, index)
+                index += COLOR_DIMENSION
+            }
+        }
+
+        vertexBuffer.apply {
+            clear()
+            put(vertices)
+            position(0)
+        }
+
+        // 更新されたカラーをバッファへ送信
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, bufferIds[0])
-        GLES30.glVertexAttribPointer(
-            shaderProgram.positionLocation,
-            Short.SIZE_BYTES,
-            GLES30.GL_FLOAT,
-            false,
-            VERTEX_STRIDE * Float.SIZE_BYTES,
+        GLES30.glBufferSubData(
+            GLES30.GL_ARRAY_BUFFER,
             0,
+            vertices.size * Float.SIZE_BYTES,
+            vertexBuffer,
         )
-        GLES30.glEnableVertexAttribArray(shaderProgram.positionLocation)
-
-        GLES30.glVertexAttribPointer(
-            shaderProgram.colorLocation,
-            Float.SIZE_BYTES,
-            GLES30.GL_FLOAT,
-            false,
-            VERTEX_STRIDE * Float.SIZE_BYTES,
-            VERTEX_DIMENSION * Float.SIZE_BYTES,
-        )
-        GLES30.glEnableVertexAttribArray(shaderProgram.colorLocation)
     }
 
     fun draw() {
-        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, bufferIds[1])
+        GLES30.glBindVertexArray(vaoId[0])
         GLES30.glDrawElements(
             GLES30.GL_TRIANGLES,
             indices.size,
@@ -138,11 +171,16 @@ class BarberPoleModel(private val shaderProgram: ShaderProgram) {
         )
     }
 
+    fun release() {
+        GLES30.glDeleteVertexArrays(1, vaoId, 0)
+        GLES30.glDeleteBuffers(bufferIds.size, bufferIds, 0)
+    }
+
     companion object {
-        /**
-         * 帯の数
-         */
-        private const val RECT_COUNT = 4 * 4 * 2
+        private const val STRIPE_PER_SET = 4
+        private const val SETS_PER_BAR = 4
+        private const val BAR_COUNT = 2
+        private const val RECT_COUNT = STRIPE_PER_SET * SETS_PER_BAR * BAR_COUNT
 
         /**
          * 帯一つあたりの頂点数
