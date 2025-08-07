@@ -1,85 +1,44 @@
 package com.gastornisapp.barberpole
 
-import BarberPolePage
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.gastornisapp.barberpole.repositories.AppSettingsRepository
-import com.gastornisapp.barberpole.repositories.dataStore
-import com.gastornisapp.barberpole.ui.ConfirmationPage
-import com.gastornisapp.barberpole.ui.HomePage
-import com.gastornisapp.barberpole.ui.InfoPage
-import com.gastornisapp.barberpole.ui.LicensePage
-import com.gastornisapp.barberpole.ui.WebPage
+import com.gastornisapp.barberpole.ui.AppNavGraph
+import com.gastornisapp.barberpole.ui.LoadingPage
+import com.gastornisapp.barberpole.ui.AppStartupViewModel
+import com.gastornisapp.barberpole.ui.AppStartupUiStatus
 import com.gastornisapp.barberpole.ui.theme.BarberPoleTheme
-import com.gastornisapp.barberpole.ui.vehicle.VehiclePage
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.launch
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private var isSplashShowing: Boolean = true
-    private lateinit var appSettingsRepository: AppSettingsRepository
+    private val viewModel: AppStartupViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        appSettingsRepository = AppSettingsRepository(applicationContext.dataStore)
-
-        lifecycleScope.launch {
-            appSettingsRepository.version
-                .take(1)
-                .collect { version ->
-                    isSplashShowing = false
-                    setContent {
-                        val isTermsAgreed = 1 <= version
-                        val navController = rememberNavController()
-
-                        // ナビゲーションホストを設定
-                        BarberPoleTheme {
-                            NavHost(
-                                navController = navController,
-                                startDestination = if (isTermsAgreed) "home" else "confirmation"// 最初の画面を指定
-                            ) {
-                                composable("home") { HomePage(navController) }
-                                composable("barber_pole") { BarberPolePage() }
-                                composable("confirmation") { ConfirmationPage(navController, appSettingsRepository = appSettingsRepository) }
-                                composable("vehicle") { VehiclePage() }
-                                composable(
-                                    route = "webpage/{url}",
-                                    arguments = listOf(navArgument("url") { type = NavType.StringType })
-                                ) { backStackEntry ->
-                                    val url = backStackEntry.arguments?.getString("url")
-                                    if (url != null) {
-                                        WebPage(url = url)
-                                    } else {
-                                        Log.e("MainActivity", "url == null")
-                                    }
-                                }
-                                composable("info") { InfoPage(navController) }
-                                composable("license") { LicensePage() }
-                            }
-                        }
-                    }
-                }
-        }
+        enableEdgeToEdge()
 
         val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition { viewModel.uiStatus.value == AppStartupUiStatus.ShowingSplash }
 
-        // スプラッシュの表示を制御
-        splashScreen.setKeepOnScreenCondition {
-            isSplashShowing
+        viewModel.initialize()
+
+        setContent {
+            BarberPoleTheme {
+                val status by viewModel.uiStatus.collectAsState()
+                when (val status = status) {
+                    AppStartupUiStatus.ShowingSplash -> Unit
+                    AppStartupUiStatus.ShowingProgress -> LoadingPage()
+                    is AppStartupUiStatus.Completed -> AppNavGraph(startDestination = status.startDestination.route)
+                }
+            }
         }
-
-        enableEdgeToEdge()
     }
 }

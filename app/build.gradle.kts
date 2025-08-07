@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.aboutlibraries)
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.hilt.android.gradle)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -16,7 +20,7 @@ android {
         versionCode = 1
         versionName = "1.0.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.gastornisapp.barberpole.CustomTestRunner"
     }
 
     buildTypes {
@@ -38,6 +42,20 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/NOTICE"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -56,11 +74,44 @@ dependencies {
     implementation(libs.androidx.datastore)
     implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries.compose)
-    testImplementation(libs.junit)
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.navigation.testing.android)
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx) // Coroutine対応
+    kapt(libs.hilt.compiler)
+    implementation(project(":audio"))
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.config)
+
+//    debugImplementation(libs.androidx.ui.tooling)
+//    debugImplementation(libs.androidx.ui.test.manifest)
+
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    // JUnit 5 本体
+    testImplementation(libs.junit.jupiter)
+    // パラメータ化テストサポート
+    testImplementation(libs.junit.jupiter.params)
+    // Android Gradle Plugin で JUnit 5 を有効にするためのプラグイン
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation("org.robolectric:robolectric:4.15.1")
+    testImplementation(kotlin("test"))
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    androidTestImplementation(libs.androidx.navigation.testing)
+    androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.ui.test.junit4)
+    kaptAndroidTest(libs.hilt.android.compiler)
+    androidTestImplementation(libs.mockk.android)
+}
+
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

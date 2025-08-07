@@ -5,8 +5,8 @@ import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import com.gastornisapp.barberpole.R
-import com.gastornisapp.barberpole.ui.ScreenInfo
-import com.gastornisapp.barberpole.ui.loadTexture
+import com.gastornisapp.barberpole.ui.ViewBounds
+import com.gastornisapp.barberpole.ui.gl.GlUtil
 import com.gastornisapp.barberpole.ui.vehicle.logic.CarLogicModel
 import com.gastornisapp.barberpole.ui.vehicle.logic.BusLogicModel
 import com.gastornisapp.barberpole.ui.vehicle.logic.VehicleLogicModel
@@ -19,7 +19,7 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
     private lateinit var vehicleManager: VehicleManager
 
-    private lateinit var screenInfo: ScreenInfo
+    private lateinit var viewBounds: ViewBounds
     private val projectionMatrix = FloatArray(16)
 
     private var lastFrameTime: Long = 0L // 前回のフレーム時間
@@ -41,8 +41,8 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         program = VehicleShaderProgram()
         program.initialize()
 
-        val carTextureId = loadTexture(context = context, R.drawable.car)
-        val busTextureId = loadTexture(context = context, R.drawable.bus)
+        val carTextureId = GlUtil.loadTexture(context = context, R.drawable.car)
+        val busTextureId = GlUtil.loadTexture(context = context, R.drawable.bus)
 
         rendererModels[CarLogicModel::class] = VehicleRendererModel(program = program, textureId = carTextureId)
         rendererModels[BusLogicModel::class] = VehicleRendererModel(program = program, textureId = busTextureId)
@@ -66,7 +66,7 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         val deltaFrameTime = currentTime - lastFrameTime
         lastFrameTime = currentTime
 
-        vehicleManager.update(deltaTime = deltaFrameTime, screenInfo = screenInfo)
+        vehicleManager.update(deltaTime = deltaFrameTime, viewBounds = viewBounds)
 
         for (vehicle in vehicleManager.activeVehicles()) {
             rendererModels[vehicle::class]?.apply {
@@ -88,21 +88,21 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
         val aspect = width.toFloat() / height
 
-        screenInfo = if (width > height) {
+        viewBounds = if (width > height) {
             // 横画面
-            ScreenInfo(-aspect, aspect, -1.0f, 1.0f)
+            ViewBounds(-aspect, aspect, -1.0f, 1.0f)
         } else {
             // 縦画面
-            ScreenInfo(-1.0f, 1.0f, -1f / aspect, 1f / aspect)
+            ViewBounds(-1.0f, 1.0f, -1f / aspect, 1f / aspect)
         }
 
-        vehicleManager.screenInfo = screenInfo
+        vehicleManager.viewBounds = viewBounds
 
         Matrix.orthoM(
             projectionMatrix,
             0,
-            screenInfo.left, screenInfo.right,
-            screenInfo.bottom, screenInfo.top,
+            viewBounds.left, viewBounds.right,
+            viewBounds.bottom, viewBounds.top,
             -1f, 1f
         )
 
@@ -111,8 +111,8 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
     fun handleTouchDown(screenX: Float, screenY: Float, screenWidth: Int, screenHeight: Int) : Boolean {
         // モデル座標系（-1〜1）に変換
-        val touchX = (screenX / screenWidth) * screenInfo.width - screenInfo.right
-        val touchY = -((screenY / screenHeight) * screenInfo.height - screenInfo.top)
+        val touchX = (screenX / screenWidth) * viewBounds.width - viewBounds.right
+        val touchY = -((screenY / screenHeight) * viewBounds.height - viewBounds.top)
         return vehicleManager.handleTouchDown(touchX = touchX, touchY = touchY)
     }
 
