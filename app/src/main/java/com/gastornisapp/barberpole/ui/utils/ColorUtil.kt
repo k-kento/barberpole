@@ -29,16 +29,20 @@ fun adjustPressedColor(color: Int): Int {
     }
 }
 
+@Deprecated("colorToFloatArrayを使用してください")
+
 fun colorCodeToFloatArray(colorInt: Int): FloatArray {
     val r = Color.red(colorInt) / 255f
     val g = Color.green(colorInt) / 255f
     val b = Color.blue(colorInt) / 255f
-    return floatArrayOf(r, g, b)
+    val a = Color.alpha(colorInt) / 255f
+    return floatArrayOf(r, g, b, a)
 }
 
 fun colorToFloatArray(colorInt: Int): FloatArray {
     val r = Color.red(colorInt) / 255f
     val g = Color.green(colorInt) / 255f
     val b = Color.blue(colorInt) / 255f
-    return floatArrayOf(r, g, b, 0f)
+    val a = Color.alpha(colorInt) / 255f
+    return floatArrayOf(r, g, b, a)
 }
