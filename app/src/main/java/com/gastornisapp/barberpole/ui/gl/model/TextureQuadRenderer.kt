@@ -22,18 +22,16 @@ class TexturedQuadRenderer(
         )
     }
 
-    private val vaoId: Int
+    val vao = IntArray(1)
+    val vbo = IntArray(1)
+    val ibo = IntArray(1)
 
     init {
-        val vao = IntArray(1)
-        val vbo = IntArray(1)
-        val ibo = IntArray(1)
-
         GLES30.glGenVertexArrays(1, vao, 0)
         GLES30.glGenBuffers(1, vbo, 0)
         GLES30.glGenBuffers(1, ibo, 0)
 
-        vaoId = vao[0]
+        val vaoId = vao[0]
         GLES30.glBindVertexArray(vaoId)
 
         // 頂点バッファ
@@ -71,7 +69,7 @@ class TexturedQuadRenderer(
         GLES30.glUniformMatrix4fv(program.uMvpMatrixLocation, 1, false, mvpMatrix, 0)
         GLES30.glUniform3fv(program.uColorLocation, 1, color, 0)
 
-        GLES30.glBindVertexArray(vaoId)
+        GLES30.glBindVertexArray(vao[0])
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId)
@@ -79,5 +77,11 @@ class TexturedQuadRenderer(
         GLES30.glDrawElements(GLES30.GL_TRIANGLES, INDICES.size, GLES30.GL_UNSIGNED_SHORT, 0)
 
         GLES30.glBindVertexArray(0)
+    }
+
+    fun release() {
+        GLES30.glDeleteVertexArrays(1, vao, 0)
+        GLES30.glDeleteBuffers(1, vbo, 0)
+        GLES30.glDeleteBuffers(1, ibo, 0)
     }
 }
