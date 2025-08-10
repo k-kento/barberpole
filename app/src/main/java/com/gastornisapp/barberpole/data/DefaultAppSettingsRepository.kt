@@ -18,10 +18,6 @@ class DefaultAppSettingsRepository(
         return remoteConfigDataSource.fetchRemoteConfig()
     }
 
-    override fun isForceUpdateRequired(currentVersionCode: Int): Boolean {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun getNotice(): Result<List<Notice>> {
         return remoteConfigDataSource.getNoticeConfig().mapCatching { config ->
             config.notices.map {
@@ -73,16 +69,13 @@ class DefaultAppSettingsRepository(
         appPreferencesDataSource.setPrivacyPolicyAcceptedVersion(version)
     }
 
-    override fun getCurrentAppVersion(): Result<SemVer> = runCatching {
+    override fun getCurrentAppVersion(): Result<SemVer> {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-        val version = packageInfo.versionName ?: throw IllegalStateException("versionName is null")
-        SemVer.parse(version)
+        val version = packageInfo.versionName ?: return Result.failure(IllegalStateException("versionName is null"))
+        return SemVer.parse(version)
     }
 
-    override fun getRequiredAppVersion(): Result<SemVer> = runCatching {
-        val version = remoteConfigDataSource.getRequiredAppVersion()
-        SemVer.parse(version)
+    override fun getRequiredAppVersion(): Result<SemVer> {
+        return remoteConfigDataSource.getRequiredAppVersion()
     }
 }
-
-
