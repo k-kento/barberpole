@@ -5,13 +5,16 @@ import com.gastornisapp.barberpole.domain.model.SemVer
 
 interface AppSettingsRepository {
     suspend fun refreshConfig(): Result<Unit>
-    fun isForceUpdateRequired(currentVersionCode: Int): Boolean
+
+    // region notice
 
     suspend fun getNotice(): Result<List<Notice>>
 
     suspend fun setNoticeId(noticeId: String): Result<Unit>
 
     suspend fun isNoticeRead(noticeId: String): Result<Boolean>
+
+    // end region notice
 
     // region user agreement
 

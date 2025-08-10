@@ -2,7 +2,6 @@ package com.gastornisapp.barberpole.domain.model
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -19,7 +18,7 @@ class SemVerTest {
 
         @Test
         fun parse_version_without_suffix() {
-            val v = SemVer.parse("1.2.3")
+            val v = SemVer.parse("1.2.3").getOrThrow()
             assertEquals(1, v.major)
             assertEquals(2, v.minor)
             assertEquals(3, v.patch)
@@ -28,7 +27,7 @@ class SemVerTest {
 
         @Test
         fun parse_version_with_suffix() {
-            val v = SemVer.parse("2.5.10-beta")
+            val v = SemVer.parse("2.5.10-beta").getOrThrow()
             assertEquals(2, v.major)
             assertEquals(5, v.minor)
             assertEquals(10, v.patch)
@@ -37,7 +36,7 @@ class SemVerTest {
 
         @Test
         fun parse_version_with_build_metadata() {
-            val v = SemVer.parse("3.4.5+build.123")
+            val v = SemVer.parse("3.4.5+build.123").getOrThrow()
             assertEquals(3, v.major)
             assertEquals(4, v.minor)
             assertEquals(5, v.patch)
@@ -46,18 +45,14 @@ class SemVerTest {
 
         @Test
         fun parse_invalid_format_throws_exception() {
-            assertThrows(IllegalArgumentException::class.java) {
-                SemVer.parse("invalid_version")
-            }
-            assertThrows(IllegalArgumentException::class.java) {
-                SemVer.parse("1.2")
-            }
+            assertTrue(SemVer.parse("invalid_version").exceptionOrNull() is IllegalArgumentException)
+            assertTrue(SemVer.parse("1.2").exceptionOrNull() is IllegalArgumentException)
         }
 
         @Test
         fun parse_and_toString_should_roundtrip() {
             val versionStr = "1.2.3-alpha+build.42"
-            val parsed = SemVer.parse(versionStr)
+            val parsed = SemVer.parse(versionStr).getOrThrow()
             val result = parsed.toString()
             assertEquals(versionStr, result)
         }
@@ -69,9 +64,9 @@ class SemVerTest {
 
         @Test
         fun suffix_should_not_affect_comparison() {
-            val v1 = SemVer.parse("1.2.3")
-            val v2 = SemVer.parse("1.2.3-beta")
-            val v3 = SemVer.parse("1.2.4")
+            val v1 = SemVer.parse("1.2.3").getOrThrow()
+            val v2 = SemVer.parse("1.2.3-beta").getOrThrow()
+            val v3 = SemVer.parse("1.2.4").getOrThrow()
 
             assertEquals(0, v1.compareTo(v2))
             assertTrue(v1 < v3)
@@ -85,16 +80,16 @@ class SemVerTest {
             "1.2.3, 1.2.4"
         )
         fun compare_versions_ordering_is_correct(ver1: String, ver2: String) {
-            val v1 = SemVer.parse(ver1)
-            val v2 = SemVer.parse(ver2)
+            val v1 = SemVer.parse(ver1).getOrThrow()
+            val v2 = SemVer.parse(ver2).getOrThrow()
             assertTrue(v1 < v2)
             assertTrue(v2 > v1)
         }
 
         @Test
         fun equal_versions_should_be_equal() {
-            val v1 = SemVer.parse("1.2.3")
-            val v2 = SemVer.parse("1.2.3")
+            val v1 = SemVer.parse("1.2.3").getOrThrow()
+            val v2 = SemVer.parse("1.2.3").getOrThrow()
             assertEquals(0, v1.compareTo(v2))
         }
     }
