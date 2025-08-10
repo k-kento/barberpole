@@ -6,15 +6,15 @@ import com.gastornisapp.barberpole.usecase.NoticeUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dagger.hilt.android.components.ActivityRetainedComponent
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ActivityRetainedComponent::class)
 object UseCaseModule {
 
     @Provides
-    @Singleton
+    @ActivityRetainedScoped
     fun provideForceUpdateUseCase(
         appSettingsRepository: AppSettingsRepository
     ): ForceUpdateUseCase {
@@ -22,7 +22,7 @@ object UseCaseModule {
     }
 
     @Provides
-    @Singleton
+    @ActivityRetainedScoped
     fun provideNoticeUseCase(
         appSettingsRepository: AppSettingsRepository
     ): NoticeUseCase {
