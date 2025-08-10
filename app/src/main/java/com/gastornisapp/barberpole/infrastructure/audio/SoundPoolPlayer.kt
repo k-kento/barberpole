@@ -46,7 +46,9 @@ class SoundPoolPlayer @Inject constructor(
         soundLoadResultMap[soundId] = deferred
         val result = deferred.await()
         // TODO エラーハンドリング
-        if (result.status != 0) {
+        if (result.status == 0) {
+            soundMap[fileName] = soundId
+        } else {
             Log.e("SoundPoolPlayer", "Sound load failed: $fileName")
         }
     }
