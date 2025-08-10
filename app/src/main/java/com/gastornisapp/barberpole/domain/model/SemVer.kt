@@ -19,16 +19,17 @@ data class SemVer(
     companion object {
         private val regex = Regex("""^(\d+)\.(\d+)\.(\d+)(.*)?$""")
 
-        fun parse(version: String): SemVer {
+        fun parse(version: String): Result<SemVer> {
             val match = regex.matchEntire(version)
-                ?: throw IllegalArgumentException("Invalid version format: $version")
+                ?: return Result.failure(IllegalArgumentException("Invalid version format: $version"))
             val (major, minor, patch, suffix) = match.destructured
-            return SemVer(
+            val ver = SemVer(
                 major.toInt(),
                 minor.toInt(),
                 patch.toInt(),
                 suffix.ifBlank { null }
             )
+            return Result.success(ver)
         }
     }
 }
