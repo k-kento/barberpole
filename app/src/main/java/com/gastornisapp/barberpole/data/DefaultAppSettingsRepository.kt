@@ -22,14 +22,6 @@ class DefaultAppSettingsRepository(
         TODO("Not yet implemented")
     }
 
-    override fun getForceUpdateTitle(): String {
-        TODO("Not yet implemented")
-    }
-
-    override fun getForceUpdateMessage(): String {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun getNotice(): Result<List<Notice>> {
         return remoteConfigDataSource.getNoticeConfig().mapCatching { config ->
             config.notices.map {
