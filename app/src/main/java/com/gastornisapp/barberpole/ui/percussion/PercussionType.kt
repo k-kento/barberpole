@@ -2,26 +2,19 @@ package com.gastornisapp.barberpole.ui.percussion
 
 import androidx.annotation.DrawableRes
 import com.gastornisapp.barberpole.R
-import com.gastornisapp.soundlib.AudioResource
 
-enum class PercussionType(@DrawableRes val drawableRes: Int, val color: Int) {
-    Bongo(drawableRes = R.drawable.bongo, 0xF44336),
-    Pan(drawableRes = R.drawable.pan, 0xFF9800),
-    Shaker(drawableRes = R.drawable.shaker, 0xFFEB3B),
-    Taiko(drawableRes = R.drawable.taiko, 0x4CAF50),
-    Tambourines(drawableRes = R.drawable.tamburins, 0x2196F3),
-    Stick(drawableRes = R.drawable.stick, 0x3F51B5),
-    Bell(drawableRes = R.drawable.bell, 0x9C27B0),
-    Conga(drawableRes = R.drawable.conga, 0x000000),
-}
+enum class PercussionType(@param:DrawableRes val drawableRes: Int, val color: Int, private val fileName: String) {
+    Bongo(drawableRes = R.drawable.bongo, 0xF44336, fileName = "bongo.wav"),
+    Pan(drawableRes = R.drawable.pan, 0xFF9800, fileName = "pan.wav"),
+    Shaker(drawableRes = R.drawable.shaker, 0xFFEB3B, fileName = "shaker.wav"),
+    Taiko(drawableRes = R.drawable.taiko, 0x4CAF50, fileName = "taiko.wav"),
+    Tambourines(drawableRes = R.drawable.tamburins, 0x2196F3, fileName = "tambourines.wav"),
+    Stick(drawableRes = R.drawable.stick, 0x3F51B5, fileName = "stick.wav"),
+    Bell(drawableRes = R.drawable.bell, 0x9C27B0, fileName = "bell.wav"),
+    Conga(drawableRes = R.drawable.conga, 0x000000, fileName = "conga.wav"),
+    ;
 
-fun PercussionType.toAudioResource(): AudioResource = when (this) {
-    PercussionType.Bongo -> AudioResource.Bongo
-    PercussionType.Pan -> AudioResource.Pan
-    PercussionType.Shaker -> AudioResource.Shaker
-    PercussionType.Taiko -> AudioResource.Taiko
-    PercussionType.Tambourines -> AudioResource.Tambourines
-    PercussionType.Stick -> AudioResource.Stick
-    PercussionType.Bell -> AudioResource.Bell
-    PercussionType.Conga -> AudioResource.Conga
+    fun filePath(): String {
+        return "audio/${fileName}"
+    }
 }

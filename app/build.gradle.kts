@@ -82,7 +82,6 @@ dependencies {
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx) // Coroutine対応
     kapt(libs.hilt.compiler)
-    implementation(project(":audio"))
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.config)
 

@@ -6,57 +6,43 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import com.gastornisapp.soundlib.AudioLib
-import com.gastornisapp.soundlib.AudioResource
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun PercussionPage() {
+fun PercussionPage(viewModel: PercussionViewModel = hiltViewModel()) {
+    val inProgress = viewModel.inProgress.collectAsState()
+
     Scaffold { paddingValues ->
-        val context = LocalContext.current
-
-        fun createAudioLib(resource: AudioResource): AudioLib {
-            return AudioLib().apply {
-                create()
-                load(context.assets, resource)
-            }
-        }
-
-        val audioLibs = remember(context.assets) {
-            AudioResource.entries.associateWith { type ->
-                createAudioLib(type)
-            }
-        }
-
-        DisposableEffect(Unit) {
-            onDispose {
-                audioLibs.values.forEach { it.release() }
-            }
-        }
-
         Box(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
-            GridButtons(onClick = { type ->
-                audioLibs[type.toAudioResource()]?.start()
-            })
+            if (inProgress.value) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else {
+                GridButtons(onClick = { type ->
+                    viewModel.play(type)
+                })
+            }
         }
     }
 }
@@ -69,14 +55,12 @@ fun GridButtons(onClick: (PercussionType) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         ButtonsRow(
             types = types.take(half),
-            onClick = {
-                onClick(it)
-            })
+            onClick = onClick
+        )
         ButtonsRow(
             types = types.drop(half),
-            onClick = {
-                onClick(it)
-            })
+            onClick = onClick
+        )
     }
 }
 
@@ -95,7 +79,7 @@ fun ButtonsRow(
                 onClick = {
                     onClick(type)
                 },
-                border= BorderStroke(0.dp, Color(0X00000000)),
+                border = BorderStroke(0.dp, Color(0X00000000)),
                 shape = CircleShape,
                 colors = IconButtonDefaults.outlinedIconButtonColors(Color(type.color or 0xFF000000.toInt())),
                 modifier = Modifier
