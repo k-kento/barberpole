@@ -11,12 +11,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 @Composable
 fun SwarmPage() {
     Scaffold { paddingValues ->
-
         AndroidView(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             factory = {
-                SwarmView(context = it)
+                SwarmView(context = it.applicationContext)
             },
         )
     }
