@@ -3,6 +3,7 @@ package com.gastornisapp.barberpole.ui.utils
 import android.graphics.Color
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.random.Random
 
 fun adjustPressedColor(color: Int): Int {
     val r = (color shr 16) and 0xFF
@@ -45,4 +46,24 @@ fun colorToFloatArray(colorInt: Int): FloatArray {
     val b = Color.blue(colorInt) / 255f
     val a = Color.alpha(colorInt) / 255f
     return floatArrayOf(r, g, b, a)
+}
+
+object ColorUtil {
+
+    /**
+     * 指定したベース色に近い色を生成
+     *
+     * @param baseHue 基準となる色相 (0..360)
+     * @param count 生成する色の数
+     */
+    fun generateSimilarColors(baseHue: Float, count: Int): List<Int> {
+        val colors = mutableListOf<Int>()
+        for (i in 0 until count) {
+            val hue = (baseHue + Random.nextFloat() * 20f - 10f) % 360f // ±10°以内
+            val saturation = 0.7f + Random.nextFloat() * 0.3f // 0.7〜1.0
+            val value = 0.7f + Random.nextFloat() * 0.3f // 0.7〜1.0
+            colors.add(Color.HSVToColor(floatArrayOf(hue, saturation, value)))
+        }
+        return colors
+    }
 }
