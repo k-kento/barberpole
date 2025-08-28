@@ -49,7 +49,7 @@ class FishMesh(
             }
         GLES30.glBufferData(
             GLES30.GL_ARRAY_BUFFER,
-            vertexBuffer.capacity(),
+            vertexBuffer.capacity() * 4,
             vertexBuffer,
             GLES30.GL_STATIC_DRAW
         )
@@ -87,11 +87,11 @@ class FishMesh(
         )
     }
 
-
-    fun draw(mvpMatrix: FloatArray) {
+    fun draw(mvpMatrix: FloatArray, color: FloatArray) {
         program.useProgram()
 
         program.setMvpMatrix(mvpMatrix)
+        program.setColor(color)
 
         GLES30.glBindVertexArray(vaoId)
         GLES30.glDrawElements(
