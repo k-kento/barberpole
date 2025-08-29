@@ -1,6 +1,6 @@
 package com.gastornisapp.barberpole.ui.swarm
 
-import com.gastornisapp.barberpole.math.MathUtil.distance
+import com.gastornisapp.barberpole.math.MathUtil
 import com.gastornisapp.barberpole.math.MathUtil.limit
 import com.gastornisapp.barberpole.math.MathUtil.normalize
 import com.gastornisapp.barberpole.ui.ViewBounds
@@ -51,24 +51,28 @@ class BoidSimulation() {
         var neighborCount = 0
 
         for (other in boids) {
-            if (other == self) continue
-            val distance = distance(x1 = self.x, y1 = self.y, x2 = other.x, y2 = other.y)
-            if (NEIGHBOR_RADIUS < distance) continue
+            if (self == other) continue
+            if (self.type != other.type) continue
+            val distanceSquared = MathUtil.distanceSquared(x1 = self.x, y1 = self.y, x2 = other.x, y2 = other.y)
             if (!self.isInFieldOfView(other)) continue
 
             // 分離
-            if (distance < DESIRED_SEPARATION) {
+            if (distanceSquared < SEPARATION_DISTANCE * SEPARATION_DISTANCE) {
                 dvSeparationX += self.x - other.x
                 dvSeparationY += self.y - other.y
             }
 
             // 整列
-            dvAlignmentX += other.vx
-            dvAlignmentY += other.vy
+            if (distanceSquared < ALIGNMENT_DISTANCE * ALIGNMENT_DISTANCE) {
+                dvAlignmentX += other.vx
+                dvAlignmentY += other.vy
+            }
 
             // 凝集
-            dvCohesionX += other.x
-            dvCohesionY += other.y
+            if (distanceSquared < COHESION_DISTANCE * COHESION_DISTANCE) {
+                dvCohesionX += other.x
+                dvCohesionY += other.y
+            }
 
             neighborCount++
         }
@@ -86,13 +90,6 @@ class BoidSimulation() {
             dvCohesionX = dvCohesionX - self.x
             dvCohesionY = dvCohesionY - self.y
         }
-
-        // 画面内に留める力
-        val (dvBoundaryX, dvBoundaryY) = boundaryForce(
-            x = self.x,
-            y = self.y,
-            radius = max(viewBounds.width, viewBounds.height) / 4
-        )
 
         tempFloatArray[0] = dvSeparationX
         tempFloatArray[1] = dvSeparationY
@@ -112,9 +109,8 @@ class BoidSimulation() {
         dvCohesionX = tempFloatArray[0]
         dvCohesionY = tempFloatArray[1]
 
-        tempFloatArray[0] = dvBoundaryX
-        tempFloatArray[1] = dvBoundaryY
-        limit(tempFloatArray, MAX_FORCE)
+        val radius = max(viewBounds.width, viewBounds.height) / 2
+        boundaryForce(x = self.x, y = self.y, radius = radius, out = tempFloatArray)
         val boundingForceX = tempFloatArray[0]
         val boundingForceY = tempFloatArray[1]
 
@@ -144,32 +140,31 @@ class BoidSimulation() {
     }
 
     /**
-     * 円形領域（半径 radius）内にBoidを収める力
-     * - 内側：力ゼロ
-     * - 外側：中心方向に押し戻す
+     * 円形領域（半径 radius）の外に出たら中心方向へ引っ張る
      */
     private fun boundaryForce(
         x: Float,
         y: Float,
         radius: Float,
-    ): Pair<Float, Float> {
+        out: FloatArray
+    ) {
         val distSq = x * x + y * y
         val radiusSq = radius * radius
 
         if (distSq <= radiusSq) {
-            return 0f to 0f // 円内 → 力ゼロ
+            // 内側なら力ゼロ
+            out[0] = 0f
+            out[1] = 0f
+            return
         }
 
-        val dist = sqrt(distSq)
-        val nx = x / dist
-        val ny = y / dist
-        val excess = dist - radius
-
-        // 距離に応じた反発力
-        val strength = MAX_FORCE * (excess / radius).coerceAtMost(1f)
-        return -nx * strength to -ny * strength
+        out[0] = -x * MAX_FORCE
+        out[1] = -y * MAX_FORCE
     }
 
+    /**
+     * 速度制限
+     */
     private fun clampVelocity(v: FloatArray, min: Float, max: Float) {
         val speed = sqrt(v[0] * v[0] + v[1] * v[1])
         if (speed > max) {
@@ -193,7 +188,7 @@ class BoidSimulation() {
          */
         private const val MAX_VELOCITY = 0.06f
 
-        private const val MIN_VELOCITY = 0.01f
+        private const val MIN_VELOCITY = 0.015f
 
         /**
          * 最大加速度(一フレームあたりどれほど速度を変化させるか)
@@ -206,11 +201,12 @@ class BoidSimulation() {
         // ==========================
         // 群れ行動パラメータ
         // ==========================
-        /** 近隣の Boid を判定する半径 */
-        private const val NEIGHBOR_RADIUS = 1.5f
 
-        /** Boid 同士の望ましい最小距離 */
-        private const val DESIRED_SEPARATION = BoidTransform.SCALE
+        private const val SEPARATION_DISTANCE = BoidTransform.SCALE * 1.1
+
+        private const val ALIGNMENT_DISTANCE = 0.7f
+
+        private const val COHESION_DISTANCE = 1.3f
 
         /** 分離の力の重み */
         private const val SEPARATION_WEIGHT = 0.01f
@@ -219,18 +215,25 @@ class BoidSimulation() {
         private const val ALIGNMENT_WEIGHT = 0.55f
 
         /** 凝集の力の重み */
-        private const val COHESION_WEIGHT = 0.25f
+        private const val COHESION_WEIGHT = 0.8f
 
         /** 中央に集まる力の重み */
-        private const val BOUNDARY_WEIGHT = 0.5f
+        private const val BOUNDARY_WEIGHT = 0.4f
 
         // ==========================
         // シミュレーション設定
         // ==========================
-        private const val BOIDS_COUNT = 20
+        private const val BOIDS_COUNT = 18
 
         private fun createBoids(): List<Boid> {
-            val colors = ColorUtil.generateSimilarColors(baseHue = 200f, BOIDS_COUNT)
+            val a = createGroup(0, 45f)
+            val b = createGroup(1, 200f)
+            val c = createGroup(2, 310f)
+            return listOf(a, b, c).flatMap { it }
+        }
+
+        private fun createGroup(type: Int, baseHue: Float): List<Boid> {
+            val colors = ColorUtil.generateSimilarColors(baseHue = baseHue, BOIDS_COUNT)
 
             // 群れの初期半径
             val r = 1f
@@ -251,7 +254,7 @@ class BoidSimulation() {
                 val vy = sin(baseAngle + angleOffset) * INITIAL_SPEED
 
                 val color = colorToFloatArray(colors[index])
-                Boid(x = x, y = y, vx = vx, vy = vy, color = color)
+                Boid(type = type, x = x, y = y, vx = vx, vy = vy, color = color)
             }
         }
     }
