@@ -7,6 +7,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class Boid(
+    val type: Int,
     x: Float,
     y: Float,
     vx: Float,
