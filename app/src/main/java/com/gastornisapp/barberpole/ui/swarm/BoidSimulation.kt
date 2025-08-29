@@ -26,18 +26,9 @@ class BoidSimulation() {
     private val tempFloatArray = FloatArray(2)
 
     /**
-     * 1フレーム分の更新
-     */
-    fun updateBoid() {
-        boids.forEach { boid ->
-            updateBoid(self = boid)
-        }
-    }
-
-    /**
      * 個別の Boid を更新
      */
-    private fun updateBoid(self: Boid) {
+    fun update(self: Boid, tapPoint: Pair<Float, Float>? = null) {
         var dvSeparationX = 0f
         var dvSeparationY = 0f
 
@@ -114,29 +105,79 @@ class BoidSimulation() {
         val boundingForceX = tempFloatArray[0]
         val boundingForceY = tempFloatArray[1]
 
+        var repulsonForceX = 0f
+        var repulsonForceY = 0f
+        // 逃げる力
+        if (tapPoint != null) {
+            repulsonForce(x = self.x, y = self.y, tapPoint, out = tempFloatArray)
+            repulsonForceX = tempFloatArray[0]
+            repulsonForceY = tempFloatArray[1]
+        }
+
         // 重み付き合成
         val dvTotalX = dvSeparationX * SEPARATION_WEIGHT +
                 dvAlignmentX * ALIGNMENT_WEIGHT +
                 dvCohesionX * COHESION_WEIGHT +
-                boundingForceX * BOUNDARY_WEIGHT
+                boundingForceX * BOUNDARY_WEIGHT +
+                repulsonForceX
 
         val dvTotalY = dvSeparationY * SEPARATION_WEIGHT +
                 dvAlignmentY * ALIGNMENT_WEIGHT +
                 dvCohesionY * COHESION_WEIGHT +
-                boundingForceY * BOUNDARY_WEIGHT
+                boundingForceY * BOUNDARY_WEIGHT +
+                repulsonForceY * REPULSON_WEIGHT
 
         var vx = self.vx + dvTotalX
         var vy = self.vy + dvTotalY
 
-        tempFloatArray[0] = vx
-        tempFloatArray[1] = vy
+        var velLength = sqrt(vx * vx + vy * vy)
+
+        // 反発力により、Boid が逃げた時に、徐々に速度を落とす。
+        if (velLength > NORMAL_VELOCITY) {
+            vx *= 0.95f
+            vy *= 0.95f
+            velLength *= 0.95f
+        }
+
         // 速度を [MIN, MAX] に制限
-        clampVelocity(tempFloatArray, min = MIN_VELOCITY, max = MAX_VELOCITY)
-        vx = tempFloatArray[0]
-        vy = tempFloatArray[1]
+        if (velLength > MAX_VELOCITY) {
+            // 上限を超えたら制限
+            vx = vx / velLength * MAX_VELOCITY
+            vy = vy / velLength * MAX_VELOCITY
+        } else if (velLength < MIN_VELOCITY && velLength > 0f) {
+            // 下限を下回ったら引き上げ
+            vx = vx / velLength * MIN_VELOCITY
+            vy = vy / velLength * MIN_VELOCITY
+        }
 
         // Boid に適用
         self.update(vx = vx, vy = vy)
+    }
+
+    /**
+     * 反発力
+     */
+    private fun repulsonForce(
+        x: Float,
+        y: Float,
+        point: Pair<Float, Float>,
+        out: FloatArray
+    ) {
+        val dx = x - point.first
+        val dy = y - point.second
+        val distSq = dx * dx + dy * dy
+        val radius = REPULSON_DISTANCE
+
+        if (distSq < radius * radius && distSq > 0.0001f) {
+            val dist = sqrt(distSq)
+            // 正規化ベクトル
+            val nx = dx / dist
+            val ny = dy / dist
+            // 近いほど強い (1 - d/r)
+            val force = (1f - dist / radius)
+            out[0] = nx * force
+            out[1] = ny * force
+        }
     }
 
     /**
@@ -162,22 +203,6 @@ class BoidSimulation() {
         out[1] = -y * MAX_FORCE
     }
 
-    /**
-     * 速度制限
-     */
-    private fun clampVelocity(v: FloatArray, min: Float, max: Float) {
-        val speed = sqrt(v[0] * v[0] + v[1] * v[1])
-        if (speed > max) {
-            // 上限を超えたら制限
-            v[0] = v[0] / speed * max
-            v[1] = v[1] / speed * max
-        } else if (speed < min && speed > 0f) {
-            // 下限を下回ったら引き上げ
-            v[0] = v[0] / speed * min
-            v[1] = v[1] / speed * min
-        }
-    }
-
     companion object {
 
         // ==========================
@@ -187,7 +212,7 @@ class BoidSimulation() {
          * 最大速度(距離/フレーム)
          */
         private const val MAX_VELOCITY = 0.06f
-
+        private const val NORMAL_VELOCITY = 0.04f
         private const val MIN_VELOCITY = 0.015f
 
         /**
@@ -208,17 +233,22 @@ class BoidSimulation() {
 
         private const val COHESION_DISTANCE = 1.3f
 
+        private const val REPULSON_DISTANCE = 0.7f
+
         /** 分離の力の重み */
         private const val SEPARATION_WEIGHT = 0.01f
 
         /** 整列の力の重み*/
-        private const val ALIGNMENT_WEIGHT = 0.55f
+        private const val ALIGNMENT_WEIGHT = 0.6f
 
         /** 凝集の力の重み */
         private const val COHESION_WEIGHT = 0.8f
 
         /** 中央に集まる力の重み */
         private const val BOUNDARY_WEIGHT = 0.4f
+
+        /** 逃げる力の重み */
+        private const val REPULSON_WEIGHT = 2.8f
 
         // ==========================
         // シミュレーション設定
