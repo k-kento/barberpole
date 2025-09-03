@@ -32,6 +32,21 @@ android {
             )
         }
     }
+
+    // Flavor の定義
+    flavorDimensions += "version"
+
+    productFlavors {
+        create("development") {
+            dimension = "version"
+//            applicationIdSuffix = ".dev
+            versionNameSuffix = "-dev"
+        }
+        create("production") {
+            dimension = "version"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
