@@ -27,6 +27,6 @@ class CircleShaderProgram : ShaderProgram(vertexShaderFile = "shaders/circle.vsh
     }
 
     fun setColor(color: FloatArray) {
-        GLES30.glUniform3fv(uColorLocation, 1, color, 0)
+        GLES30.glUniform4fv(uColorLocation, 1, color, 0)
     }
 }

@@ -148,6 +148,11 @@ private fun createItems(): List<ItemInfo> {
             title = "たいこ",
             drawableRes = R.drawable.ic_launcher_background,
             PageType.Percussion
+        ),
+        ItemInfo(
+            title = "さかな",
+            drawableRes = R.drawable.ic_launcher_background,
+            PageType.Swarm
         )
     )
 }

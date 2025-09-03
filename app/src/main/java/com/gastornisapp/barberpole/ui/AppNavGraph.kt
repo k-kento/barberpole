@@ -13,6 +13,7 @@ import com.gastornisapp.barberpole.ui.harmony.HarmonyPage
 import com.gastornisapp.barberpole.ui.home.HomePage
 import com.gastornisapp.barberpole.ui.info.InfoPage
 import com.gastornisapp.barberpole.ui.percussion.PercussionPage
+import com.gastornisapp.barberpole.ui.swarm.SwarmPage
 import com.gastornisapp.barberpole.ui.vehicle.VehiclePage
 
 @Composable
@@ -30,6 +31,7 @@ fun AppNavGraph(
         composable(PageType.Vehicle.route) { VehiclePage() }
         composable(PageType.Harmony.route) { HarmonyPage() }
         composable(PageType.Percussion.route) { PercussionPage() }
+        composable(PageType.Swarm.route ) { SwarmPage() }
         composable(
             route = PageType.WebPage.route,
             arguments = listOf(
