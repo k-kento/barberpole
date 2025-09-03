@@ -131,6 +131,11 @@ object GlUtil {
         return textureIds[0]
     }
 
+
+    fun deleteTextureId(textureId: Int) {
+        GLES30.glDeleteTextures(1, intArrayOf(textureId), 0)
+    }
+
     // BitmapFactoryで効率的に縮小読み込みするための計算
     private fun calculateInSampleSize(
         options: BitmapFactory.Options,

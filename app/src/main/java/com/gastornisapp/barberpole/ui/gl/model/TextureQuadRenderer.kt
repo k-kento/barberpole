@@ -67,7 +67,7 @@ class TexturedQuadRenderer(
         program.useProgram()
 
         GLES30.glUniformMatrix4fv(program.uMvpMatrixLocation, 1, false, mvpMatrix, 0)
-        GLES30.glUniform3fv(program.uColorLocation, 1, color, 0)
+        GLES30.glUniform4fv(program.uColorLocation, 1, color, 0)
 
         GLES30.glBindVertexArray(vao[0])
 

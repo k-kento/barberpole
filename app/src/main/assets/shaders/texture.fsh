@@ -4,7 +4,7 @@ precision mediump float;
 // テクスチャサンプラ
 uniform sampler2D u_Texture;
 
-uniform vec3 u_Color;
+uniform vec4 u_Color;
 
 // フラグメントシェーダーへのUV座標（頂点シェーダーから）
 in vec2 v_TexCoord;
@@ -14,6 +14,9 @@ out vec4 outColor;
 
 void main() {
     vec4 texColor = texture(u_Texture, v_TexCoord);
-    texColor.rgb = u_Color;
+    // テクスチャの明暗を保って色を変える
+    texColor.rgb =  u_Color.rgb;
+    // アルファも反映
+    texColor.a *= u_Color.a;
     outColor = texColor;
 }

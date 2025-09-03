@@ -4,10 +4,12 @@ import android.content.Context
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import com.gastornisapp.barberpole.R
 import com.gastornisapp.barberpole.ui.ViewBounds
+import com.gastornisapp.barberpole.ui.gl.GlUtil
+import com.gastornisapp.barberpole.ui.gl.model.TexturedQuadRenderer
+import com.gastornisapp.barberpole.ui.gl.shader.TexturedShaderProgram
 import com.gastornisapp.barberpole.ui.utils.ViewUtil
-import ui.swarm.FishMesh
-import ui.swarm.FishMeshLoader
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -19,8 +21,9 @@ class SwarmRenderer(context: Context) : GLSurfaceView.Renderer {
 
     private val boidTransform: BoidTransform = BoidTransform()
 
-    private lateinit var shaderProgram: FishShaderProgram
-    private lateinit var fishMesh: FishMesh
+    private lateinit var texturedQuadRenderer: TexturedQuadRenderer
+    private lateinit var shaderProgram: TexturedShaderProgram
+    private var textureId: Int = -1
 
     private lateinit var boidSimulation: BoidSimulation
     private var tapPoint: Pair<Float, Float>? = null
@@ -28,11 +31,16 @@ class SwarmRenderer(context: Context) : GLSurfaceView.Renderer {
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES30.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
 
-        shaderProgram = FishShaderProgram()
+        // アルファブレンディングを有効にする
+        GLES30.glEnable(GLES30.GL_BLEND)
+        // 出力色 = ソース色 × srcFactor + 背景色 × dstFactor
+        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+
+        shaderProgram = TexturedShaderProgram()
         shaderProgram.initialize(context)
 
-        val vertexData = FishMeshLoader.load(context = context)
-        fishMesh = FishMesh(program = shaderProgram, vertices = vertexData.vertices, indices = vertexData.indices)
+        textureId = GlUtil.loadTexture(context = context, resId = R.drawable.fish, 64, 64)
+        texturedQuadRenderer = TexturedQuadRenderer(shaderProgram)
         boidSimulation = BoidSimulation()
     }
 
@@ -42,7 +50,7 @@ class SwarmRenderer(context: Context) : GLSurfaceView.Renderer {
             boidSimulation.update(self = boid, tapPoint = tapPoint)
             boidTransform.updateMatrix(boid)
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, boidTransform.modelMatrix, 0)
-            fishMesh.draw(mvpMatrix = mvpMatrix, color = boid.color)
+            texturedQuadRenderer.draw(mvpMatrix = mvpMatrix, color = boid.color, textureId = textureId)
         }
     }
 
@@ -86,7 +94,7 @@ class SwarmRenderer(context: Context) : GLSurfaceView.Renderer {
     }
 
     fun release() {
-        fishMesh.release()
+        GlUtil.deleteTextureId(textureId)
         shaderProgram.release()
     }
 }
