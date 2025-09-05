@@ -7,7 +7,7 @@ import java.nio.FloatBuffer
 import kotlin.math.PI
 import kotlin.math.sin
 
-class BarberPoleModel(private val shader: BarberPoleShader) {
+class BarberPoleMesh(private val positionLocation: Int, private val colorLocation: Int) {
 
     private val vertices: FloatArray
     private val indices: ShortArray
@@ -26,7 +26,12 @@ class BarberPoleModel(private val shader: BarberPoleShader) {
             .order(ByteOrder.nativeOrder())
             .asFloatBuffer()
 
-        initVao()
+        GLES30.glGenVertexArrays(1, vaoId, 0)
+        GLES30.glGenBuffers(2, bufferIds, 0)
+        GLES30.glBindVertexArray(vaoId[0])
+        initBuffers()
+        initAttributes()
+        GLES30.glBindVertexArray(0)
     }
 
     private fun initVertexData(): FloatArray {
@@ -62,15 +67,6 @@ class BarberPoleModel(private val shader: BarberPoleShader) {
             result[idx++] = (base + 3).toShort()
         }
         return result
-    }
-
-    private fun initVao() {
-        GLES30.glGenVertexArrays(1, vaoId, 0)
-        GLES30.glGenBuffers(2, bufferIds, 0)
-        GLES30.glBindVertexArray(vaoId[0])
-        initBuffers()
-        initAttributes()
-        GLES30.glBindVertexArray(0)
     }
 
     private fun initBuffers() {
@@ -109,9 +105,9 @@ class BarberPoleModel(private val shader: BarberPoleShader) {
         val strideBytes = VERTEX_STRIDE * Float.SIZE_BYTES
 
         // 位置属性
-        GLES30.glEnableVertexAttribArray(shader.positionLocation)
+        GLES30.glEnableVertexAttribArray(positionLocation)
         GLES30.glVertexAttribPointer(
-            shader.positionLocation,
+            positionLocation,
             VERTEX_DIMENSION,
             GLES30.GL_FLOAT,
             false,
@@ -120,9 +116,9 @@ class BarberPoleModel(private val shader: BarberPoleShader) {
         )
 
         // 色属性
-        GLES30.glEnableVertexAttribArray(shader.colorLocation)
+        GLES30.glEnableVertexAttribArray(colorLocation)
         GLES30.glVertexAttribPointer(
-            shader.colorLocation,
+            colorLocation,
             COLOR_DIMENSION,
             GLES30.GL_FLOAT,
             false,
