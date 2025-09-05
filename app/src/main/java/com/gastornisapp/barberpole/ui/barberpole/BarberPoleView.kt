@@ -9,7 +9,6 @@ class BarberPoleView(context: Context) : GLSurfaceView(context) {
 
     private var renderer: BarberPoleRenderer?
 
-    private var isResumed = false
     private var isPlaying = false
     private var speed = 0f
     private var orientation: Orientation = Orientation.Left
@@ -20,16 +19,6 @@ class BarberPoleView(context: Context) : GLSurfaceView(context) {
         setEGLContextClientVersion(3)
         renderer = BarberPoleRenderer(context = this.context.applicationContext)
         setRenderer(renderer)
-    }
-
-    fun setResumed(isResumed: Boolean) {
-        if (this.isResumed == isResumed) return
-        this.isResumed = isResumed
-        if (isResumed) {
-            onResume()
-        } else {
-            onPause()
-        }
     }
 
     fun setPlaying(isPlaying: Boolean) {
@@ -68,8 +57,7 @@ class BarberPoleView(context: Context) : GLSurfaceView(context) {
         }
     }
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
+    fun release() {
         renderer?.release()
     }
 }

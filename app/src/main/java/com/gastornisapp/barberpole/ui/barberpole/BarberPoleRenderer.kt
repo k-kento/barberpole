@@ -4,7 +4,6 @@ import android.content.Context
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import com.gastornisapp.barberpole.ui.ViewBounds
 import com.gastornisapp.barberpole.ui.utils.colorToFloatArray
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -12,13 +11,10 @@ import kotlin.math.abs
 
 class BarberPoleRenderer(val context: Context) : GLSurfaceView.Renderer {
 
-    private lateinit var barberPoleModel: BarberPoleModel
+    private lateinit var barberPoleMesh: BarberPoleMesh
     private val barberPoleShader = BarberPoleShader()
 
     private val modelMatrix = FloatArray(16)
-    private val viewMatrix = FloatArray(16)
-    private val projectionMatrix = FloatArray(16)
-    private val mvpMatrix = FloatArray(16)
 
     var orientation = Orientation.Left
     var speed = 0f
@@ -34,7 +30,7 @@ class BarberPoleRenderer(val context: Context) : GLSurfaceView.Renderer {
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES30.glClearColor(0f, 0.5f, 0f, 1.0f)
         barberPoleShader.initialize(context = context)
-        barberPoleModel = BarberPoleModel(barberPoleShader)
+        barberPoleMesh = BarberPoleMesh(positionLocation = barberPoleShader.positionLocation, colorLocation = barberPoleShader.colorLocation)
         lastFrameTime = System.currentTimeMillis()
     }
 
@@ -58,35 +54,16 @@ class BarberPoleRenderer(val context: Context) : GLSurfaceView.Renderer {
         Matrix.setIdentityM(modelMatrix, 0)
         Matrix.translateM(modelMatrix, 0, modelMatrix, 0, 0f, positionY, 0.0f)
 
-        GLES30.glUniformMatrix4fv(barberPoleShader.modelLocation, 1, false, modelMatrix, 0)
+        barberPoleShader.setMvpModel(modelMatrix)
         if (colorUpdated) {
-            barberPoleModel.updateColorsBuffer(firstColor = firstColor, secondColor = secondColor)
+            barberPoleMesh.updateColorsBuffer(firstColor = firstColor, secondColor = secondColor)
             colorUpdated = false
         }
-        barberPoleModel.draw()
+        barberPoleMesh.draw()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         GLES30.glViewport(0, 0, width, height)
-
-        val aspect = width.toFloat() / height
-
-        val viewBounds = if (height < width) {
-            ViewBounds(-aspect, aspect, -1f, 1f)
-        } else {
-            ViewBounds(-1f, 1f, -1f / aspect, 1f / aspect)
-        }
-
-        Matrix.orthoM(
-            projectionMatrix,
-            0,
-            viewBounds.left,
-            viewBounds.right,
-            viewBounds.bottom,
-            viewBounds.top,
-            -1f,
-            1f
-        )
     }
 
     fun setColors(firstColor: Int, secondColor: Int) {
@@ -97,6 +74,6 @@ class BarberPoleRenderer(val context: Context) : GLSurfaceView.Renderer {
 
     fun release() {
         barberPoleShader.release()
-        barberPoleModel.release()
+        barberPoleMesh.release()
     }
 }
