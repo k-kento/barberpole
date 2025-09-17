@@ -49,4 +49,10 @@ class VehicleView(context: Context) : GLSurfaceView(context) {
         // 自分で何かしたい処理があればここに書く
         return true
     }
+
+    fun release() {
+        post {
+            renderer?.release()
+        }
+    }
 }

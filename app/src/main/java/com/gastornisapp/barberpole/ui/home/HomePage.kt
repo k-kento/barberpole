@@ -141,7 +141,7 @@ private fun createItems(): List<ItemInfo> {
         ),
         ItemInfo(
             title = "くるま",
-            drawableRes = R.drawable.ic_launcher_background,
+            drawableRes = R.drawable.vehicles,
             PageType.Vehicle
         ),
         ItemInfo(

@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.viewinterop.AndroidView
+import com.gastornisapp.barberpole.ui.common.LifecycleAndroidView
 
 @Composable
 fun VehiclePage() {
@@ -22,7 +23,7 @@ fun VehiclePage() {
         ) {
             val haptic = LocalHapticFeedback.current
 
-            AndroidView(
+            LifecycleAndroidView(
                 modifier = Modifier
                     .fillMaxSize()
                     .align(Alignment.Center),
@@ -33,6 +34,9 @@ fun VehiclePage() {
                         }
                     }
                 },
+                onResume = { it.onResume() },
+                onPause = { it.onPause() },
+                onRelease = { it.release() }
             )
         }
     }

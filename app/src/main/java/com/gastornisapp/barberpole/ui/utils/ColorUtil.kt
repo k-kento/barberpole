@@ -31,15 +31,6 @@ fun adjustPressedColor(color: Int): Int {
 }
 
 @Deprecated("colorToFloatArrayを使用してください")
-
-fun colorCodeToFloatArray(colorInt: Int): FloatArray {
-    val r = Color.red(colorInt) / 255f
-    val g = Color.green(colorInt) / 255f
-    val b = Color.blue(colorInt) / 255f
-    val a = Color.alpha(colorInt) / 255f
-    return floatArrayOf(r, g, b, a)
-}
-
 fun colorToFloatArray(colorInt: Int): FloatArray {
     val r = Color.red(colorInt) / 255f
     val g = Color.green(colorInt) / 255f
@@ -65,5 +56,12 @@ object ColorUtil {
             colors.add(Color.HSVToColor(floatArrayOf(hue, saturation, value)))
         }
         return colors
+    }
+
+    fun colorToFloatArray(rgb: Int, a: Float = 1f): FloatArray {
+        val r = Color.red(rgb) / 255f
+        val g = Color.green(rgb) / 255f
+        val b = Color.blue(rgb) / 255f
+        return floatArrayOf(r, g, b, a)
     }
 }

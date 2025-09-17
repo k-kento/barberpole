@@ -1,8 +1,6 @@
 package com.gastornisapp.barberpole.ui.vehicle.logic
 
 import com.gastornisapp.barberpole.ui.ViewBounds
-import com.gastornisapp.barberpole.ui.utils.colorCodeToFloatArray
-import com.gastornisapp.barberpole.ui.vehicle.VehicleRendererModel
 
 sealed class VehicleLogicModel(
     val id: Int,
@@ -10,22 +8,39 @@ sealed class VehicleLogicModel(
 ) {
 
     var velocity: Float = 0.0004f
+        private set
+
     var pressed: Boolean = false
+
     var distance: Float = 0f
+        private set
+
     var posX: Float = 0f
+        private set
+
     var posY: Float = 0f
+        private set
+
     var orientation: Orientation = Orientation.Left
+        private set
+
     var color: FloatArray = colors.random()
+        private set
+
+    // MVP のキャッシュ TODO VehicleLogicModel で mvp Matrixを持たない方がいい
+    val mvpMatrix = FloatArray(16)
 
     /**
      * 幅
      */
-    val scaledWidth: Float = VehicleRendererModel.WIDTH * scale
+    val scaledWidth: Float = 2f * scale
 
     /**
      * 高さ
      */
-    val scaledHeight: Float = VehicleRendererModel.HEIGHT * scale
+    val scaledHeight: Float = 2f * scale
+
+    abstract val colors: Array<FloatArray>
 
     /**
      * 前方車両との追従距離をチェックする
@@ -50,16 +65,39 @@ sealed class VehicleLogicModel(
         return requiredClearance < actualClearance
     }
 
-    companion object {
-        val colors = arrayOf(
-            colorCodeToFloatArray(0xF44336),
-            colorCodeToFloatArray(0xFF9800),
-            colorCodeToFloatArray(0xFFEB3B),
-            colorCodeToFloatArray(0x4CAF50),
-            colorCodeToFloatArray(0x2196F3),
-            colorCodeToFloatArray(0x3F51B5),
-            colorCodeToFloatArray(0x9C27B0),
-        )
+    fun updatePosition(loop: Int, newDistance: Float, laneHeight: Float, viewBounds: ViewBounds) {
+        // 偶数ループなら左向き、奇数なら右向き
+        val isLeft = (loop and 1) == 0
+        val direction = if (isLeft) -1 else 1
+        val posX = newDistance - loop * viewBounds.width
+
+        this.posX = direction * posX
+        this.posY = laneHeight * loop - laneHeight / 2f
+        this.orientation = if (isLeft) Orientation.Left else Orientation.Right
+        this.distance = newDistance
+    }
+
+    fun handleTouchDown(touchX: Float, touchY: Float): Boolean {
+        // 車の位置とサイズ（中心座標と半サイズ）で矩形当たり判定
+        val halfWidth = scaledWidth / 2f
+        val halfHeight = scaledHeight / 2f
+
+        val left = posX - halfWidth
+        val right = posX + halfWidth
+        val top = posY + halfHeight
+        val bottom = posY - halfHeight
+
+        if (touchX in left..right && touchY in bottom..top) {
+            pressed = true
+        }
+
+        return pressed
+    }
+
+    fun reset(viewBounds: ViewBounds) {
+        distance = -1 * viewBounds.right
+        orientation = Orientation.Left
+        color = colors.random()
     }
 
     enum class Orientation(val value: Int) {
