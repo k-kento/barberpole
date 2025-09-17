@@ -8,7 +8,7 @@ import com.gastornisapp.barberpole.R
 import com.gastornisapp.barberpole.ui.ViewBounds
 import com.gastornisapp.barberpole.ui.gl.GlUtil
 import com.gastornisapp.barberpole.ui.gl.model.TexturedQuadRenderer
-import com.gastornisapp.barberpole.ui.gl.shader.TexturedShaderProgram
+import com.gastornisapp.barberpole.ui.gl.shader.TexturedTintShaderProgram
 import com.gastornisapp.barberpole.ui.utils.ViewUtil
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -22,7 +22,7 @@ class SwarmRenderer(context: Context) : GLSurfaceView.Renderer {
     private val boidTransform: BoidTransform = BoidTransform()
 
     private lateinit var texturedQuadRenderer: TexturedQuadRenderer
-    private lateinit var shaderProgram: TexturedShaderProgram
+    private lateinit var shaderProgram: TexturedTintShaderProgram
     private var textureId: Int = -1
 
     private lateinit var boidSimulation: BoidSimulation
@@ -36,7 +36,7 @@ class SwarmRenderer(context: Context) : GLSurfaceView.Renderer {
         // 出力色 = ソース色 × srcFactor + 背景色 × dstFactor
         GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
 
-        shaderProgram = TexturedShaderProgram()
+        shaderProgram = TexturedTintShaderProgram()
         shaderProgram.initialize(context)
 
         textureId = GlUtil.loadTexture(context = context, resId = R.drawable.fish, 64, 64)
