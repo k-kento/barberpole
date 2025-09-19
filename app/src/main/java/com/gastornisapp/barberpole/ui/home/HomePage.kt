@@ -64,8 +64,8 @@ fun HomePage(
         },
     ) { paddingValues ->
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2), // 列数
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            columns = GridCells.Fixed(1), // 列数
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = paddingValues,
             modifier = Modifier
@@ -73,7 +73,7 @@ fun HomePage(
                 .padding(horizontal = 16.dp)
         ) {
             items(items) { item ->
-                Item(item) {
+                Item(itemInfo = item) {
                     navController.navigate(it.route)
                 }
             }
@@ -104,7 +104,10 @@ fun HomePage(
 }
 
 @Composable
-private fun Item(itemInfo: ItemInfo, onClicked: (PageType) -> Unit = {}) {
+private fun Item(
+    itemInfo: ItemInfo,
+    onClicked: (PageType) -> Unit = {},
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -120,14 +123,10 @@ private fun Item(itemInfo: ItemInfo, onClicked: (PageType) -> Unit = {}) {
                 contentDescription = "Sample Image",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
-                contentScale = ContentScale.Crop
+                    .height(300.dp),
+                contentScale = itemInfo.contentScale
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = itemInfo.title,
-                modifier = Modifier.padding(16.dp),
-            )
         }
     }
 }
@@ -135,30 +134,27 @@ private fun Item(itemInfo: ItemInfo, onClicked: (PageType) -> Unit = {}) {
 private fun createItems(): List<ItemInfo> {
     return listOf(
         ItemInfo(
-            title = "さいんぽーる",
-            drawableRes = R.drawable.ic_launcher_background,
-            PageType.BarberPole
-        ),
-        ItemInfo(
-            title = "くるま",
             drawableRes = R.drawable.vehicles,
             PageType.Vehicle
         ),
         ItemInfo(
-            title = "たいこ",
-            drawableRes = R.drawable.ic_launcher_background,
+            drawableRes = R.drawable.percussion,
             PageType.Percussion
         ),
         ItemInfo(
-            title = "さかな",
-            drawableRes = R.drawable.ic_launcher_background,
+            drawableRes = R.drawable.fishes,
             PageType.Swarm
-        )
+        ),
+        ItemInfo(
+            drawableRes = R.drawable.barberpole,
+            PageType.BarberPole,
+            contentScale = ContentScale.Fit
+        ),
     )
 }
 
 private data class ItemInfo(
-    val title: String,
     @param:DrawableRes val drawableRes: Int,
-    val route: PageType
+    val route: PageType,
+    val contentScale: ContentScale = ContentScale.Crop
 )
