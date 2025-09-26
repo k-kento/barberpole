@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vulkan/vulkan.h>
 #include <android/native_window.h>
 #include <vector>
@@ -9,20 +11,29 @@ public:
 
     ~SwapChain() = default;
 
-    bool create(VulkanContext *vkContext, VkSurfaceKHR surface);
+    bool init(VulkanContext *vkContext, VkSurfaceKHR surface);
 
     void destroy(VkDevice device);
 
-    VkSwapchainKHR getSwapChain() const;
+    [[nodiscard]] VkSwapchainKHR getSwapChain() const {
+        return mSwapChain;
+    }
 
-    const std::vector<VkImageView> &getImageViews();
+    std::vector<VkImageView> getImageViews() {
+        return mImageViews;
+    }
 
-    VkFormat getFormat();
+    VkFormat getFormat() {
+        return mFormat;
+    }
 
-    VkExtent2D getExtent();
+    VkExtent2D getExtent() {
+        return mExtent;
+    }
 
 private:
     bool createImageViews(VulkanContext *vkContext);
+    static VkPresentModeKHR selectPresentMode(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
 
 private:
     VkSwapchainKHR mSwapChain = VK_NULL_HANDLE;
