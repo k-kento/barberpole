@@ -1,6 +1,7 @@
+#pragma once
+
 #include <vulkan/vulkan.h>
 #include <android/native_window.h>
-#include <vector>
 #include "vulkan_context.h"
 
 class Surface {
@@ -9,13 +10,15 @@ public:
 
     ~Surface() = default;
 
-    bool create(VulkanContext* vkContext, ANativeWindow *window);
+    bool create(VulkanContext *vkContext, ANativeWindow *window);
 
     void destroy(VulkanContext *vkContext);
 
-    VkSurfaceKHR getSurface();
+    [[nodiscard]] VkSurfaceKHR getSurface() const {
+        return mSurface;
+    }
 
 private:
     VkSurfaceKHR mSurface = VK_NULL_HANDLE;
-    ANativeWindow* mWindow = nullptr;
+    ANativeWindow *mWindow = nullptr;
 };
