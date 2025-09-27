@@ -58,13 +58,6 @@ bool MyVulkan::init() {
     instInfo.enabledExtensionCount = requiredExtensions.size();
     instInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
-#ifndef NDEBUG
-    // バリデーションレイヤーを有効にする
-    const char *validationLayers[] = {"VK_LAYER_KHRONOS_validation"};
-    instInfo.enabledLayerCount = 1;
-    instInfo.ppEnabledLayerNames = validationLayers;
-#endif
-
     VkResult createResult = vkCreateInstance(&instInfo, nullptr, &mInstance);
     if (createResult != VK_SUCCESS) {
         LOGE("Failed to create Vulkan instance %d", createResult);
