@@ -7,32 +7,37 @@
 #include "vulkan_context.h"
 #include "swap_chain.h"
 #include "surface.h"
+#include "render_pass.h"
+#include "frame_buffer.h"
 
 class VulkanRenderer {
 public:
     VulkanRenderer();
     ~VulkanRenderer();
 
-    bool init(VulkanContext* vkContext, ANativeWindow* window);
+    virtual bool init(VulkanContext* vkContext, ANativeWindow* window);
+    bool postInit();
     void start();
     void stop();
     void destroy();
-
+protected:
+    virtual void recordDrawCommands(VkCommandBuffer cmdBuffer, uint32_t imageIndex) = 0;
+    
 private:
-    bool createRenderPass();
-    bool createFramebuffers();
     bool createCommandPoolAndBuffers();
     bool recordCommandBuffers();
     bool createSemaphores();
 
     void renderLoop();
-
-private:
+protected:
     VulkanContext* mVkContext = nullptr;
-    Surface* mSurface = nullptr;
-    SwapChain* mSwapChain = nullptr;
-    VkRenderPass gRenderPass = VK_NULL_HANDLE;
-    std::vector<VkFramebuffer> gFramebuffers;
+    std::unique_ptr<RenderPass> mRenderPass;
+private:
+    std::unique_ptr<Surface> mSurface;
+    std::unique_ptr<SwapChain>  mSwapChain;
+
+    std::unique_ptr<FrameBuffer> mFrameBuffer;
+
     VkCommandPool gCommandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> gCmdBuffers;
     VkSemaphore gImageAvailable = VK_NULL_HANDLE;
