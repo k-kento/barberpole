@@ -8,16 +8,7 @@
 
 VulkanContext::VulkanContext(AAssetManager *assetManager) {
     mAssetManager = assetManager;
-}
-
-bool VulkanContext::init() {
     mVulkan = std::make_unique<MyVulkan>();
-    mPhysicalDevice = std::make_unique<PhysicalDevice>();
-    mDevice = std::make_unique<Device>();
-
-    if (!mVulkan->init()) return false;
-    if (!mPhysicalDevice->init(mVulkan->getVkInstance())) return false;
-    if (!mDevice->init(mPhysicalDevice.get())) return false;
-
-    return true;
+    mPhysicalDevice = std::make_unique<PhysicalDevice>(mVulkan->getVkInstance());
+    mDevice = std::make_unique<Device>(mPhysicalDevice.get());
 }

@@ -10,9 +10,7 @@
 class VulkanContext {
 
 public:
-    explicit VulkanContext(AAssetManager *assetManager);
-
-    bool init();
+    explicit VulkanContext(AAssetManager *assetManager) noexcept(false);
 
     [[nodiscard]] MyVulkan *getVulkan() const {
         return mVulkan.get();
