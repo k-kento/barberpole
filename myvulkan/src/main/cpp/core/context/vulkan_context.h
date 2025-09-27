@@ -12,11 +12,7 @@ class VulkanContext {
 public:
     explicit VulkanContext(AAssetManager *assetManager);
 
-    ~VulkanContext();
-
     bool init();
-
-    void destroy();
 
     [[nodiscard]] MyVulkan *getVulkan() const {
         return mVulkan.get();
@@ -35,9 +31,9 @@ public:
     };
 
 private:
-    std::unique_ptr<MyVulkan> mVulkan = nullptr;
-    std::unique_ptr<PhysicalDevice> mPhysicalDevice = nullptr;
-    std::unique_ptr<Device> mDevice = nullptr;
+    std::unique_ptr<MyVulkan> mVulkan;
+    std::unique_ptr<PhysicalDevice> mPhysicalDevice;
+    std::unique_ptr<Device> mDevice;
     AAssetManager *mAssetManager = nullptr; // TODO Android 依存コード
 
 };

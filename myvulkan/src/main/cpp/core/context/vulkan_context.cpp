@@ -10,10 +10,6 @@ VulkanContext::VulkanContext(AAssetManager *assetManager) {
     mAssetManager = assetManager;
 }
 
-VulkanContext::~VulkanContext() {
-    destroy();
-}
-
 bool VulkanContext::init() {
     mVulkan = std::make_unique<MyVulkan>();
     mPhysicalDevice = std::make_unique<PhysicalDevice>();
@@ -24,17 +20,4 @@ bool VulkanContext::init() {
     if (!mDevice->init(mPhysicalDevice.get())) return false;
 
     return true;
-}
-
-void VulkanContext::destroy() {
-    // 破棄の順番に注意する
-    if (mDevice != nullptr) mDevice->destroy();
-    mDevice.reset();
-
-    mPhysicalDevice.reset();
-
-    if (mVulkan != nullptr) mVulkan->destroy();
-    mVulkan.reset();
-
-    LOGI("VulkanContext destroyed");
 }
