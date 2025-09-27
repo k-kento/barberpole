@@ -26,12 +26,40 @@ project("myvulkan")
 # used in the AndroidManifest.xml file.
 add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
-        vulkan_context_jni.cpp
-        vulkan_context.cpp
-        surface.cpp
-        swap_chain.cpp
-        vulkan_renderer_jni.cpp
-        vulkan_renderer.cpp)
+        platform/android/jni/vulkan_context_jni.cpp
+        core/context/vulkan_context.cpp
+        core/context/vulkan/my_vulkan.cpp
+        core/context/physical_device/physical_device.cpp
+        core/context/device/device.cpp
+        core/utils/vulkan_utils.cpp
+        core/context/vulkan_context.cpp
+        core/pipeline/graphics_pipeline.cpp
+        core/surface/surface.cpp
+        core/surface/swap_chain.cpp
+        platform/android/jni/vulkan_renderer_jni.cpp
+        core/pipeline/shader/shader_module.cpp
+        core/renderer/kaleidoscope_renderer.cpp
+        core/renderpass/render_pass.cpp
+        core/framebuffer/frame_buffer.cpp
+        core/renderer/vulkan_renderer.cpp
+        core/vulkan_buffer.cpp)
+
+target_include_directories(myvulkan PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/core
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/context
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/context/vulkan
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/context/physical_device
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/context/device
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/framebuffer
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/renderer
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/pipeline
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/pipeline/shader
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/renderpass
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/surface
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/utils
+        ${CMAKE_CURRENT_SOURCE_DIR}/platform/android/jni
+        ${CMAKE_CURRENT_SOURCE_DIR}/util
+)
 
 find_library(VULKAN_LIB vulkan PATHS ${ANDROID_NDK}/sysroot/usr/lib/${ANDROID_TOOLCHAIN_NAME}/)
 
