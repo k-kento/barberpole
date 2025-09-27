@@ -4,9 +4,9 @@
 
 class Device {
 public:
-    bool init(PhysicalDevice* physicalDevice);
+    explicit Device(PhysicalDevice *physicalDevice) noexcept(false);
 
-    void destroy();
+    ~Device();
 
     VkDevice getDevice() {
         return mDevice;
