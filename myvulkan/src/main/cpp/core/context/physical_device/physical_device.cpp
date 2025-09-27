@@ -3,10 +3,10 @@
 #include "physical_device.h"
 #include "log.h"
 
-bool PhysicalDevice::init(VkInstance vkInstance) {
-    if (!pickPhysicalDevice(vkInstance)) return false;
-    LOGI("PhysicalDevice initialized");
-    return true;
+PhysicalDevice::PhysicalDevice(VkInstance vkInstance) noexcept(false) {
+    if (!pickPhysicalDevice(vkInstance)) {
+        throw std::runtime_error("Failed to pick physical device");
+    }
 }
 
 // Vulkan インスタンスに接続されている GPU（物理デバイス）のうち、アプリケーションで使うデバイスを選択
@@ -57,4 +57,3 @@ uint32_t PhysicalDevice::findGraphicsQueueFamily(VkPhysicalDevice device) {
     }
     return UINT32_MAX;
 }
-

@@ -5,11 +5,9 @@
 class PhysicalDevice {
 
 public:
-    PhysicalDevice() = default;
+    PhysicalDevice(VkInstance vkInstance) noexcept(false);
 
-    ~PhysicalDevice() = default;
-
-    bool init(VkInstance vkInstance);
+    ~PhysicalDevice();
 
     [[nodiscard]] uint32_t getQueueFamilyIndex() const { return mQueueFamilyIndex; }
 
