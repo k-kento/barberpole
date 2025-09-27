@@ -7,8 +7,7 @@
 #include "log.h"
 #include <vector>
 
-bool MyVulkan::init() {
-
+MyVulkan::MyVulkan() {
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "BarberPole";
@@ -27,14 +26,12 @@ bool MyVulkan::init() {
     uint32_t extCount = 0;
     VkResult res = vkEnumerateInstanceExtensionProperties(nullptr, &extCount, nullptr);
     if (res != VK_SUCCESS || extCount == 0) {
-        LOGE("Failed to enumerate instance extensions");
-        return false;
+        throw std::runtime_error("Failed to enumerate instance extensions");
     }
     std::vector<VkExtensionProperties> availableExts(extCount);
     res = vkEnumerateInstanceExtensionProperties(nullptr, &extCount, availableExts.data());
     if (res != VK_SUCCESS) {
-        LOGE("Failed to query instance extensions");
-        return false;
+        throw std::runtime_error("Failed to query instance extensions");
     }
 
     // 必要な拡張がサポートされているか確認
@@ -47,8 +44,7 @@ bool MyVulkan::init() {
             }
         }
         if (!found) {
-            LOGE("Required instance extension not supported: %s", req);
-            return false;
+            throw std::runtime_error(std::string("Required instance extension not supported: ") + req);
         }
     }
 
@@ -60,13 +56,11 @@ bool MyVulkan::init() {
 
     VkResult createResult = vkCreateInstance(&instInfo, nullptr, &mInstance);
     if (createResult != VK_SUCCESS) {
-        LOGE("Failed to create Vulkan instance %d", createResult);
-        return false;
+        throw std::runtime_error("Failed to create Vulkan instance");
     }
-    return true;
 }
 
-void MyVulkan::destroy() {
+MyVulkan::~MyVulkan() {
     if (mInstance != VK_NULL_HANDLE) {
         vkDestroyInstance(mInstance, nullptr);
         mInstance = VK_NULL_HANDLE;

@@ -6,11 +6,11 @@ class MyVulkan {
 
 public:
 
-    bool init();
+    MyVulkan() noexcept(false);
 
-    void destroy();
+    ~MyVulkan();
 
-    [[nodiscard]] VkInstance getVkInstance() {
+    [[nodiscard]] VkInstance getVkInstance() noexcept {
         return mInstance;
     }
 
