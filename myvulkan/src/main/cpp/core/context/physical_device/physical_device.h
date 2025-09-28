@@ -7,8 +7,6 @@ class PhysicalDevice {
 public:
     PhysicalDevice(VkInstance vkInstance) noexcept(false);
 
-    ~PhysicalDevice();
-
     [[nodiscard]] uint32_t getQueueFamilyIndex() const { return mQueueFamilyIndex; }
 
     [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return mPhysicalDevice; }
