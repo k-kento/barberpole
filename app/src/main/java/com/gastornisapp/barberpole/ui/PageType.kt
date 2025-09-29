@@ -8,6 +8,7 @@ enum class PageType(val route: String) {
     Harmony("harmony"),
     Percussion("percussion"),
     Swarm("swarm"),
+    Kaleidoscope("kaleidoscope"),
     WebPage("webpage?url={url}"),
     Info("info"),
     License("license");

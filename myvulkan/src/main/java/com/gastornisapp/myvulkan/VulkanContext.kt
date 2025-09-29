@@ -3,12 +3,16 @@ package com.gastornisapp.myvulkan
 import android.content.Context
 import android.content.res.AssetManager
 
-class VulkanContext {
+class VulkanContext(context: Context) {
+
+    init {
+        init(context)
+    }
 
     internal var nativeHandle: Long = 0L
         private set
 
-    fun init(context: Context) {
+    private fun init(context: Context) {
         if (!isLibraryLoaded) {
             System.loadLibrary("myvulkan")
             isLibraryLoaded = true

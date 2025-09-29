@@ -1,11 +1,13 @@
 package com.gastornisapp.myvulkan.kaleidoscope
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.gastornisapp.myvulkan.Renderer
 import com.gastornisapp.myvulkan.VulkanContext
 
+@SuppressLint("ViewConstructor")
 class KaleidoscopeView(context: Context, val vulkanContext: VulkanContext) : SurfaceView(context),
     SurfaceHolder.Callback {
 

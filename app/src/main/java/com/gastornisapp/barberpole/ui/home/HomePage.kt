@@ -150,6 +150,11 @@ private fun createItems(): List<ItemInfo> {
             PageType.BarberPole,
             contentScale = ContentScale.Fit
         ),
+        ItemInfo(
+            drawableRes = R.drawable.ic_launcher_background,
+            PageType.Kaleidoscope,
+            contentScale = ContentScale.Fit
+        ),
     )
 }
 
