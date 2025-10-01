@@ -1,22 +1,22 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 class PhysicalDevice {
 
 public:
-    PhysicalDevice(VkInstance vkInstance) noexcept(false);
+    PhysicalDevice(const vk::Instance& instance) noexcept(false);
 
     [[nodiscard]] uint32_t getQueueFamilyIndex() const { return mQueueFamilyIndex; }
 
-    [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return mPhysicalDevice; }
+    [[nodiscard]] vk::PhysicalDevice getPhysicalDevice() const { return mPhysicalDevice; }
 
 private:
-    VkPhysicalDevice mPhysicalDevice = VK_NULL_HANDLE;
+    vk::PhysicalDevice mPhysicalDevice;
     uint32_t mQueueFamilyIndex = UINT32_MAX;
 
-    bool pickPhysicalDevice(VkInstance vkInstance);
+    bool pickPhysicalDevice(const vk::Instance& instance);
 
-    static uint32_t findGraphicsQueueFamily(VkPhysicalDevice device);
+    static uint32_t findGraphicsQueueFamily(vk::PhysicalDevice device);
 
 };

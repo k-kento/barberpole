@@ -3,39 +3,33 @@
 #include "log.h"
 #include <stdexcept>
 
-Device::Device(PhysicalDevice* physicalDevice) {
+Device::Device(const PhysicalDevice* physicalDevice) {
     float queuePriority = 1.0f;
 
-    // 物理デバイスから論理デバイスを作り、グラフィックスキューを取得する
-    VkDeviceQueueCreateInfo queueInfo{};
-    queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    // キュー作成情報
+    vk::DeviceQueueCreateInfo queueInfo{};
     queueInfo.queueFamilyIndex = physicalDevice->getQueueFamilyIndex();
     queueInfo.queueCount = 1;
     queueInfo.pQueuePriorities = &queuePriority;
 
-    const char *deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    // デバイス拡張
+    std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
-    VkDeviceCreateInfo deviceInfo{};
-    deviceInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    // 論理デバイス作成情報
+    vk::DeviceCreateInfo deviceInfo{};
     deviceInfo.queueCreateInfoCount = 1;
     deviceInfo.pQueueCreateInfos = &queueInfo;
-    deviceInfo.enabledExtensionCount = 1;
-    deviceInfo.ppEnabledExtensionNames = deviceExtensions;
+    deviceInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    deviceInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-    auto result = vkCreateDevice(physicalDevice->getPhysicalDevice(), &deviceInfo, nullptr, &mDevice);
-    if (result != VK_SUCCESS) {
-        LOGE("Failed to create logical device %d", result);
-        throw std::runtime_error("error happened");
+    try {
+        // UniqueDevice による RAII 管理
+        mDevice = physicalDevice->getPhysicalDevice().createDeviceUnique(deviceInfo);
+    } catch (vk::SystemError& err) {
+        LOGE("Failed to create logical device: %s", err.what());
+        throw std::runtime_error("Failed to create logical device");
     }
 
-    vkGetDeviceQueue(mDevice, physicalDevice->getQueueFamilyIndex(), 0, &mGraphicsQueue);
-}
-
-Device::~Device() {
-    if (mDevice != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(mDevice);
-        vkDestroyDevice(mDevice, nullptr);
-        mDevice = VK_NULL_HANDLE;
-        mGraphicsQueue = VK_NULL_HANDLE;
-    }
+    // グラフィックスキュー取得
+    mGraphicsQueue = mDevice->getQueue(physicalDevice->getQueueFamilyIndex(), 0);
 }

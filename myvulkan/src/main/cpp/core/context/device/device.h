@@ -1,22 +1,19 @@
 #pragma once
 
+#include <vulkan/vulkan.hpp>
 #include "physical_device.h"
 
 class Device {
 public:
-    explicit Device(PhysicalDevice *physicalDevice) noexcept(false);
+    explicit Device(const PhysicalDevice *physicalDevice);
 
-    ~Device();
+    ~Device() = default;
 
-    VkDevice getDevice() {
-        return mDevice;
-    }
+    [[nodiscard]] vk::Device getDevice() const { return mDevice.get(); }
 
-    VkQueue getGraphicsQueue() {
-        return mGraphicsQueue;
-    }
+    [[nodiscard]] vk::Queue getGraphicsQueue() const { return mGraphicsQueue; }
 
 private:
-    VkDevice mDevice = VK_NULL_HANDLE;
-    VkQueue mGraphicsQueue = VK_NULL_HANDLE;
+    vk::UniqueDevice mDevice;
+    vk::Queue mGraphicsQueue;
 };

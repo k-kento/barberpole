@@ -2,7 +2,7 @@
 
 #include <android/asset_manager.h>
 #include <vulkan/vulkan.h>
-#include "my_vulkan.h"
+#include "vulkan/vulkan.hpp"
 #include "physical_device.h"
 #include "device.h"
 #include "memory"
@@ -12,12 +12,20 @@ class VulkanContext {
 public:
     explicit VulkanContext(AAssetManager *assetManager) noexcept(false);
 
-    [[nodiscard]] MyVulkan *getVulkan() const {
-        return mVulkan.get();
+    [[nodiscard]] VkInstance getVkInstance() const {
+        return mVkInstance.get();
     }
 
     [[nodiscard]] PhysicalDevice *getPhysicalDevice() const {
         return mPhysicalDevice.get();
+    }
+
+    [[nodiscard]] VkPhysicalDevice getVkPhysicalDevice() const {
+        return mPhysicalDevice->getPhysicalDevice();
+    }
+
+    [[nodiscard]] VkDevice getVkDevice() {
+        return mDevice->getDevice();
     }
 
     [[nodiscard]] Device *getDevice() {
@@ -29,9 +37,11 @@ public:
     };
 
 private:
-    std::unique_ptr<MyVulkan> mVulkan;
+    vk::UniqueInstance createVkInstance();
+
+private:
+    vk::UniqueInstance mVkInstance;
     std::unique_ptr<PhysicalDevice> mPhysicalDevice;
     std::unique_ptr<Device> mDevice;
     AAssetManager *mAssetManager = nullptr; // TODO Android 依存コード
-
 };
