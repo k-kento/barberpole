@@ -32,4 +32,6 @@ Device::Device(const PhysicalDevice* physicalDevice) {
 
     // グラフィックスキュー取得
     mGraphicsQueue = mDevice->getQueue(physicalDevice->getQueueFamilyIndex(), 0);
+
+    LOGI("Logical device created.");
 }

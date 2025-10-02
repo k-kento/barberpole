@@ -8,6 +8,7 @@ PhysicalDevice::PhysicalDevice(const vk::Instance& instance) {
     if (!pickPhysicalDevice(instance)) {
         throw std::runtime_error("Failed to pick physical device");
     }
+    LOGI("Physical device created.");
 }
 
 // Vulkan インスタンスに接続されている GPU の中から選択

@@ -1,11 +1,12 @@
 #include "vulkan_context.h"
-#include <vulkan/vulkan_android.h>
+#include "log.h"
 
 VulkanContext::VulkanContext(AAssetManager *assetManager) {
     mAssetManager = assetManager;
     mVkInstance = createVkInstance();
     mPhysicalDevice = std::make_unique<PhysicalDevice>(mVkInstance.get());
     mDevice = std::make_unique<Device>(mPhysicalDevice.get());
+    LOGI("VulkanContext created.");
 }
 
 vk::UniqueInstance VulkanContext::createVkInstance() {

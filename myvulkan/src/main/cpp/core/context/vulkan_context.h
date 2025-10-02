@@ -1,7 +1,6 @@
 #pragma once
 
 #include <android/asset_manager.h>
-#include <vulkan/vulkan.h>
 #include "vulkan/vulkan.hpp"
 #include "physical_device.h"
 #include "device.h"
@@ -12,7 +11,7 @@ class VulkanContext {
 public:
     explicit VulkanContext(AAssetManager *assetManager) noexcept(false);
 
-    [[nodiscard]] VkInstance getVkInstance() const {
+    [[nodiscard]] vk::Instance getVkInstance() const {
         return mVkInstance.get();
     }
 
@@ -20,11 +19,11 @@ public:
         return mPhysicalDevice.get();
     }
 
-    [[nodiscard]] VkPhysicalDevice getVkPhysicalDevice() const {
+    [[nodiscard]] vk::PhysicalDevice getVkPhysicalDevice() const {
         return mPhysicalDevice->getPhysicalDevice();
     }
 
-    [[nodiscard]] VkDevice getVkDevice() {
+    [[nodiscard]] vk::Device getVkDevice() {
         return mDevice->getDevice();
     }
 
