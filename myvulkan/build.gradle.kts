@@ -6,6 +6,7 @@ plugins {
 android {
     namespace = "com.gastornisapp.myvulkan"
     compileSdk = 36
+    ndkVersion = "29.0.13846066"
 
     defaultConfig {
         minSdk = 29
