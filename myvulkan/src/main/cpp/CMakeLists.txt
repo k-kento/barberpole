@@ -28,7 +28,6 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
         platform/android/jni/vulkan_context_jni.cpp
         core/context/vulkan_context.cpp
-        core/context/vulkan/my_vulkan.cpp
         core/context/physical_device/physical_device.cpp
         core/context/device/device.cpp
         core/utils/vulkan_utils.cpp
@@ -37,29 +36,33 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         core/surface/surface.cpp
         core/surface/swap_chain.cpp
         platform/android/jni/vulkan_renderer_jni.cpp
-        core/pipeline/shader/shader_module.cpp
         core/renderer/kaleidoscope_renderer.cpp
-        core/renderpass/render_pass.cpp
-        core/framebuffer/frame_buffer.cpp
+        core/renderer/kaleidoscope/kaleidoscope_pipeline_config.cpp
+        core/renderer/descriptor/descriptor_manager.cpp
+        core/pipeline/render_pass.cpp
         core/renderer/vulkan_renderer.cpp
-        core/vulkan_buffer.cpp)
+        core/memory/vulkan_buffer.cpp)
 
-target_include_directories(myvulkan PRIVATE
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/core
         ${CMAKE_CURRENT_SOURCE_DIR}/core/context
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/context/vulkan
         ${CMAKE_CURRENT_SOURCE_DIR}/core/context/physical_device
         ${CMAKE_CURRENT_SOURCE_DIR}/core/context/device
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/framebuffer
         ${CMAKE_CURRENT_SOURCE_DIR}/core/renderer
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/renderer/descriptor
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/renderer/kaleidoscope
         ${CMAKE_CURRENT_SOURCE_DIR}/core/pipeline
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/pipeline/shader
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/renderpass
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/memory
         ${CMAKE_CURRENT_SOURCE_DIR}/core/surface
         ${CMAKE_CURRENT_SOURCE_DIR}/core/utils
         ${CMAKE_CURRENT_SOURCE_DIR}/platform/android/jni
         ${CMAKE_CURRENT_SOURCE_DIR}/util
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/Vulkan-Hpp
 )
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
 
 find_library(VULKAN_LIB vulkan PATHS ${ANDROID_NDK}/sysroot/usr/lib/${ANDROID_TOOLCHAIN_NAME}/)
 
