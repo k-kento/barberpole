@@ -23,3 +23,44 @@ std::vector<char> VulkanUtils::readFile(AAssetManager *assetManager, const std::
     AAsset_close(asset);
     return buffer;
 }
+
+vk::UniqueShaderModule VulkanUtils::createShaderModule(vk::Device device, const std::vector<char> &code) {
+    if (code.size() % 4 != 0) {
+        throw std::runtime_error("SPIR-V code size must be a multiple of 4");
+    }
+
+    vk::ShaderModuleCreateInfo createInfo{};
+    createInfo.codeSize = code.size();
+    createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+
+    return device.createShaderModuleUnique(createInfo);
+}
+
+std::vector<vk::UniqueFramebuffer>
+VulkanUtils::createFrameBuffers(vk::Device device, SwapChain *swapChain, vk::RenderPass renderPass) {
+
+    std::vector<vk::UniqueFramebuffer> frameBuffers;
+
+    auto imageViews = swapChain->getImageViews(); // 生ハンドルを取得
+    frameBuffers.reserve(imageViews.size());
+
+    for (auto &imageView: imageViews) {
+        vk::FramebufferCreateInfo fbInfo(
+                {},
+                renderPass,
+                1,
+                &imageView,
+                swapChain->getExtent().width,
+                swapChain->getExtent().height,
+                1
+        );
+
+        try {
+            frameBuffers.push_back(device.createFramebufferUnique(fbInfo));
+        } catch (const vk::SystemError &e) {
+            throw std::runtime_error(std::string("Failed to create framebuffer: ") + e.what());
+        }
+    }
+
+    return frameBuffers;
+}
