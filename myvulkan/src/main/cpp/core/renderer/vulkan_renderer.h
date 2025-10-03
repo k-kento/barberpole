@@ -1,5 +1,5 @@
 #pragma once
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 #include <android/native_window.h>
 #include <vector>
 #include <thread>
@@ -8,24 +8,21 @@
 #include "swap_chain.h"
 #include "surface.h"
 #include "render_pass.h"
-#include "frame_buffer.h"
 
 class VulkanRenderer {
 public:
-    VulkanRenderer();
+    VulkanRenderer(VulkanContext* vkContext, ANativeWindow* window);
     ~VulkanRenderer();
 
-    virtual bool init(VulkanContext* vkContext, ANativeWindow* window);
-    bool postInit();
     void start();
     void stop();
-    void destroy();
 protected:
-    virtual void recordDrawCommands(VkCommandBuffer cmdBuffer, uint32_t imageIndex) = 0;
-    
-private:
-    bool createCommandPoolAndBuffers();
+    virtual void recordDrawCommands(vk::CommandBuffer cmdBuffer, uint32_t imageIndex) = 0;
+    virtual void renderFrame() = 0;
     bool recordCommandBuffers();
+private:
+    bool createCommandPool(vk::Device device, uint32_t queueFamilyIndex);
+    bool createCommandBuffers(vk::Device device);
     bool createSemaphores();
 
     void renderLoop();
@@ -35,13 +32,12 @@ protected:
 private:
     std::unique_ptr<Surface> mSurface;
     std::unique_ptr<SwapChain>  mSwapChain;
+    std::vector<vk::UniqueFramebuffer> mFrameBuffer;
 
-    std::unique_ptr<FrameBuffer> mFrameBuffer;
-
-    VkCommandPool gCommandPool = VK_NULL_HANDLE;
-    std::vector<VkCommandBuffer> gCmdBuffers;
-    VkSemaphore gImageAvailable = VK_NULL_HANDLE;
-    VkSemaphore gRenderFinished = VK_NULL_HANDLE;
+    vk::UniqueCommandPool mCommandPool;
+    std::vector<vk::UniqueCommandBuffer> mCmdBuffers;
+    vk::UniqueSemaphore mImageAvailable;
+    vk::UniqueSemaphore mRenderFinished;
 
     // スレッド制御
     std::thread gRenderThread;
