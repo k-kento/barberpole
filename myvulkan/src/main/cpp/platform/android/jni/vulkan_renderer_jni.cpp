@@ -4,11 +4,9 @@
 
 extern "C" JNIEXPORT jlong JNICALL
 Java_com_gastornisapp_myvulkan_Renderer_nativeInit(JNIEnv *env, jobject thiz, jobject surface, jlong vulkanContextHandle) {
-    auto *renderer = new KaleidoscopeRenderer();
     auto *vkContext = reinterpret_cast<VulkanContext *>(vulkanContextHandle);
     ANativeWindow *window = ANativeWindow_fromSurface(env, surface);
-    renderer->init(vkContext, window);
-
+    auto *renderer = new KaleidoscopeRenderer(vkContext, window);
     return reinterpret_cast<jlong>(renderer);
 }
 
@@ -31,7 +29,6 @@ JNIEXPORT void JNICALL
 Java_com_gastornisapp_myvulkan_Renderer_nativeDestroy(JNIEnv *env, jobject thiz, jlong nativeHandle) {
     auto *renderer = reinterpret_cast<VulkanRenderer *>(nativeHandle);
     if (renderer) {
-        renderer->destroy();
         delete renderer;
     }
 }
