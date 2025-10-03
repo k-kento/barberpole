@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include "vulkan/vulkan.hpp"
 #include <memory>
 
 class RenderPass {
 public:
-    RenderPass(VkDevice device);
+    RenderPass(vk::Device device, vk::Format colorFormat);
 
     ~RenderPass();
 
@@ -21,13 +21,8 @@ public:
 
     RenderPass &operator=(RenderPass &&other) noexcept;
 
-    VkRenderPass getVkRenderPass() const { return mRenderPass; }
-
-    bool init(VkFormat colorFormat);
+    [[nodiscard]] vk::RenderPass getVkRenderPass() const { return mRenderPass.get(); }
 
 private:
-    VkDevice mDevice = VK_NULL_HANDLE;
-    VkRenderPass mRenderPass = VK_NULL_HANDLE;
-
-    void destroy();
+    vk::UniqueRenderPass mRenderPass;
 };
