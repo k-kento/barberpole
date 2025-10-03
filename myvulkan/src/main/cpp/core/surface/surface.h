@@ -1,24 +1,20 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 #include <android/native_window.h>
 #include "vulkan_context.h"
 
 class Surface {
 public:
-    Surface() = default;
+    Surface(vk::Instance vkInstance, ANativeWindow *window);
 
-    ~Surface() = default;
+    ~Surface();
 
-    bool create(VulkanContext *vkContext, ANativeWindow *window);
-
-    void destroy(VulkanContext *vkContext);
-
-    [[nodiscard]] VkSurfaceKHR getSurface() const {
-        return mSurface;
+    [[nodiscard]] vk::SurfaceKHR getSurface() const {
+        return mSurface.get();
     }
 
 private:
-    VkSurfaceKHR mSurface = VK_NULL_HANDLE;
+    vk::UniqueSurfaceKHR mSurface;
     ANativeWindow *mWindow = nullptr;
 };
