@@ -38,7 +38,6 @@ vk::UniqueShaderModule VulkanUtils::createShaderModule(vk::Device device, const 
 
 std::vector<vk::UniqueFramebuffer>
 VulkanUtils::createFrameBuffers(vk::Device device, SwapChain *swapChain, vk::RenderPass renderPass) {
-
     std::vector<vk::UniqueFramebuffer> frameBuffers;
 
     auto imageViews = swapChain->getImageViews(); // 生ハンドルを取得
@@ -61,6 +60,8 @@ VulkanUtils::createFrameBuffers(vk::Device device, SwapChain *swapChain, vk::Ren
             throw std::runtime_error(std::string("Failed to create framebuffer: ") + e.what());
         }
     }
+
+    LOGI("Frame Buffers created.");
 
     return frameBuffers;
 }

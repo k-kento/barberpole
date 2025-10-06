@@ -37,8 +37,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         core/surface/swap_chain.cpp
         platform/android/jni/vulkan_renderer_jni.cpp
         core/renderer/kaleidoscope_renderer.cpp
-        core/renderer/kaleidoscope/kaleidoscope_pipeline_config.cpp
-        core/renderer/descriptor/descriptor_manager.cpp
+        core/renderer/descriptor/descriptor.cpp
         core/pipeline/render_pass.cpp
         core/renderer/vulkan_renderer.cpp
         core/memory/vulkan_buffer.cpp)
