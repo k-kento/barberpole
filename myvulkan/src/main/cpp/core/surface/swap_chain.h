@@ -1,44 +1,40 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
-#include <android/native_window.h>
+#include <vulkan/vulkan.hpp>
 #include <vector>
 #include "vulkan_context.h"
+#include "log.h"
 
 class SwapChain {
 public:
-    SwapChain() = default;
+    SwapChain(VulkanContext *vkContext, vk::SurfaceKHR surface);
 
-    ~SwapChain() = default;
+    [[nodiscard]] vk::Format getFormat() const { return mFormat; }
 
-    bool init(VulkanContext *vkContext, VkSurfaceKHR surface);
+    [[nodiscard]] vk::Extent2D getExtent() const { return mExtent; }
 
-    void destroy(VkDevice device);
+    [[nodiscard]] const std::vector<vk::Image> &getImages() const { return mImages; }
 
-    [[nodiscard]] VkSwapchainKHR getSwapChain() const {
-        return mSwapChain;
+    [[nodiscard]] std::vector<vk::ImageView> getImageViews() const {
+        std::vector<vk::ImageView> result;
+        result.reserve(mImageViews.size());
+        for (const auto &u : mImageViews) {
+            result.push_back(u.get()); // vk::UniqueImageView → vk::ImageView
+        }
+        return result;
     }
 
-    std::vector<VkImageView> getImageViews() {
-        return mImageViews;
-    }
-
-    VkFormat getFormat() {
-        return mFormat;
-    }
-
-    VkExtent2D getExtent() {
-        return mExtent;
-    }
+    [[nodiscard]] vk::SwapchainKHR getSwapChain() const { return mSwapChain.get(); }
 
 private:
-    bool createImageViews(VulkanContext *vkContext);
-    static VkPresentModeKHR selectPresentMode(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
+    static std::vector<vk::UniqueImageView> createImageViews(vk::Device device, const std::vector<vk::Image> &images, vk::Format format);
+
+    static vk::PresentModeKHR selectPresentMode(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 
 private:
-    VkSwapchainKHR mSwapChain = VK_NULL_HANDLE;
-    std::vector<VkImage> mImages;
-    std::vector<VkImageView> mImageViews;
-    VkFormat mFormat;
-    VkExtent2D mExtent;
+    vk::UniqueSwapchainKHR mSwapChain;
+    std::vector<vk::Image> mImages;
+    std::vector<vk::UniqueImageView> mImageViews;
+    vk::Format mFormat;
+    vk::Extent2D mExtent;
 };

@@ -1,38 +1,22 @@
 #include "swap_chain.h"
-#include "log.h"
 
+SwapChain::SwapChain(VulkanContext *vkContext, vk::SurfaceKHR surface) {
+    auto physicalDevice = vkContext->getVkPhysicalDevice();
+    auto device = vkContext->getVkDevice();
 
-bool SwapChain::init(VulkanContext *vkContext, VkSurfaceKHR surface) {
-    VkPhysicalDevice physicalDevice = vkContext->getPhysicalDevice()->getPhysicalDevice();
-    VkDevice device = vkContext->getDevice()->getDevice();
+    vk::SurfaceCapabilitiesKHR surfaceCapabilities;
+    surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
 
-    VkSurfaceCapabilitiesKHR surfaceCapabilities{};
-    VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities);
-    if (result != VK_SUCCESS) {
-        LOGE("Failed to get surface surfaceCapabilities: %d", result);
-        return false;
-    }
-
-    // Surface から フォーマット一覧を取得
-    uint32_t formatCount = 0;
-    result = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
-    if (result != VK_SUCCESS) {
-        LOGE("Failed to get surface format: %d", result);
-        return false;
-    }
-
-    std::vector<VkSurfaceFormatKHR> formats(formatCount);
-
-    result = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, formats.data());
-    if (result != VK_SUCCESS) {
-        LOGE("Failed to get surface format: %d", result);
-        return false;
+    auto formats = physicalDevice.getSurfaceFormatsKHR(surface);
+    if (formats.empty()) {
+        throw std::runtime_error("No surface formats available");
     }
 
     // 最適なフォーマットを選択
-    VkSurfaceFormatKHR surfaceFormat = formats[0];
+    vk::SurfaceFormatKHR surfaceFormat = formats[0];
     for (const auto &f: formats) {
-        if (f.format == VK_FORMAT_B8G8R8A8_UNORM && f.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+        if (f.format == vk::Format::eB8G8R8A8Unorm &&
+            f.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
             surfaceFormat = f;
             break;
         }
@@ -40,142 +24,87 @@ bool SwapChain::init(VulkanContext *vkContext, VkSurfaceKHR surface) {
 
     mFormat = surfaceFormat.format;
 
-    VkExtent2D extent;
+    // 解像度
+    vk::Extent2D extent;
     if (surfaceCapabilities.currentExtent.width != UINT32_MAX) {
         extent = surfaceCapabilities.currentExtent;
     } else {
-        // TODO
-        extent = surfaceCapabilities.currentExtent;
+        // TODO: 画面サイズを取得
+        throw std::runtime_error("No surface extent available.");
     }
-
     mExtent = extent;
 
-    /* VkSwapchainCreateInfoKHR 作成 */
+    uint32_t imageCount = std::min(surfaceCapabilities.minImageCount + 1,
+                                   surfaceCapabilities.maxImageCount > 0 ? surfaceCapabilities.maxImageCount
+                                                                         : UINT32_MAX);
 
-    VkSwapchainCreateInfoKHR scInfo{};
-    scInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    vk::SwapchainCreateInfoKHR scInfo{};
     scInfo.surface = surface;
-
-    // 使うイメージ数（バッファ数）
-    // minImageCount は GPU が要求する最小バッファ数 + 1 が安全
-    scInfo.minImageCount = surfaceCapabilities.minImageCount + 1;
-    // GPU がサポートする最大バッファ数を超えないように補正
-    if (scInfo.minImageCount > surfaceCapabilities.maxImageCount && surfaceCapabilities.maxImageCount > 0) {
-        scInfo.minImageCount = surfaceCapabilities.maxImageCount;
-    }
-
-    // カラーフォーマットと色空間（必須）
-    // Surface と一致させないと表示できない
+    scInfo.minImageCount = imageCount;
     scInfo.imageFormat = mFormat;
     scInfo.imageColorSpace = surfaceFormat.colorSpace;
-
-    // 描画解像度
     scInfo.imageExtent = extent;
-    // 画像配列レイヤー
     scInfo.imageArrayLayers = 1;
-    // 描画用途
-    scInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    // 複数キューで共有するかどうか
-    scInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; // 1つのキューでのみ使用する場合はEXCLUSIVEで高速
+    scInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+    scInfo.imageSharingMode = vk::SharingMode::eExclusive;
     scInfo.preTransform = surfaceCapabilities.currentTransform;
-    // 透明度
-    scInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    // 見えないピクセルはクリップして表示しない
-    scInfo.clipped = VK_TRUE;
-    scInfo.oldSwapchain = VK_NULL_HANDLE;
+    scInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
     scInfo.presentMode = selectPresentMode(physicalDevice, surface);
+    scInfo.clipped = VK_TRUE;
 
-    /* スワップチェーンを作成 */
-    result = vkCreateSwapchainKHR(device, &scInfo, nullptr, &mSwapChain);
-    if (result != VK_SUCCESS) {
-        LOGE("Failed to init swapchain: %d", result);
-        return false;
+    mSwapChain = device.createSwapchainKHRUnique(scInfo);
+
+    mImages = device.getSwapchainImagesKHR(mSwapChain.get());
+    if (mImages.empty()) {
+        LOGE("No swap chain images retrieved.");
     }
 
-    uint32_t imgCount = 0;
-    result = vkGetSwapchainImagesKHR(device, mSwapChain, &imgCount, nullptr);
-    if (result != VK_SUCCESS) {
-        LOGE("Failed to init vkGetSwapchainImagesKHR: %d", result);
-        return false;
-    }
-
-    mImages.resize(imgCount);
-    result = vkGetSwapchainImagesKHR(device, mSwapChain, &imgCount, mImages.data());
-    if (result != VK_SUCCESS) {
-        LOGE("Failed to init vkGetSwapchainImagesKHR: %d", result);
-        return false;
-    }
-
-    if (!createImageViews(vkContext)) {
-        destroy(vkContext->getDevice()->getDevice());
-
-        return false;
-    }
-
-    return true;
-}
-
-void SwapChain::destroy(VkDevice device) {
-    for (auto view: mImageViews) {
-        if (view) vkDestroyImageView(device, view, nullptr);
-    }
-    mImageViews.clear();
-
-    if (mSwapChain) {
-        vkDestroySwapchainKHR(device, mSwapChain, nullptr);
-        mSwapChain = VK_NULL_HANDLE;
+    try {
+        mImageViews = createImageViews(device, mImages, mFormat);
+        if (mImageViews.empty()) {
+            LOGE("images views size == 0");
+        }
+    } catch (const vk::SystemError &e) {
+        throw std::runtime_error(std::string("Failed to create image views: ") + e.what());
     }
 }
 
-bool SwapChain::createImageViews(VulkanContext *vkContext) {
-    mImageViews.resize(mImages.size());
-    for (size_t i = 0; i < mImages.size(); ++i) {
-        VkImageViewCreateInfo ivInfo{};
-        ivInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        ivInfo.image = mImages[i];
-        ivInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        ivInfo.format = mFormat;
-        ivInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        ivInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        ivInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        ivInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-        ivInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+std::vector<vk::UniqueImageView>
+SwapChain::createImageViews(vk::Device device, const std::vector<vk::Image> &images, vk::Format format) {
+    std::vector<vk::UniqueImageView> imageViews;
+
+    imageViews.reserve(images.size());
+
+    for (auto image: images) {
+        vk::ImageViewCreateInfo ivInfo{};
+        ivInfo.image = image;
+        ivInfo.viewType = vk::ImageViewType::e2D;
+        ivInfo.format = format;
+        ivInfo.components = {
+                vk::ComponentSwizzle::eIdentity,
+                vk::ComponentSwizzle::eIdentity,
+                vk::ComponentSwizzle::eIdentity,
+                vk::ComponentSwizzle::eIdentity
+        };
+        ivInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
         ivInfo.subresourceRange.baseMipLevel = 0;
         ivInfo.subresourceRange.levelCount = 1;
         ivInfo.subresourceRange.baseArrayLayer = 0;
         ivInfo.subresourceRange.layerCount = 1;
 
-        if (vkCreateImageView(vkContext->getDevice()->getDevice(), &ivInfo, nullptr, &mImageViews[i]) != VK_SUCCESS) {
-            LOGE("Failed to init image view %zu", i);
-            return false;
-        }
+        imageViews.push_back(device.createImageViewUnique(ivInfo));
     }
-    return true;
+
+    return imageViews;
 }
 
-VkPresentModeKHR SwapChain::selectPresentMode(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface) {
-    VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-
-    uint32_t presentModeCount = 0;
-    VkResult result = vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
-    if (result != VK_SUCCESS || presentModeCount == 0) {
-        LOGE("Failed to get present mode count: %d", result);
-        return VK_PRESENT_MODE_FIFO_KHR; // デフォルト安全モード
-    }
-
-    std::vector<VkPresentModeKHR> modes(presentModeCount);
-    result = vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, modes.data());
-    if (result != VK_SUCCESS) {
-        LOGE("Failed to get present modes: %d", result);
-        return VK_PRESENT_MODE_FIFO_KHR; // デフォルト安全モード
-    }
+vk::PresentModeKHR SwapChain::selectPresentMode(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface) {
+    auto modes = physicalDevice.getSurfacePresentModesKHR(surface);
 
     for (auto mode: modes) {
-        if (mode == VK_PRESENT_MODE_MAILBOX_KHR) {
-            presentMode = mode;
-            break;
-        }
+        if (mode == vk::PresentModeKHR::eMailbox)
+            return mode;
     }
 
-    return presentMode;
+    return vk::PresentModeKHR::eFifo;
 }
