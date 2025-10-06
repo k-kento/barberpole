@@ -6,7 +6,6 @@
 #include <glm/glm.hpp>
 #include "renderer/descriptor/descriptor.hpp"
 #include "memory/ubo_buffer.hpp"
-#include "kaleidoscope_pipeline_config.hpp"
 #include <optional>
 #include <vector>
 

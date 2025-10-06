@@ -12,7 +12,7 @@ VulkanRenderer::VulkanRenderer(VulkanContext *vkContext, ANativeWindow *window) 
     vk::Device device = mVkContext->getVkDevice();
 
     mSurface = std::make_unique<Surface>(mVkContext->getVkInstance(), window);
-    mSwapChain = std::make_unique<SwapChain>(device, physicalDevice, mSurface->getSurface());
+    mSwapChain = std::make_unique<SwapChain>(vkContext, mSurface->getSurface());
     mRenderPass = std::make_unique<RenderPass>(device, mSwapChain->getFormat());
     mFrameBuffer = VulkanUtils::createFrameBuffers(device, mSwapChain.get(), mRenderPass->getVkRenderPass());
 

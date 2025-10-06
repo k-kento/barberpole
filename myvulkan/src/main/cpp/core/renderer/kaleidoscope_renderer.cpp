@@ -6,7 +6,6 @@
 #include "memory/ubo_buffer.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "kaleidoscope/kaleidoscope_pipeline_config.hpp"
 #include "log.h"
 
 KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext *vkContext, ANativeWindow *window) : VulkanRenderer(vkContext,
