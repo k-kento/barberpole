@@ -1,32 +1,35 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 #include <vector>
 #include <vulkan_context.h>
 
-class VulkanContext; // 前方宣言
+struct PipelineConfig {
+    vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
+};
 
 class GraphicsPipeline {
 public:
-    explicit GraphicsPipeline(VkDevice device);
+    GraphicsPipeline(vk::Device &device,
+                     const PipelineConfig &pipelineConfig,
+                     vk::RenderPass &renderPass,
+                     const std::vector<vk::ShaderModule> &shaderModules);
 
-    ~GraphicsPipeline();
+    [[nodiscard]] vk::Pipeline getPipeline() const { return mPipeline.get(); }
 
-    bool init(VkRenderPass renderPass, const std::vector<VkShaderModule> &shaderModules);
-
-    [[nodiscard]] VkPipeline getPipeline() const { return mPipeline; }
-
-    [[nodiscard]] VkPipelineLayout getPipelineLayout() const { return mPipelineLayout; }
+    [[nodiscard]] vk::PipelineLayout getPipelineLayout() const { return mPipelineLayout.get(); }
 
 private:
-    bool createPipelineLayout();
+    std::vector<vk::PipelineShaderStageCreateInfo>
+    createShaderStages(const std::vector<vk::ShaderModule> &shaderModules);
 
-    bool createGraphicsPipeline(VkRenderPass renderPass, const std::vector<VkShaderModule> &shaderModules);
 
-    static std::vector<VkPipelineShaderStageCreateInfo> createShaderStages(
-            const std::vector<VkShaderModule> &shaderModules);
+    bool createGraphicsPipeline(vk::Device &device, vk::RenderPass &renderPass,
+                                const std::vector<vk::ShaderModule> &shaderModules,
+                                const PipelineConfig &pipelineConfig);
 
-    VkPipeline mPipeline{VK_NULL_HANDLE};
-    VkPipelineLayout mPipelineLayout{VK_NULL_HANDLE};
-    VkDevice mDevice{VK_NULL_HANDLE};
+private:
+
+    vk::UniquePipeline mPipeline;
+    vk::UniquePipelineLayout mPipelineLayout;
 };
