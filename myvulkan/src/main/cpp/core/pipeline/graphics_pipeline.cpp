@@ -6,9 +6,9 @@
 #include "kaleidoscope_renderer.h"
 
 
-GraphicsPipeline::GraphicsPipeline(vk::Device &device,
+GraphicsPipeline::GraphicsPipeline(vk::Device device,
                                    const PipelineConfig &pipelineConfig,
-                                   vk::RenderPass &renderPass,
+                                   vk::RenderPass renderPass,
                                    const std::vector<vk::ShaderModule> &shaderModules) {
     if (shaderModules.size() < 2) throw std::runtime_error("Need at least 2 shader modules.");
 
@@ -38,13 +38,12 @@ GraphicsPipeline::createShaderStages(const std::vector<vk::ShaderModule> &shader
 }
 
 
-bool GraphicsPipeline::createGraphicsPipeline(vk::Device &device, vk::RenderPass &renderPass,
+bool GraphicsPipeline::createGraphicsPipeline(vk::Device device, vk::RenderPass renderPass,
                                               const std::vector<vk::ShaderModule> &shaderModules,
                                               const PipelineConfig &pipelineConfig) {
     LOGI("Creating Graphics Pipeline...");
 
     auto shaderStages = createShaderStages(shaderModules);
-    LOGI("Shader stages created: %zu", shaderStages.size());
 
     vk::PipelineInputAssemblyStateCreateInfo inputAssembly{};
     inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
