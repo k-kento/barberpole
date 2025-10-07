@@ -54,6 +54,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/core/memory
         ${CMAKE_CURRENT_SOURCE_DIR}/core/surface
         ${CMAKE_CURRENT_SOURCE_DIR}/core/utils
+        ${CMAKE_CURRENT_SOURCE_DIR}/mesh
         ${CMAKE_CURRENT_SOURCE_DIR}/platform/android/jni
         ${CMAKE_CURRENT_SOURCE_DIR}/util
         ${CMAKE_CURRENT_SOURCE_DIR}/include/Vulkan-Hpp
