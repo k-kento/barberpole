@@ -1,6 +1,6 @@
-package com.gastornisapp.barberpole.usecase
+package com.gastornisapp.barberpole.domain.usecase
 
-import com.gastornisapp.barberpole.domain.model.Notice
+import com.gastornisapp.barberpole.domain.entity.Notice
 import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
 import javax.inject.Inject
 

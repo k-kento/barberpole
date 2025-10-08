@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole.usecase
+package com.gastornisapp.barberpole.domain.usecase
 
 import com.gastornisapp.barberpole.domain.port.SoundPlayer
 import javax.inject.Inject

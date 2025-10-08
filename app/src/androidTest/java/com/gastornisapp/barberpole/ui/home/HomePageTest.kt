@@ -11,7 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import com.gastornisapp.barberpole.HiltComponentActivity
-import com.gastornisapp.barberpole.domain.model.Notice
+import com.gastornisapp.barberpole.domain.entity.Notice
 import com.gastornisapp.barberpole.ui.AppNavGraph
 import com.gastornisapp.barberpole.ui.PageType
 import com.gastornisapp.barberpole.ui.assertCurrentRoute

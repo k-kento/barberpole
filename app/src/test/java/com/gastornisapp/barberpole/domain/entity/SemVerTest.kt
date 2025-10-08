@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole.domain.model
+package com.gastornisapp.barberpole.domain.entity
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull

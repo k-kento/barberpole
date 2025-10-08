@@ -1,8 +1,8 @@
 package com.gastornisapp.barberpole.ui.swarm
 
-import com.gastornisapp.barberpole.math.MathUtil
-import com.gastornisapp.barberpole.math.MathUtil.limit
-import com.gastornisapp.barberpole.math.MathUtil.normalize
+import com.gastornisapp.barberpole.common.MathUtil
+import com.gastornisapp.barberpole.common.MathUtil.limit
+import com.gastornisapp.barberpole.common.MathUtil.normalize
 import com.gastornisapp.barberpole.ui.ViewBounds
 import com.gastornisapp.barberpole.ui.utils.ColorUtil
 import com.gastornisapp.barberpole.ui.utils.colorToFloatArray

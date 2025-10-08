@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.gastornisapp.barberpole.Constants
-import com.gastornisapp.barberpole.ext.navigateToWebPage
+import com.gastornisapp.barberpole.ui.common.navigateToWebPage
 
 @Composable
 fun InfoPage(navController: NavHostController, viewModel: InfoViewModel = hiltViewModel()) {

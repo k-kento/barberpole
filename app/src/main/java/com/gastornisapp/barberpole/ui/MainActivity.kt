@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole
+package com.gastornisapp.barberpole.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,10 +8,6 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.gastornisapp.barberpole.ui.AppNavGraph
-import com.gastornisapp.barberpole.ui.LoadingPage
-import com.gastornisapp.barberpole.ui.AppStartupViewModel
-import com.gastornisapp.barberpole.ui.AppStartupUiStatus
 import com.gastornisapp.barberpole.ui.theme.BarberPoleTheme
 import dagger.hilt.android.AndroidEntryPoint
 

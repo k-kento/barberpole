@@ -1,8 +1,8 @@
-package com.gastornisapp.barberpole.data
+package com.gastornisapp.barberpole.data.remoteconfig
 
 import android.util.Log
 import com.gastornisapp.barberpole.data.db.NoticeConfig
-import com.gastornisapp.barberpole.domain.model.SemVer
+import com.gastornisapp.barberpole.domain.entity.SemVer
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import kotlinx.coroutines.tasks.await
 import kotlinx.serialization.json.Json
@@ -44,7 +44,7 @@ class DefaultRemoteConfigDataSource() : RemoteConfigDataSource {
     }
 
     override fun getRequiredAppVersion(): Result<SemVer> {
-        return SemVer.parse(remoteConfig.getString(KEY_REQUIRED_APP_VERSION))
+        return SemVer.Companion.parse(remoteConfig.getString(KEY_REQUIRED_APP_VERSION))
     }
 
     override fun getLatestTermsOfServiceVersion(): Int {

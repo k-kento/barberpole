@@ -2,9 +2,9 @@ package com.gastornisapp.barberpole.di
 
 import com.gastornisapp.barberpole.domain.port.SoundPlayer
 import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
-import com.gastornisapp.barberpole.usecase.ForceUpdateUseCase
-import com.gastornisapp.barberpole.usecase.NoticeUseCase
-import com.gastornisapp.barberpole.usecase.PlaySoundUseCase
+import com.gastornisapp.barberpole.domain.usecase.ForceUpdateUseCase
+import com.gastornisapp.barberpole.domain.usecase.NoticeUseCase
+import com.gastornisapp.barberpole.domain.usecase.PlaySoundUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

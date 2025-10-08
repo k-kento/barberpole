@@ -9,7 +9,7 @@ import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import com.gastornisapp.barberpole.HiltComponentActivity
 import com.gastornisapp.barberpole.di.RepositoryModule
-import com.gastornisapp.barberpole.domain.model.SemVer
+import com.gastornisapp.barberpole.domain.entity.SemVer
 import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
 import dagger.Module
 import dagger.Provides
@@ -88,7 +88,7 @@ object FakeRepositoryModule {
     @Singleton
     fun provideAppSettingsRepository(): AppSettingsRepository {
         val mock = mockk<AppSettingsRepository>()
-        every { mock.getCurrentAppVersion() } returns Result.success(SemVer.parse("1.2.3"))
+        every { mock.getCurrentAppVersion() } returns SemVer.parse("1.2.3")
         return mock
     }
 }
