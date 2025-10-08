@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole.data
+package com.gastornisapp.barberpole.data.datastore
 
 interface AppPreferencesDataSource {
 

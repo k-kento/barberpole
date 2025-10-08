@@ -1,7 +1,7 @@
 package com.gastornisapp.barberpole.ui.swarm
 
-import com.gastornisapp.barberpole.math.MathUtil
-import com.gastornisapp.barberpole.math.toRadian
+import com.gastornisapp.barberpole.common.MathUtil
+import com.gastornisapp.barberpole.common.toRadian
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin

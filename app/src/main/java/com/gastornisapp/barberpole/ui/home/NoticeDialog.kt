@@ -5,7 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import com.gastornisapp.barberpole.domain.model.Notice
+import com.gastornisapp.barberpole.domain.entity.Notice
 
 @Composable
 fun NoticeDialog(

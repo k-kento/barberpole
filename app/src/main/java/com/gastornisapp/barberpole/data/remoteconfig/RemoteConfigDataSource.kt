@@ -1,7 +1,7 @@
-package com.gastornisapp.barberpole.data
+package com.gastornisapp.barberpole.data.remoteconfig
 
 import com.gastornisapp.barberpole.data.db.NoticeConfig
-import com.gastornisapp.barberpole.domain.model.SemVer
+import com.gastornisapp.barberpole.domain.entity.SemVer
 
 interface RemoteConfigDataSource {
     suspend fun fetchRemoteConfig(): Result<Unit>

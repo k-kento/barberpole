@@ -2,7 +2,7 @@ package com.gastornisapp.barberpole.ui.percussion
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gastornisapp.barberpole.usecase.PlaySoundUseCase
+import com.gastornisapp.barberpole.domain.usecase.PlaySoundUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole.math
+package com.gastornisapp.barberpole.common
 
 import kotlin.math.sqrt
 

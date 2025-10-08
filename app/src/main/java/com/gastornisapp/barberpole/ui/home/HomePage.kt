@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.gastornisapp.barberpole.R
-import com.gastornisapp.barberpole.ext.navigateToWebPage
+import com.gastornisapp.barberpole.ui.common.navigateToWebPage
 import com.gastornisapp.barberpole.ui.PageType
 import androidx.core.net.toUri
 

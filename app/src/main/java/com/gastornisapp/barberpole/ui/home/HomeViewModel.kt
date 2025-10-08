@@ -3,9 +3,9 @@ package com.gastornisapp.barberpole.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gastornisapp.barberpole.di.MainDispatcher
-import com.gastornisapp.barberpole.domain.model.Notice
-import com.gastornisapp.barberpole.usecase.ForceUpdateUseCase
-import com.gastornisapp.barberpole.usecase.NoticeUseCase
+import com.gastornisapp.barberpole.domain.entity.Notice
+import com.gastornisapp.barberpole.domain.usecase.ForceUpdateUseCase
+import com.gastornisapp.barberpole.domain.usecase.NoticeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow

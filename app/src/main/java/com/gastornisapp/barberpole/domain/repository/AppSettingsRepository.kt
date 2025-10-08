@@ -1,7 +1,7 @@
 package com.gastornisapp.barberpole.domain.repository
 
-import com.gastornisapp.barberpole.domain.model.Notice
-import com.gastornisapp.barberpole.domain.model.SemVer
+import com.gastornisapp.barberpole.domain.entity.Notice
+import com.gastornisapp.barberpole.domain.entity.SemVer
 
 interface AppSettingsRepository {
     suspend fun refreshConfig(): Result<Unit>

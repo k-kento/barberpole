@@ -5,10 +5,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
-import com.gastornisapp.barberpole.data.AppPreferencesDataSource
-import com.gastornisapp.barberpole.data.DefaultAppPreferencesDataSource
-import com.gastornisapp.barberpole.data.DefaultRemoteConfigDataSource
-import com.gastornisapp.barberpole.data.RemoteConfigDataSource
+import com.gastornisapp.barberpole.data.datastore.AppPreferencesDataSource
+import com.gastornisapp.barberpole.data.datastore.DefaultAppPreferencesDataSource
+import com.gastornisapp.barberpole.data.remoteconfig.DefaultRemoteConfigDataSource
+import com.gastornisapp.barberpole.data.remoteconfig.RemoteConfigDataSource
 import com.gastornisapp.barberpole.data.db.AppDatabase
 import com.gastornisapp.barberpole.data.db.ReadNoticeDao
 import dagger.Module

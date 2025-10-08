@@ -1,10 +1,10 @@
 package com.gastornisapp.barberpole.viewmodel
 
-import com.gastornisapp.barberpole.domain.model.Notice
+import com.gastornisapp.barberpole.domain.entity.Notice
 import com.gastornisapp.barberpole.ui.home.DialogStatus
 import com.gastornisapp.barberpole.ui.home.HomeViewModel
-import com.gastornisapp.barberpole.usecase.ForceUpdateUseCase
-import com.gastornisapp.barberpole.usecase.NoticeUseCase
+import com.gastornisapp.barberpole.domain.usecase.ForceUpdateUseCase
+import com.gastornisapp.barberpole.domain.usecase.NoticeUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

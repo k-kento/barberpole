@@ -1,7 +1,8 @@
 package com.gastornisapp.barberpole.usecase
 
-import com.gastornisapp.barberpole.domain.model.Notice
+import com.gastornisapp.barberpole.domain.entity.Notice
 import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
+import com.gastornisapp.barberpole.domain.usecase.NoticeUseCase
 import io.mockk.coEvery
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals

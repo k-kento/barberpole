@@ -1,11 +1,13 @@
 package com.gastornisapp.barberpole.data
 
 import android.content.Context
+import com.gastornisapp.barberpole.data.datastore.AppPreferencesDataSource
 import com.gastornisapp.barberpole.data.db.ReadNotice
 import com.gastornisapp.barberpole.data.db.ReadNoticeDao
+import com.gastornisapp.barberpole.data.remoteconfig.RemoteConfigDataSource
 import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
-import com.gastornisapp.barberpole.domain.model.Notice
-import com.gastornisapp.barberpole.domain.model.SemVer
+import com.gastornisapp.barberpole.domain.entity.Notice
+import com.gastornisapp.barberpole.domain.entity.SemVer
 
 class DefaultAppSettingsRepository(
     private val context: Context,

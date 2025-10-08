@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gastornisapp.barberpole.Constants
-import com.gastornisapp.barberpole.ext.navigateToWebPage
+import com.gastornisapp.barberpole.ui.common.navigateToWebPage
 
 /**
  * 利用規約確認画面

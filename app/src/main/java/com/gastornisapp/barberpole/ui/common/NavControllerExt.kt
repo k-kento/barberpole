@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole.ext
+package com.gastornisapp.barberpole.ui.common
 
 import android.net.Uri
 import androidx.navigation.NavController

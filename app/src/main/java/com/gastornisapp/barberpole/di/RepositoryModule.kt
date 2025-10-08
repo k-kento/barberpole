@@ -1,9 +1,9 @@
 package com.gastornisapp.barberpole.di
 
 import android.content.Context
-import com.gastornisapp.barberpole.data.AppPreferencesDataSource
+import com.gastornisapp.barberpole.data.datastore.AppPreferencesDataSource
 import com.gastornisapp.barberpole.data.DefaultAppSettingsRepository
-import com.gastornisapp.barberpole.data.RemoteConfigDataSource
+import com.gastornisapp.barberpole.data.remoteconfig.RemoteConfigDataSource
 import com.gastornisapp.barberpole.data.db.ReadNoticeDao
 import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
 import dagger.Module

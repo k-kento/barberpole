@@ -1,4 +1,4 @@
-package com.gastornisapp.barberpole.domain.model
+package com.gastornisapp.barberpole.domain.entity
 
 data class Notice(
     val id: String,

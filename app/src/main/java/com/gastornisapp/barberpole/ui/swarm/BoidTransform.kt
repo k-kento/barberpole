@@ -1,7 +1,7 @@
 package com.gastornisapp.barberpole.ui.swarm
 
 import android.opengl.Matrix
-import com.gastornisapp.barberpole.math.toDegrees
+import com.gastornisapp.barberpole.common.toDegrees
 
 class BoidTransform {
     val modelMatrix = FloatArray(16)

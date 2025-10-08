@@ -2,8 +2,8 @@ package com.gastornisapp.barberpole.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gastornisapp.barberpole.usecase.InitializeAppUseCase
-import com.gastornisapp.barberpole.usecase.UserAgreementUseCase
+import com.gastornisapp.barberpole.domain.usecase.InitializeAppUseCase
+import com.gastornisapp.barberpole.domain.usecase.UserAgreementUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
