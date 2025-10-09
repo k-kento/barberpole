@@ -1,6 +1,6 @@
 #include <android/native_window_jni.h> // for ANativeWindow_fromSurface
 #include <jni.h>
-#include "../core/renderer/kaleidoscope_renderer.h"
+#include "kaleidoscope_renderer.h"
 
 extern "C" JNIEXPORT jlong JNICALL
 Java_com_gastornisapp_myvulkan_Renderer_nativeInit(JNIEnv *env, jobject thiz, jobject surface, jlong vulkanContextHandle) {

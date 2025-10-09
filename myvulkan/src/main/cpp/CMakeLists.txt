@@ -27,38 +27,40 @@ project("myvulkan")
 add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
         platform/android/jni/vulkan_context_jni.cpp
-        core/context/vulkan_context.cpp
-        core/context/physical_device/physical_device.cpp
-        core/context/device/device.cpp
-        core/utils/vulkan_utils.cpp
-        core/context/vulkan_context.cpp
-        core/pipeline/graphics_pipeline.cpp
-        core/surface/surface.cpp
-        core/surface/swap_chain.cpp
         platform/android/jni/vulkan_renderer_jni.cpp
-        core/renderer/kaleidoscope_renderer.cpp
-        core/renderer/descriptor/descriptor.cpp
-        core/pipeline/render_pass.cpp
-        core/renderer/vulkan_renderer.cpp
-        core/memory/vulkan_buffer.cpp)
+
+        vulkan/common/context/device.cpp
+        vulkan/common/context/physical_device.cpp
+        vulkan/common/context/vulkan_context.cpp
+
+        vulkan/common/descriptor/descriptor.cpp
+        vulkan/common/memory/vulkan_buffer.cpp
+        vulkan/common/pipeline/graphics_pipeline.cpp
+        vulkan/common/pipeline/render_pass.cpp
+        vulkan/common/renderer/vulkan_renderer.cpp
+        vulkan/common/surface/surface.cpp
+        vulkan/common/surface/swap_chain.cpp
+        vulkan/common/utils/vulkan_utils.cpp
+
+        vulkan/features/kaleidoscope/kaleidoscope_renderer.cpp
+)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/core
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/context
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/context/physical_device
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/context/device
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/renderer
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/renderer/descriptor
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/renderer/kaleidoscope
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/pipeline
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/memory
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/surface
-        ${CMAKE_CURRENT_SOURCE_DIR}/core/utils
-        ${CMAKE_CURRENT_SOURCE_DIR}/mesh
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/context
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/descriptor
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/memory
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/mesh
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/pipeline
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/renderer
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/surface
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/utils
+
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/features/kaleidoscope
+
         ${CMAKE_CURRENT_SOURCE_DIR}/platform/android/jni
         ${CMAKE_CURRENT_SOURCE_DIR}/util
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/Vulkan-Hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/glm
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/Vulkan-Hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/glm
 )
 
 add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)

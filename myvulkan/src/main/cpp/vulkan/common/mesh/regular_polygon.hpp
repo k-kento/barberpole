@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <vertex.hpp>
+#include "vertex.hpp"
 
 constexpr float PI = 3.14159265358979323846f;
 

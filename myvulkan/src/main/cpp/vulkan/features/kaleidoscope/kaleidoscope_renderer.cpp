@@ -1,11 +1,11 @@
 #include "kaleidoscope_renderer.h"
 #include "vulkan_utils.h"
 #include "graphics_pipeline.h"
-#include "memory/vulkan_buffer.h"
+#include "vulkan_buffer.h"
 #include "descriptor.hpp"
-#include "memory/ubo_buffer.hpp"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "ubo_buffer.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include "log.h"
 #include "vertex.hpp"
 
@@ -15,7 +15,7 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext *vkContext, ANativeWind
     auto windowWidth = ANativeWindow_getWidth(window);
     auto windowHeight = ANativeWindow_getHeight(window);
 
-    mMesh = std::make_unique<RegularPolygon>(4, 1.0f);
+    mRegularPolygonMesh = std::make_unique<RegularPolygon>(3, 1.0f);
 
     updateProjectionMatrix(windowWidth, windowHeight);
     createBuffer();
@@ -56,7 +56,7 @@ void KaleidoscopeRenderer::recordDrawCommands(vk::CommandBuffer cmdBuffer, uint3
     // インデックスバッファ
     cmdBuffer.bindIndexBuffer(mIndexBuffer->getBuffer(), 0, vk::IndexType::eUint16);
 
-    auto indexCount = static_cast<uint32_t>(mMesh->indices.size());
+    auto indexCount = static_cast<uint32_t>(mRegularPolygonMesh->indices.size());
     cmdBuffer.drawIndexed(indexCount, 10, 0, 0, 0);
 
     LOGI("recordDrawCommands done for command buffer %d", imageIndex);
@@ -71,11 +71,10 @@ void KaleidoscopeRenderer::updateProjectionMatrix(uint32_t width, uint32_t heigh
 
 void KaleidoscopeRenderer::createBuffer() {
     /* Vertex Buffer */
-
     vk::Device device = mVkContext->getVkDevice();
     vk::PhysicalDevice physicalDevice = mVkContext->getVkPhysicalDevice();
 
-    VkDeviceSize bufferSize = sizeof(mMesh->vertices[0]) * mMesh->vertices.size();
+    VkDeviceSize bufferSize = sizeof(mRegularPolygonMesh->vertices[0]) * mRegularPolygonMesh->vertices.size();
 
     mVertexBuffer = std::make_unique<VulkanBuffer>(
             device,
@@ -85,11 +84,10 @@ void KaleidoscopeRenderer::createBuffer() {
             vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
     );
 
-    mVertexBuffer->copyFrom(mMesh->vertices.data(), bufferSize);
+    mVertexBuffer->copyFrom(mRegularPolygonMesh->vertices.data(), bufferSize);
 
     /* Index Buffer */
-
-    bufferSize = sizeof(mMesh->indices[0]) * mMesh->indices.size();
+    bufferSize = sizeof(mRegularPolygonMesh->indices[0]) * mRegularPolygonMesh->indices.size();
 
     mIndexBuffer = std::make_unique<VulkanBuffer>(
             device,
@@ -99,16 +97,15 @@ void KaleidoscopeRenderer::createBuffer() {
             vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
     );
 
-    mIndexBuffer->copyFrom(mMesh->indices.data(), bufferSize);
+    mIndexBuffer->copyFrom(mRegularPolygonMesh->indices.data(), bufferSize);
 
     /* インスタンシングの設定 */
-
     uint32_t instanceCount = 10;
     std::vector<InstanceData> instances(instanceCount);
     for (int i = 0; i < instanceCount; ++i) {
         auto model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(i * 0.3f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(0.1f));
+        model = glm::translate(model, glm::vec3(i, 0.0f, 0.0f));
         instances[i].model = model;
     }
 
@@ -125,7 +122,6 @@ void KaleidoscopeRenderer::createBuffer() {
     mInstanceBuffer->copyFrom(instances.data(), instanceBufferSize);
 
     /* UBO Buffer */
-
     mUboBuffer = std::make_unique<VulkanBuffer>(
             device,
             physicalDevice,

@@ -2,10 +2,10 @@
 
 #include "vulkan_renderer.h"
 #include "graphics_pipeline.h"
-#include "memory/vulkan_buffer.h"
-#include <glm/glm.hpp>
-#include "renderer/descriptor/descriptor.hpp"
-#include "memory/ubo_buffer.hpp"
+#include "vulkan_buffer.h"
+#include "glm/glm.hpp"
+#include "descriptor.hpp"
+#include "ubo_buffer.hpp"
 #include <optional>
 #include <vector>
 #include "regular_polygon.hpp"
@@ -28,7 +28,7 @@ protected:
     void renderFrame() override;
 
 private:
-    std::unique_ptr<RegularPolygon> mMesh;
+    std::unique_ptr<RegularPolygon> mRegularPolygonMesh;
     std::unique_ptr<VulkanBuffer> mVertexBuffer;
     std::unique_ptr<VulkanBuffer> mInstanceBuffer;
     std::unique_ptr<VulkanBuffer> mIndexBuffer;
