@@ -58,9 +58,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/platform/android/jni
         ${CMAKE_CURRENT_SOURCE_DIR}/util
         ${CMAKE_CURRENT_SOURCE_DIR}/include/Vulkan-Hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/glm
 )
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
 
