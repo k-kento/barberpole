@@ -1,5 +1,6 @@
 #include "kaleidoscope_renderer.h"
 #include "vulkan_utils.h"
+#include "view_bounds.hpp"
 #include "graphics_pipeline.h"
 #include "vulkan_buffer.h"
 #include "descriptor.hpp"
@@ -17,7 +18,9 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext *vkContext, ANativeWind
 
     mRegularPolygonMesh = std::make_unique<RegularPolygon>(3, 1.0f);
 
-    updateProjectionMatrix(windowWidth, windowHeight);
+    auto viewBounds = ViewBounds::fromSize(windowWidth, windowHeight);
+    mProjectionMatrix = viewBounds.toOrthoMatrix();
+
     createBuffer();
     createDescriptorSet();
     mUboWrapper.emplace(mUboBuffer->getMemory());
@@ -60,13 +63,6 @@ void KaleidoscopeRenderer::recordDrawCommands(vk::CommandBuffer cmdBuffer, uint3
     cmdBuffer.drawIndexed(indexCount, 10, 0, 0, 0);
 
     LOGI("recordDrawCommands done for command buffer %d", imageIndex);
-}
-
-void KaleidoscopeRenderer::updateProjectionMatrix(uint32_t width, uint32_t height) {
-    glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
-    float aspect = float(width) / float(height);
-    projection[0][0] /= aspect;  // X 軸補正
-    mProjectionMatrix = projection;
 }
 
 void KaleidoscopeRenderer::createBuffer() {
