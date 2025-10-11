@@ -95,16 +95,6 @@ void KaleidoscopeRenderer::createBuffer() {
 
     mIndexBuffer->copyFrom(mRegularPolygonMesh->indices.data(), bufferSize);
 
-    /* インスタンシングの設定 */
-    uint32_t instanceCount = 10;
-    std::vector<InstanceData> instances(instanceCount);
-    for (int i = 0; i < instanceCount; ++i) {
-        auto model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(0.1f));
-        model = glm::translate(model, glm::vec3(i, 0.0f, 0.0f));
-        instances[i].model = model;
-    }
-
     VkDeviceSize instanceBufferSize = sizeof(InstanceData) * instanceCount;
 
     mInstanceBuffer = std::make_unique<VulkanBuffer>(
