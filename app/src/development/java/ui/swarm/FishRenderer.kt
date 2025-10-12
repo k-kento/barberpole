@@ -39,7 +39,7 @@ class FishRenderer(context: Context) : GLSurfaceView.Renderer {
         val angle = getAngle()
         bones.updateBoneAnimation(angle)
         // shaderProgram.updateBoneMatrix(bones.finalMatrices)
-        fishMesh.draw(projectionMatrix)
+        //fishMesh.draw(projectionMatrix)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {

@@ -1,10 +1,5 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
-#include <cstddef>
-
-#pragma once
-
 #include "vulkan/vulkan.hpp"
 #include <cstdint>
 

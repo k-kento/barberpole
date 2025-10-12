@@ -29,10 +29,6 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         platform/android/jni/vulkan_context_jni.cpp
         platform/android/jni/vulkan_renderer_jni.cpp
 
-        vulkan/common/context/device.cpp
-        vulkan/common/context/physical_device.cpp
-        vulkan/common/context/vulkan_context.cpp
-
         vulkan/common/descriptor/descriptor.cpp
         vulkan/common/memory/vulkan_buffer.cpp
         vulkan/common/pipeline/graphics_pipeline.cpp
@@ -46,7 +42,6 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/context
         ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/descriptor
         ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/memory
         ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/mesh
@@ -67,11 +62,14 @@ add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
 
 find_library(VULKAN_LIB vulkan PATHS ${ANDROID_NDK}/sysroot/usr/lib/${ANDROID_TOOLCHAIN_NAME}/)
 
+add_subdirectory(vulkan/common/context)
+
 # Specifies libraries CMake should link to your target library. You
 # can link libraries from various origins, such as libraries defined in this
 # build script, prebuilt third-party libraries, or Android system libraries.
 target_link_libraries(${CMAKE_PROJECT_NAME}
         # List libraries link to the target library
+        vulkan_context
         ${VULKAN_LIB}
         android
         log)
