@@ -3,7 +3,7 @@
 #include "pipeline_builder.hpp"
 #include "vulkan_utils.h"
 #include "vertex.hpp"
-#include "instance_data.hpp"
+#include "kaleidoscope_instance_data.hpp"
 
 vk::UniquePipeline
 KaleidoscopePipelineConfig::createPipeline(VulkanContext &context,

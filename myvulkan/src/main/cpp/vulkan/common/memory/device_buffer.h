@@ -3,23 +3,23 @@
 #include "vulkan/vulkan.hpp"
 #include <cstdint>
 
-class VulkanBuffer {
+class DeviceBuffer {
 public:
-    VulkanBuffer(vk::Device device,
+    DeviceBuffer(vk::Device device,
                  vk::PhysicalDevice physicalDevice,
                  vk::DeviceSize size,
                  vk::BufferUsageFlags usage,
                  vk::MemoryPropertyFlags properties);
 
     // コピー禁止
-    VulkanBuffer(const VulkanBuffer &) = delete;
+    DeviceBuffer(const DeviceBuffer &) = delete;
 
-    VulkanBuffer &operator=(const VulkanBuffer &) = delete;
+    DeviceBuffer &operator=(const DeviceBuffer &) = delete;
 
     // ムーブ可能
-    VulkanBuffer(VulkanBuffer &&) noexcept;
+    DeviceBuffer(DeviceBuffer &&) noexcept;
 
-    VulkanBuffer &operator=(VulkanBuffer &&) noexcept;
+    DeviceBuffer &operator=(DeviceBuffer &&) noexcept;
 
     void copyFrom(const void *data, vk::DeviceSize size, vk::DeviceSize offset = 0);
 

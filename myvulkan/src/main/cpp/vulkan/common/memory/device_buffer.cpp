@@ -1,8 +1,8 @@
-#include "vulkan_buffer.h"
+#include "device_buffer.h"
 #include <stdexcept>
 #include <cstring>
 
-VulkanBuffer::VulkanBuffer(vk::Device device,
+DeviceBuffer::DeviceBuffer(vk::Device device,
                            vk::PhysicalDevice physicalDevice,
                            vk::DeviceSize size,
                            vk::BufferUsageFlags usage,
@@ -43,7 +43,7 @@ VulkanBuffer::VulkanBuffer(vk::Device device,
 }
 
 // ムーブコンストラクタ / ムーブ代入
-VulkanBuffer::VulkanBuffer(VulkanBuffer &&other) noexcept
+DeviceBuffer::DeviceBuffer(DeviceBuffer &&other) noexcept
         : mDevice(other.mDevice),
           mBuffer(std::move(other.mBuffer)),
           mMemory(std::move(other.mMemory)),
@@ -51,7 +51,7 @@ VulkanBuffer::VulkanBuffer(VulkanBuffer &&other) noexcept
     other.mSize = 0;
 }
 
-VulkanBuffer &VulkanBuffer::operator=(VulkanBuffer &&other) noexcept {
+DeviceBuffer &DeviceBuffer::operator=(DeviceBuffer &&other) noexcept {
     if (this != &other) {
         mBuffer = std::move(other.mBuffer);
         mMemory = std::move(other.mMemory);
@@ -66,7 +66,7 @@ VulkanBuffer &VulkanBuffer::operator=(VulkanBuffer &&other) noexcept {
  * CPU メモリから GPU メモリへデータをコピー
  * Note: copyFrom only works if buffer was created with HOST_VISIBLE memory
  */
-void VulkanBuffer::copyFrom(const void *data, vk::DeviceSize size, vk::DeviceSize offset) {
+void DeviceBuffer::copyFrom(const void *data, vk::DeviceSize size, vk::DeviceSize offset) {
     if (size + offset > mSize)
         throw std::runtime_error("Copy size exceeds buffer size");
 

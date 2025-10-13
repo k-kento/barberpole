@@ -5,7 +5,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "view_bounds.hpp"
 
-constexpr float SCALE = 0.25f;
+constexpr float SCALE = 0.3f;
 
 class MirrorTileGrid {
 
@@ -25,8 +25,6 @@ public:
 
         int cols = static_cast<int>(screenWidth / dx) + 1;
         int rows = static_cast<int>(screenHeight / dy) + 2;
-
-        LOGI("cols=%d, rows=%d", cols, rows);
 
         auto tiles = createTile();
 

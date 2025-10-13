@@ -30,7 +30,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         platform/android/jni/vulkan_renderer_jni.cpp
 
         vulkan/common/descriptor/descriptor.cpp
-        vulkan/common/memory/vulkan_buffer.cpp
+        vulkan/common/memory/device_buffer.cpp
         vulkan/common/pipeline/pipeline_builder.cpp
         vulkan/common/pipeline/render_pass.cpp
         vulkan/common/renderer/vulkan_engine.cpp
