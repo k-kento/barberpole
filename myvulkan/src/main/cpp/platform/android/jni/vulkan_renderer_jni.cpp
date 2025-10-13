@@ -19,7 +19,7 @@ Java_com_gastornisapp_myvulkan_Renderer_nativeInit(JNIEnv *env, jobject thiz, jo
     auto renderPass = std::make_unique<RenderPass>(vkContext->getVkDevice(), swapChain->getFormat());
 
     auto renderer = std::make_unique<KaleidoscopeRenderer>(*vkContext, *renderPass, windowWidth, windowHeight);
-    auto *engine = new VulkanEngine(vkContext, std::move(surface), std::move(swapChain), std::move(renderPass),
+    auto *engine = new VulkanEngine(*vkContext, std::move(surface), std::move(swapChain), std::move(renderPass),
                                     std::move(renderer));
     return reinterpret_cast<jlong>(engine);
 }

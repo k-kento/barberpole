@@ -33,7 +33,10 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         vulkan/common/memory/device_buffer.cpp
         vulkan/common/pipeline/pipeline_builder.cpp
         vulkan/common/pipeline/render_pass.cpp
+
         vulkan/common/renderer/vulkan_engine.cpp
+        vulkan/common/renderer/command_executor.cpp
+
         vulkan/common/surface/surface.cpp
         vulkan/common/surface/swap_chain.cpp
         vulkan/common/utils/vulkan_utils.cpp

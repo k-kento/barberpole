@@ -13,7 +13,7 @@
 
 class VulkanEngine {
 public:
-    VulkanEngine(VulkanContext *vkContext,
+    VulkanEngine(VulkanContext &vkContext,
                  std::unique_ptr<Surface> surface,
                  std::unique_ptr<SwapChain> swapChain,
                  std::unique_ptr<RenderPass> renderPass,
@@ -26,7 +26,7 @@ public:
     void stop();
 
 private:
-    VulkanContext *mVkContext = nullptr;
+    VulkanContext &mVkContext;
 
     std::unique_ptr<RenderStrategy> mRendererStrategy;
 
