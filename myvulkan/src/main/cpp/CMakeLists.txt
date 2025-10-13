@@ -31,7 +31,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 
         vulkan/common/descriptor/descriptor.cpp
         vulkan/common/memory/vulkan_buffer.cpp
-        vulkan/common/pipeline/graphics_pipeline.cpp
+        vulkan/common/pipeline/pipeline_builder.cpp
         vulkan/common/pipeline/render_pass.cpp
         vulkan/common/renderer/vulkan_engine.cpp
         vulkan/common/surface/surface.cpp
@@ -39,6 +39,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         vulkan/common/utils/vulkan_utils.cpp
 
         vulkan/features/kaleidoscope/kaleidoscope_renderer.cpp
+        vulkan/features/kaleidoscope/kaleidoscope_pipeline_config.cpp
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
