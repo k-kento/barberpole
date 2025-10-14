@@ -1,52 +1,34 @@
 #pragma once
 
-#include "vulkan_renderer.h"
-#include "graphics_pipeline.h"
-#include "vulkan_buffer.h"
-#include "glm/glm.hpp"
-#include "descriptor.hpp"
-#include "ubo_buffer.hpp"
-#include <optional>
+#include "render_pass.h"
 #include <vector>
-#include "regular_polygon.hpp"
+#include "kaleidoscope_instance_buffer.hpp"
+#include "kaleidoscope_mesh.hpp"
+#include "kaleidoscope_ubo.hpp"
+#include "render_strategy.hpp"
 
-struct InstanceData {
-    glm::mat4 model;
-};
-
-struct UBO {
-    glm::mat4 projection;
-};
-
-class KaleidoscopeRenderer : public VulkanRenderer {
+class KaleidoscopeRenderer : public RenderStrategy {
 public:
-    KaleidoscopeRenderer(VulkanContext *vkContext, ANativeWindow *window);
+    // TODO window Android 依存
+    KaleidoscopeRenderer(VulkanContext &vkContext,
+             RenderPass &renderPass,
+             uint32_t windowWidth,
+             uint32_t windowHeight);
 
-protected:
-    void recordDrawCommands(vk::CommandBuffer cmdBuffer, uint32_t imageIndex) override;
+    void recordDrawCommands(vk::CommandBuffer cmdBuffer) override;
 
     void renderFrame() override;
 
 private:
-    std::unique_ptr<RegularPolygon> mRegularPolygonMesh;
-    std::unique_ptr<VulkanBuffer> mVertexBuffer;
-    std::unique_ptr<VulkanBuffer> mInstanceBuffer;
-    std::unique_ptr<VulkanBuffer> mIndexBuffer;
-    std::unique_ptr<VulkanBuffer> mUboBuffer;
-    std::unique_ptr<GraphicsPipeline> mGraphicsPipeline;
-    std::unique_ptr<Descriptor> mDescriptorManager;
-    vk::DescriptorSet mDescriptorSet;
+    VulkanContext &mVkContext;
+
+    std::unique_ptr<KaleidoscopeMesh> mMesh;
+    std::unique_ptr<KaleidoscopeInstanceBuffer> mInstanceData;
+    std::unique_ptr<KaleidoscopeUbo> mUbo;
+
+    vk::UniquePipeline mPipeline;
+    vk::UniquePipelineLayout mPipelineLayout;
+    RenderPass &mRenderPass;
+
     glm::mat4 mProjectionMatrix{};
-    std::optional<UboBuffer<UBO>> mUboWrapper;
-
-
-private:
-
-    void createBuffer();
-
-    void createGraphicsPipeline();
-
-    void createDescriptorSet();
-
-    static PipelineConfig createPipeLineConfig();
 };

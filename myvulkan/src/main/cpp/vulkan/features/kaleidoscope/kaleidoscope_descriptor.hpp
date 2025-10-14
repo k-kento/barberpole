@@ -47,6 +47,10 @@ public:
         return descriptorSet;
     }
 
+    [[nodiscard]] vk::DescriptorSetLayout getLayout() const {
+        return mDescriptorSetLayout.get();
+    }
+
 private:
     vk::Device &mDevice;
     Config &mConfig;

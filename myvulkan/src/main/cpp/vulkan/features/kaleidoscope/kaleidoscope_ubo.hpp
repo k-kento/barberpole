@@ -32,6 +32,10 @@ public:
         return mDescriptorSet.get();
     }
 
+    [[nodiscard]] vk::DescriptorSetLayout getDescriptorSetLayout() const {
+        return mDescriptor->getLayout();
+    }
+
 private:
 
     VulkanContext &mContext;
