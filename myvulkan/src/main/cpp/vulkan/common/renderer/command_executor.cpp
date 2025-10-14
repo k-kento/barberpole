@@ -9,7 +9,7 @@ CommandExecutor::CommandExecutor(VulkanContext &context,
                                  RenderStrategy &strategy)
         : mContext(context), mRendererStrategy(strategy) {
 
-    uint32_t queueFamilyIndex = context.getPhysicalDevice()->getQueueFamilyIndex();
+    uint32_t queueFamilyIndex = context.getPhysicalDevice().getQueueFamilyIndex();
     auto device = context.getVkDevice();
 
     mFrameBuffers = VulkanUtils::createFrameBuffers(device, &swapChain, renderPass.getVkRenderPass());
@@ -24,7 +24,7 @@ void CommandExecutor::renderFrame(
         vk::Semaphore imageAvailable,
         vk::Semaphore renderFinished) {
     auto device = mContext.getVkDevice();
-    auto graphicsQueue = mContext.getDevice()->getGraphicsQueue();
+    auto graphicsQueue = mContext.getDevice().getGraphicsQueue();
     auto swapChainKHR = swapChain.getSwapChain();
 
     // 次に描画する SwapChain イメージを取得

@@ -15,8 +15,8 @@ public:
         return mVkInstance.get();
     }
 
-    [[nodiscard]] PhysicalDevice *getPhysicalDevice() const {
-        return mPhysicalDevice.get();
+    [[nodiscard]] PhysicalDevice getPhysicalDevice() const {
+        return *mPhysicalDevice.get();
     }
 
     [[nodiscard]] vk::PhysicalDevice getVkPhysicalDevice() const {
@@ -27,8 +27,8 @@ public:
         return mDevice->getDevice();
     }
 
-    [[nodiscard]] Device *getDevice() {
-        return mDevice.get();
+    [[nodiscard]] Device &getDevice() {
+        return *mDevice.get();
     }
 
     [[nodiscard]] AAssetManager *getAssetManager() const {
