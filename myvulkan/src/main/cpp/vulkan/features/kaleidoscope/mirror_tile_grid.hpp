@@ -12,10 +12,10 @@ class MirrorTileGrid {
 public:
 
     // タイルを並べる
-    static std::vector<glm::mat4> createTileGrid(ViewBounds *viewBounds) {
+    static std::vector<glm::mat4> createTileGrid(const ViewBounds &viewBounds) {
 
-        float screenWidth = viewBounds->width();
-        float screenHeight = viewBounds->height();
+        float screenWidth = viewBounds.width();
+        float screenHeight = viewBounds.height();
 
         float tileWidth = 2 * sqrt(3) * SCALE;
         float tileHeight = 3.0f * SCALE;

@@ -29,7 +29,6 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         platform/android/jni/vulkan_context_jni.cpp
         platform/android/jni/vulkan_renderer_jni.cpp
 
-        vulkan/common/descriptor/descriptor.cpp
         vulkan/common/memory/device_buffer.cpp
         vulkan/common/pipeline/pipeline_builder.cpp
         vulkan/common/pipeline/render_pass.cpp
@@ -46,7 +45,6 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/descriptor
         ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/memory
         ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/mesh
         ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/pipeline
