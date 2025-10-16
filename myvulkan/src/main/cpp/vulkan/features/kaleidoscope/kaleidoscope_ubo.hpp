@@ -4,6 +4,7 @@
 #include "vulkan_context.h"
 #include <memory>
 #include "kaleidoscope_descriptor.hpp"
+#include "../../common/texture/texture.hpp"
 
 class KaleidoscopeUbo {
 public:
@@ -11,17 +12,15 @@ public:
         glm::mat4 projection;
     };
 
-    explicit KaleidoscopeUbo(VulkanContext &context) : mContext(context) {
+    explicit KaleidoscopeUbo(VulkanContext &context, Texture& texture) : mContext(context) {
         auto device = mContext.getVkDevice();
-        auto physicalDevice = mContext.getVkPhysicalDevice();
-        mUboBuffer = std::make_unique<UboBuffer<UboData>>(device, physicalDevice);
+        mUboBuffer = std::make_unique<UboBuffer<UboData>>(context);
+        mDescriptor = std::make_unique<KaleidoscopeDescriptor>(device);
 
-        KaleidoscopeDescriptor::Config config;
-        config.binding = 0;
-        config.maxSets = 1;
-        mDescriptor = std::make_unique<KaleidoscopeDescriptor>(device, config);
-
-        mDescriptorSet = mDescriptor->allocate(mUboBuffer->getBuffer(), sizeof(UboData));
+        mDescriptorSet = mDescriptor->allocate(mUboBuffer->getBuffer(),
+                                               sizeof(UboData),
+                                               texture.getImageView(),
+                                               texture.getSampler());
     }
 
     void update(const UboData &data) {
