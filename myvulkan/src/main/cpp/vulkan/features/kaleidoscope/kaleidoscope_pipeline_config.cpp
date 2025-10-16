@@ -2,9 +2,10 @@
 #include "kaleidoscope_pipeline_config.hpp"
 #include "pipeline_builder.hpp"
 #include "vulkan_utils.h"
-#include "vertex.hpp"
+#include "../../common/mesh/vertex.hpp"
 #include "kaleidoscope_instance_buffer.hpp"
 
+// TODO 要見直し
 vk::UniquePipeline
 KaleidoscopePipelineConfig::createPipeline(VulkanContext &context,
                                            vk::PipelineLayout &pipelineLayout,
@@ -27,7 +28,7 @@ KaleidoscopePipelineConfig::createPipeline(VulkanContext &context,
             .setDepthClampEnable(VK_FALSE)
             .setRasterizerDiscardEnable(VK_FALSE)
             .setPolygonMode(vk::PolygonMode::eFill)
-            .setCullMode(vk::CullModeFlagBits::eNone)
+            .setCullMode(vk::CullModeFlagBits::eNone) // TODO 古い環境だと eNone が定義されていない
             .setDepthBiasEnable(VK_FALSE)
             .setLineWidth(1.0f);
 
@@ -49,28 +50,28 @@ vk::PipelineVertexInputStateCreateInfo KaleidoscopePipelineConfig::createVertexC
 
     std::vector<vk::VertexInputBindingDescription> bindings = {vertexBinding, instanceBinding};
 
+    std::vector<vk::VertexInputAttributeDescription> attributes;
+
     // 位置属性
     vk::VertexInputAttributeDescription posAttr{};
     posAttr.location = 0;
     posAttr.binding = 0;
     posAttr.format = vk::Format::eR32G32Sfloat;
     posAttr.offset = offsetof(Vertex, position);
-
-    // 色属性
-    vk::VertexInputAttributeDescription colorAttr{};
-    colorAttr.location = 5;                        // location=1 にする
-    colorAttr.binding = 0;                          // 同じバインディング（頂点バッファ0）
-    colorAttr.format = vk::Format::eR32G32B32Sfloat; // vec3
-    colorAttr.offset = offsetof(Vertex, color);    // Vertex 内のオフセット
-
-    std::vector<vk::VertexInputAttributeDescription> attributes;
-
     attributes.push_back(posAttr);
-    attributes.push_back(colorAttr);
 
+    // UV
+    vk::VertexInputAttributeDescription uvAttr{};
+    uvAttr.location = 1;
+    uvAttr.binding = 0;
+    uvAttr.format = vk::Format::eR32G32Sfloat;
+    uvAttr.offset = offsetof(Vertex, uv);
+    attributes.push_back(uvAttr);
+
+    // instance
     for (uint32_t i = 0; i < 4; ++i) {
         vk::VertexInputAttributeDescription instAttr{};
-        instAttr.location = 1 + i;
+        instAttr.location = 2 + i;
         instAttr.binding = 1;
         instAttr.format = vk::Format::eR32G32B32A32Sfloat;
         instAttr.offset = offsetof(InstanceData, model) + sizeof(glm::vec4) * i;

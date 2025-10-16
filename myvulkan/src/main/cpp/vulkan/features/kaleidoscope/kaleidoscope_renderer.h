@@ -3,9 +3,10 @@
 #include "render_pass.h"
 #include <vector>
 #include "kaleidoscope_instance_buffer.hpp"
-#include "kaleidoscope_mesh.hpp"
+#include "kaleidoscope_mesh_manager.hpp"
 #include "kaleidoscope_ubo.hpp"
 #include "render_strategy.hpp"
+#include "../../common/texture/texture.hpp"
 
 class KaleidoscopeRenderer : public RenderStrategy {
 public:
@@ -22,9 +23,10 @@ public:
 private:
     VulkanContext &mVkContext;
 
-    std::unique_ptr<KaleidoscopeMesh> mMesh;
+    std::unique_ptr<KaleidoscopeMeshManager> mMeshManager;
     std::unique_ptr<KaleidoscopeInstanceBuffer> mInstanceData;
     std::unique_ptr<KaleidoscopeUbo> mUbo;
+    std::unique_ptr<Texture> mTexture;
 
     vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;

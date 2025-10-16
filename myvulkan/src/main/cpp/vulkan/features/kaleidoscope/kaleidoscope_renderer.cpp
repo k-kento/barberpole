@@ -15,9 +15,10 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
     auto viewBounds = ViewBounds::fromSize(windowWidth, windowHeight);
     mProjectionMatrix = viewBounds.toOrthoMatrix();
 
-    mMesh = std::make_unique<KaleidoscopeMesh>(mVkContext);
+    mMeshManager = std::make_unique<KaleidoscopeMeshManager>(mVkContext);
     mInstanceData = std::make_unique<KaleidoscopeInstanceBuffer>(mVkContext, viewBounds);
-    mUbo = std::make_unique<KaleidoscopeUbo>(mVkContext);
+    mTexture = std::make_unique<Texture>(mVkContext, "textures/sample.png");
+    mUbo = std::make_unique<KaleidoscopeUbo>(mVkContext, *mTexture);
 
     auto layout = mUbo->getDescriptorSetLayout();
     vk::DescriptorSetLayout layouts[] = {layout};
@@ -27,6 +28,24 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
     mPipelineLayout = device.createPipelineLayoutUnique(layoutInfo);
 
     mPipeline = KaleidoscopePipelineConfig::createPipeline(mVkContext, mPipelineLayout.get(), mRenderPass);
+
+    // Descriptor 用に登録（UBO + Sampler）
+    vk::DescriptorImageInfo imageInfo{
+            mTexture->getSampler(),
+            mTexture->getImageView(),
+            vk::ImageLayout::eShaderReadOnlyOptimal,
+    };
+
+    vk::WriteDescriptorSet write(
+            mUbo->getDescriptorSet(),
+            1,
+            0,
+            1,
+            vk::DescriptorType::eCombinedImageSampler,
+            &imageInfo
+    );
+
+    device.updateDescriptorSets(1, &write, 0, nullptr);
 }
 
 void KaleidoscopeRenderer::renderFrame() {
@@ -39,13 +58,10 @@ void KaleidoscopeRenderer::recordDrawCommands(vk::CommandBuffer cmdBuffer) {
     std::array<vk::DescriptorSet, 1> descriptorSets = {mUbo->getDescriptorSet()};
     cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout.get(), 0, descriptorSets, nullptr);
 
-    vk::Buffer vertexBuffers[] = {mMesh->getVertexBuffer()};
     vk::Buffer instanceBuffers[] = {mInstanceData->getDeviceBuffer()};
     vk::DeviceSize offsets[] = {0};
 
-    cmdBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
     cmdBuffer.bindVertexBuffers(1, 1, instanceBuffers, offsets);
-    cmdBuffer.bindIndexBuffer(mMesh->getIndexBuffer(), 0, vk::IndexType::eUint16);
-
-    cmdBuffer.drawIndexed(mMesh->getIndexCount(), mInstanceData->getInstanceCount(), 0, 0, 0);
+    mMeshManager->bind(cmdBuffer, 0);
+    mMeshManager->draw(cmdBuffer, mInstanceData->getInstanceCount());
 }

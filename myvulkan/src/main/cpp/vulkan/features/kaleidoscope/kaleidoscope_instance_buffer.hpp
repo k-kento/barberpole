@@ -15,7 +15,6 @@ public:
     KaleidoscopeInstanceBuffer(VulkanContext &context, const ViewBounds &viewBounds) {
 
         auto device = context.getVkDevice();
-        auto physicalDevice = context.getVkPhysicalDevice();
 
         auto slices = MirrorTileGrid::createTileGrid(viewBounds);
         mInstanceCount = static_cast<uint32_t>(slices.size());
@@ -29,8 +28,7 @@ public:
         VkDeviceSize instanceBufferSize = sizeof(InstanceData) * mInstanceCount;
 
         mDeviceBuffer = std::make_unique<DeviceBuffer>(
-                device,
-                physicalDevice,
+                context,
                 instanceBufferSize,
                 vk::BufferUsageFlagBits::eVertexBuffer,
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
