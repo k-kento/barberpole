@@ -2,49 +2,35 @@
 #include <stdexcept>
 #include <cstring>
 
-DeviceBuffer::DeviceBuffer(vk::Device device,
-                           vk::PhysicalDevice physicalDevice,
+DeviceBuffer::DeviceBuffer(VulkanContext &context,
                            vk::DeviceSize size,
                            vk::BufferUsageFlags usage,
                            vk::MemoryPropertyFlags properties)
-        : mDevice(device), mSize(size) {
+        : mContext(context), mSize(size) {
+    auto device = context.getVkDevice();
 
     vk::BufferCreateInfo bufferInfo{};
     bufferInfo.size = size;
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
-    mBuffer = mDevice.createBufferUnique(bufferInfo);
+    mBuffer = device.createBufferUnique(bufferInfo);
 
-    // バッファに必要なメモリ要件を取得
-    vk::MemoryRequirements requirements = mDevice.getBufferMemoryRequirements(*mBuffer);
-
-    // GPU で使えるメモリの種類を取得
-    vk::PhysicalDeviceMemoryProperties memProperties = physicalDevice.getMemoryProperties();
-
-    uint32_t memoryTypeIndex = UINT32_MAX;
-    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-        if ((requirements.memoryTypeBits & (1 << i)) &&
-            (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-            memoryTypeIndex = i;
-            break;
-        }
-    }
-    if (memoryTypeIndex == UINT32_MAX) throw std::runtime_error("Failed to find suitable memory type");
+    vk::MemoryRequirements requirements = device.getBufferMemoryRequirements(*mBuffer);
+    uint32_t memoryTypeIndex = context.getPhysicalDevice().findMemoryType(requirements.memoryTypeBits, properties);
 
     // デバイス上にメモリを確保
     vk::MemoryAllocateInfo allocInfo{};
     allocInfo.allocationSize = requirements.size;
     allocInfo.memoryTypeIndex = memoryTypeIndex;
-    mMemory = mDevice.allocateMemoryUnique(allocInfo);
+    mMemory = device.allocateMemoryUnique(allocInfo);
 
     // メモリをバッファに結びつける
-    mDevice.bindBufferMemory(*mBuffer, *mMemory, 0);
+    device.bindBufferMemory(*mBuffer, *mMemory, 0);
 }
 
-// ムーブコンストラクタ / ムーブ代入
 DeviceBuffer::DeviceBuffer(DeviceBuffer &&other) noexcept
-        : mDevice(other.mDevice),
+        : mContext(other.mContext),
           mBuffer(std::move(other.mBuffer)),
           mMemory(std::move(other.mMemory)),
           mSize(other.mSize) {
@@ -55,7 +41,6 @@ DeviceBuffer &DeviceBuffer::operator=(DeviceBuffer &&other) noexcept {
     if (this != &other) {
         mBuffer = std::move(other.mBuffer);
         mMemory = std::move(other.mMemory);
-        mDevice = other.mDevice;
         mSize = other.mSize;
         other.mSize = 0;
     }
@@ -70,7 +55,8 @@ void DeviceBuffer::copyFrom(const void *data, vk::DeviceSize size, vk::DeviceSiz
     if (size + offset > mSize)
         throw std::runtime_error("Copy size exceeds buffer size");
 
-    void *mapped = mDevice.mapMemory(*mMemory, offset, size);
+    auto device = mContext.getVkDevice();
+    void *mapped = device.mapMemory(*mMemory, offset, size);
     std::memcpy(mapped, data, static_cast<size_t>(size));
-    mDevice.unmapMemory(*mMemory);
+    device.unmapMemory(*mMemory);
 }

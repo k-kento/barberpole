@@ -2,11 +2,11 @@
 
 #include "vulkan/vulkan.hpp"
 #include <cstdint>
+#include "vulkan_context.h"
 
 class DeviceBuffer {
 public:
-    DeviceBuffer(vk::Device device,
-                 vk::PhysicalDevice physicalDevice,
+    DeviceBuffer(VulkanContext &context,
                  vk::DeviceSize size,
                  vk::BufferUsageFlags usage,
                  vk::MemoryPropertyFlags properties);
@@ -28,7 +28,7 @@ public:
     vk::DeviceMemory getMemory() const { return mMemory.get(); }
 
 private:
-    vk::Device mDevice;
+    VulkanContext &mContext;
     vk::UniqueBuffer mBuffer;
     vk::UniqueDeviceMemory mMemory;
     vk::DeviceSize mSize;
