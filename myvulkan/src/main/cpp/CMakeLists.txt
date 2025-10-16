@@ -38,6 +38,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 
         vulkan/common/surface/surface.cpp
         vulkan/common/surface/swap_chain.cpp
+        vulkan/common/texture/texture.cpp
         vulkan/common/utils/vulkan_utils.cpp
 
         vulkan/features/kaleidoscope/kaleidoscope_renderer.cpp
@@ -45,8 +46,9 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}vulkan/common
         ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/memory
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/mesh
+        ${CMAKE_CURRENT_SOURCE_DIR}vulkan/common/mesh
         ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/pipeline
         ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/renderer
         ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/surface
@@ -58,6 +60,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/util
         ${CMAKE_CURRENT_SOURCE_DIR}/external/Vulkan-Hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/external/glm
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/stb
 )
 
 add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
