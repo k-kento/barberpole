@@ -13,8 +13,8 @@ CommandExecutor::CommandExecutor(VulkanContext &context,
     auto device = context.getVkDevice();
 
     mFrameBuffers = VulkanUtils::createFrameBuffers(device, &swapChain, renderPass.getVkRenderPass());
-    mCommandPool = createCommandPool(device, queueFamilyIndex);
-    mCmdBuffers = createCommandBuffers(device, *mCommandPool, mFrameBuffers.size());
+    auto commandPool = mContext.getGraphicsCommandPool();
+    mCmdBuffers = createCommandBuffers(device, commandPool, mFrameBuffers.size());
 
     recordCommandBuffers(renderPass, swapChain);
 }
@@ -87,18 +87,6 @@ void CommandExecutor::recordCommandBuffers(RenderPass &renderPass, SwapChain &sw
 
         mCmdBuffers[i]->endRenderPass();
         mCmdBuffers[i]->end();
-    }
-}
-
-vk::UniqueCommandPool CommandExecutor::createCommandPool(vk::Device &device, uint32_t queueFamilyIndex) {
-    vk::CommandPoolCreateInfo poolInfo{};
-    poolInfo.queueFamilyIndex = queueFamilyIndex;
-    poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-
-    try {
-        return device.createCommandPoolUnique(poolInfo);
-    } catch (const vk::SystemError &e) {
-        throw std::runtime_error(std::string("Failed to create command pool: ") + e.what());
     }
 }
 
