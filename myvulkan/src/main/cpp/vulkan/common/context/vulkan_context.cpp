@@ -6,6 +6,13 @@ VulkanContext::VulkanContext(AAssetManager *assetManager) {
     mVkInstance = createVkInstance();
     mPhysicalDevice = std::make_unique<PhysicalDevice>(mVkInstance.get());
     mDevice = std::make_unique<Device>(mPhysicalDevice.get());
+    auto device = mDevice->getDevice();
+    mGraphicsCommandPool = createCommandPool(device,
+                                             mPhysicalDevice->getQueueFamilyIndex(),
+                                             vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+    mTransientCommandPool = createCommandPool(device,
+                                             mPhysicalDevice->getQueueFamilyIndex(),
+                                             vk::CommandPoolCreateFlagBits::eTransient);
     LOGI("VulkanContext created.");
 }
 
@@ -31,3 +38,16 @@ vk::UniqueInstance VulkanContext::createVkInstance() {
     return vk::createInstanceUnique(instInfo);
 }
 
+vk::UniqueCommandPool VulkanContext::createCommandPool(const vk::Device &device,
+                                                       const uint32_t queueFamilyIndex,
+                                                       const vk::CommandPoolCreateFlagBits flagBits) {
+    vk::CommandPoolCreateInfo poolInfo{};
+    poolInfo.queueFamilyIndex = queueFamilyIndex;
+    poolInfo.flags = flagBits;
+
+    try {
+        return device.createCommandPoolUnique(poolInfo);
+    } catch (const vk::SystemError &e) {
+        throw std::runtime_error(std::string("Failed to create command pool: ") + e.what());
+    }
+}
