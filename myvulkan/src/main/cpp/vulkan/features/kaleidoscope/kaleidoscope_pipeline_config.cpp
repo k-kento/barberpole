@@ -14,8 +14,8 @@ KaleidoscopePipelineConfig::createPipeline(VulkanContext &context,
     vk::Device device = context.getVkDevice();
     AAssetManager *assetManager = context.getAssetManager();
 
-    std::vector<char> vertexShaderSrc = VulkanUtils::readFile(assetManager, "shaders/triangle.vert.spv");
-    std::vector<char> fragmentShaderSrc = VulkanUtils::readFile(assetManager, "shaders/triangle.frag.spv");
+    std::vector<char> vertexShaderSrc = VulkanUtils::readTextFile(assetManager, "shaders/triangle.vert.spv");
+    std::vector<char> fragmentShaderSrc = VulkanUtils::readTextFile(assetManager, "shaders/triangle.frag.spv");
 
     auto vertexShaderModule = VulkanUtils::createShaderModule(device, vertexShaderSrc);
     auto fragmentShaderModule = VulkanUtils::createShaderModule(device, fragmentShaderSrc);

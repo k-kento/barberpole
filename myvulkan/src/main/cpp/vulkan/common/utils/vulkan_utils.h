@@ -10,7 +10,9 @@ public:
 
     ~VulkanUtils() = default;
 
-    static std::vector<char> readFile(AAssetManager *assetManager, const std::string &filename);
+    static std::vector<char> readTextFile(AAssetManager *assetManager, const std::string &filename);
+
+    static std::vector<unsigned char> readBinaryFile(AAssetManager* manager, const std::string& filename);
 
     static vk::UniqueShaderModule createShaderModule(vk::Device device, const std::vector<char> &code);
 
