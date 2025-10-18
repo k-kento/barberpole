@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
+@Deprecated("LifecycleAwareSurfaceView を使う")
 @Composable
 fun <T : View> LifecycleAndroidView(
     modifier: Modifier = Modifier,
