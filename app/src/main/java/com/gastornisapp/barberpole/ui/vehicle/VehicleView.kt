@@ -1,10 +1,11 @@
 package com.gastornisapp.barberpole.ui.vehicle
 
 import android.content.Context
-import android.opengl.GLSurfaceView
 import android.view.MotionEvent
+import androidx.lifecycle.Lifecycle
+import com.gastornisapp.barberpole.ui.common.LifecycleAwareGLSurfaceView
 
-class VehicleView(context: Context) : GLSurfaceView(context) {
+class VehicleView(context: Context, lifecycle: Lifecycle) : LifecycleAwareGLSurfaceView(context, lifecycle) {
 
     private var renderer: VehicleRenderer?
 
@@ -28,6 +29,7 @@ class VehicleView(context: Context) : GLSurfaceView(context) {
                 performClick()
                 return true
             }
+
             MotionEvent.ACTION_DOWN -> {
                 queueEvent {
                     val touch = renderer?.handleTouchDown(x, y, width, height)
@@ -39,7 +41,8 @@ class VehicleView(context: Context) : GLSurfaceView(context) {
                 }
                 return true
             }
-           else -> return super.onTouchEvent(event)
+
+            else -> return super.onTouchEvent(event)
         }
     }
 
