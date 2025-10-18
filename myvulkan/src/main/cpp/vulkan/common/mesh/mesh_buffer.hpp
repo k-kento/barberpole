@@ -4,34 +4,35 @@
 #include "vulkan/vulkan.hpp"
 #include "device_buffer.h"
 #include "vulkan_context.h"
-#include "mesh_data.hpp"
+
+template <typename VertexType>
 
 class MeshBuffer {
 
 public:
-    MeshBuffer(VulkanContext &context, const MeshData &mesh) {
+    MeshBuffer(VulkanContext &context, const std::vector<VertexType> &vertices, const std::vector<uint16_t> &indices) {
         auto device = context.getVkDevice();
 
         // Vertex buffer
-        VkDeviceSize vboSize = sizeof(mesh.vertices[0]) * mesh.vertices.size();
+        VkDeviceSize vboSize = sizeof(vertices[0]) * vertices.size();
         mVertexBuffer = std::make_unique<DeviceBuffer>(
                 context,
                 vboSize,
                 vk::BufferUsageFlagBits::eVertexBuffer,
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
         );
-        mVertexBuffer->copyFrom(mesh.vertices.data(), vboSize);
+        mVertexBuffer->copyFrom(vertices.data(), vboSize);
 
         // Index buffer
-        mIndexCount = static_cast<uint32_t>(mesh.indices.size());
-        VkDeviceSize iboSize = sizeof(mesh.indices[0]) * mIndexCount;
+        mIndexCount = static_cast<uint32_t>(indices.size());
+        VkDeviceSize iboSize = sizeof(indices[0]) * mIndexCount;
         mIndexBuffer = std::make_unique<DeviceBuffer>(
                 context,
                 iboSize,
                 vk::BufferUsageFlagBits::eIndexBuffer,
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
         );
-        mIndexBuffer->copyFrom(mesh.indices.data(), iboSize);
+        mIndexBuffer->copyFrom(indices.data(), iboSize);
     }
 
     void bind(vk::CommandBuffer &cmd, uint32_t binding) const {

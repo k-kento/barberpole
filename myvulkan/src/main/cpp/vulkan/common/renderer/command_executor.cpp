@@ -1,13 +1,11 @@
-#pragma once
-
 #include "command_executor.hpp"
 #include "vulkan_utils.h"
 
 CommandExecutor::CommandExecutor(VulkanContext &context,
                                  RenderPass &renderPass,
                                  SwapChain &swapChain,
-                                 RenderStrategy &strategy)
-        : mContext(context), mRendererStrategy(strategy) {
+                                 RendererInterface &renderer)
+        : mContext(context), mRenderer(renderer) {
 
     uint32_t queueFamilyIndex = context.getPhysicalDevice().getQueueFamilyIndex();
     auto device = context.getVkDevice();
@@ -22,7 +20,8 @@ CommandExecutor::CommandExecutor(VulkanContext &context,
 void CommandExecutor::renderFrame(
         SwapChain &swapChain,
         vk::Semaphore imageAvailable,
-        vk::Semaphore renderFinished) {
+        vk::Semaphore renderFinished,
+        float deltaTimeMs) {
     auto device = mContext.getVkDevice();
     auto graphicsQueue = mContext.getDevice().getGraphicsQueue();
     auto swapChainKHR = swapChain.getSwapChain();
@@ -37,7 +36,7 @@ void CommandExecutor::renderFrame(
 
     uint32_t imageIndex = acquireResult.value;
 
-    mRendererStrategy.renderFrame();
+    mRenderer.renderFrame(deltaTimeMs);
 
     // コマンドバッファをキューに流す
     vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
@@ -83,7 +82,7 @@ void CommandExecutor::recordCommandBuffers(RenderPass &renderPass, SwapChain &sw
         vk::Rect2D scissor{{0, 0}, extent};
         mCmdBuffers[i]->setScissor(0, scissor);
 
-        mRendererStrategy.recordDrawCommands(mCmdBuffers[i].get());
+        mRenderer.recordDrawCommands(mCmdBuffers[i].get());
 
         mCmdBuffers[i]->endRenderPass();
         mCmdBuffers[i]->end();

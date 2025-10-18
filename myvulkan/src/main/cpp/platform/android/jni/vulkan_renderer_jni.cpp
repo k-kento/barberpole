@@ -6,8 +6,9 @@
 #include "vulkan_engine.hpp"
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_gastornisapp_myvulkan_Renderer_nativeInit(JNIEnv *env, jobject thiz, jobject androidSurface,
-                                                   jlong vulkanContextHandle) {
+Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeInit(JNIEnv *env, jobject thiz,
+                                                                            jobject androidSurface,
+                                                                            jlong vulkanContextHandle) {
     auto *vkContext = reinterpret_cast<VulkanContext *>(vulkanContextHandle);
     ANativeWindow *window = ANativeWindow_fromSurface(env, androidSurface);
 
@@ -26,23 +27,50 @@ Java_com_gastornisapp_myvulkan_Renderer_nativeInit(JNIEnv *env, jobject thiz, jo
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_gastornisapp_myvulkan_Renderer_nativeStart(JNIEnv *env, jobject, jlong nativeHandle) {
-    auto *renderer = reinterpret_cast<VulkanEngine *>(nativeHandle);
-    if (renderer) renderer->start();
+Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeStart(JNIEnv *env, jobject, jlong nativeHandle) {
+    auto *engine = reinterpret_cast<VulkanEngine *>(nativeHandle);
+    if (engine) engine->start();
 }
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_gastornisapp_myvulkan_Renderer_nativeStop(JNIEnv *env, jobject thiz, jlong nativeHandle) {
-    auto *renderer = reinterpret_cast<VulkanEngine *>(nativeHandle);
-    if (renderer) renderer->stop();
+Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeStop(JNIEnv *env, jobject thiz,
+                                                                            jlong nativeHandle) {
+    auto *engine = reinterpret_cast<VulkanEngine *>(nativeHandle);
+    if (engine) engine->stop();
 }
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_gastornisapp_myvulkan_Renderer_nativeDestroy(JNIEnv *env, jobject thiz, jlong nativeHandle) {
-    auto *renderer = reinterpret_cast<VulkanEngine *>(nativeHandle);
-    if (renderer) {
-        delete renderer;
+Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeDestroy(JNIEnv *env, jobject thiz,
+                                                                               jlong nativeHandle) {
+    auto *engine = reinterpret_cast<VulkanEngine *>(nativeHandle);
+    if (engine) {
+        delete engine;
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeSetRotationState(JNIEnv *env, jobject thiz,
+                                                                                        jlong nativeHandle,
+                                                                                        jint rotationState) {
+    auto *engine = reinterpret_cast<VulkanEngine *>(nativeHandle);
+    auto& renderer = engine->getRenderer();
+    auto* kaleidoscopeRenderer = dynamic_cast<KaleidoscopeRenderer*>(&renderer);
+    if (kaleidoscopeRenderer != nullptr) {
+        switch (rotationState) {
+            case 0:
+                kaleidoscopeRenderer->setRotationState(KaleidoscopeRenderer::RotationState::None);
+                break;
+            case 1:
+                kaleidoscopeRenderer->setRotationState(KaleidoscopeRenderer::RotationState::RotatingCW);
+                break;
+            case 2:
+                kaleidoscopeRenderer->setRotationState(KaleidoscopeRenderer::RotationState::RotatingCCW);
+                break;
+            default:
+                break;
+        }
     }
 }

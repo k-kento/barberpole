@@ -2,9 +2,9 @@
 
 #include <vulkan/vulkan.hpp>
 
-class RenderStrategy {
+class RendererInterface {
 public:
     virtual void recordDrawCommands(vk::CommandBuffer cmdBuffer) = 0;
 
-    virtual void renderFrame() = 0;  // 新たに追加
+    virtual void renderFrame(float deltaTimeMs) = 0;
 };

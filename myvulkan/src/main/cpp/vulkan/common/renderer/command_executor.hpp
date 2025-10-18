@@ -3,19 +3,19 @@
 #include <vulkan/vulkan.hpp>
 #include "render_pass.h"
 #include "swap_chain.h"
-#include "render_strategy.hpp"
+#include "renderer_interface.hpp"
 
 class CommandExecutor {
 public:
     CommandExecutor(VulkanContext &context,
                     RenderPass &renderPass,
                     SwapChain &swapChain,
-                    RenderStrategy &strategy);
+                    RendererInterface &renderer);
 
-    void renderFrame(
-            SwapChain &swapChain,
-            vk::Semaphore imageAvailable,
-            vk::Semaphore renderFinished);
+    void renderFrame(SwapChain &swapChain,
+                     vk::Semaphore imageAvailable,
+                     vk::Semaphore renderFinished,
+                     float deltaTimeMs);
 
 private:
 
@@ -25,7 +25,7 @@ private:
     createCommandBuffers(vk::Device &device, vk::CommandPool &commandPool, size_t count);
 
     VulkanContext &mContext;
-    RenderStrategy &mRendererStrategy;
+    RendererInterface &mRenderer;
 
     std::vector<vk::UniqueFramebuffer> mFrameBuffers;
     std::vector<vk::UniqueCommandBuffer> mCmdBuffers;

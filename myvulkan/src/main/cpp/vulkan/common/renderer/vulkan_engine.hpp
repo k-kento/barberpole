@@ -7,7 +7,7 @@
 #include "swap_chain.h"
 #include "surface.h"
 #include "render_pass.h"
-#include "render_strategy.hpp"
+#include "renderer_interface.hpp"
 #include "render_looper.hpp"
 #include "command_executor.hpp"
 
@@ -17,7 +17,7 @@ public:
                  std::unique_ptr<Surface> surface,
                  std::unique_ptr<SwapChain> swapChain,
                  std::unique_ptr<RenderPass> renderPass,
-                 std::unique_ptr<RenderStrategy> rendererStrategy);
+                 std::unique_ptr<RendererInterface> renderer);
 
     ~VulkanEngine();
 
@@ -25,10 +25,14 @@ public:
 
     void stop();
 
+    RendererInterface& getRenderer() const {
+        return *mRenderer;
+    }
+
 private:
     VulkanContext &mVkContext;
 
-    std::unique_ptr<RenderStrategy> mRendererStrategy;
+    std::unique_ptr<RendererInterface> mRenderer;
 
     std::unique_ptr<RenderLooper> mRendererLooper;
 
@@ -40,4 +44,6 @@ private:
 
     vk::UniqueSemaphore mImageAvailable;
     vk::UniqueSemaphore mRenderFinished;
+
+    std::chrono::high_resolution_clock::time_point mLastTime;
 };

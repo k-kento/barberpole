@@ -48,8 +48,22 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
     device.updateDescriptorSets(1, &write, 0, nullptr);
 }
 
-void KaleidoscopeRenderer::renderFrame() {
-    mUbo->update({mProjectionMatrix});
+void KaleidoscopeRenderer::renderFrame(float deltaTimeMs) {
+    auto rotationState = mRotationState.load(std::memory_order_relaxed);
+    if (rotationState != RotationState::None) {
+
+        mUvAngle += (rotationState == RotationState::RotatingCCW ? -1 : 1) * rotationSpeed * deltaTimeMs;
+        mUvAngle = glm::mod(mUvAngle, glm::two_pi<float>()); // 0 ~ 2π に収める
+
+        // UV を 0.5, 0.5 を中心に回転
+        glm::mat4 translateToCenter = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, -0.5f, 0.0f));
+        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), mUvAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::mat4 translateBack = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.0f));
+
+        mUvMatrix = translateBack * rotation * translateToCenter;
+    }
+
+    mUbo->update({mProjectionMatrix, mUvMatrix});
 }
 
 void KaleidoscopeRenderer::recordDrawCommands(vk::CommandBuffer cmdBuffer) {
@@ -64,4 +78,8 @@ void KaleidoscopeRenderer::recordDrawCommands(vk::CommandBuffer cmdBuffer) {
     cmdBuffer.bindVertexBuffers(1, 1, instanceBuffers, offsets);
     mMeshManager->bind(cmdBuffer, 0);
     mMeshManager->draw(cmdBuffer, mInstanceData->getInstanceCount());
+}
+
+void KaleidoscopeRenderer::setRotationState(RotationState state) {
+    mRotationState.store(state);
 }

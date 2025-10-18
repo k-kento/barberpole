@@ -3,7 +3,7 @@
 #include "vulkan/vulkan.hpp"
 #include "device_buffer.h"
 #include "vulkan_context.h"
-#include "../../common/mesh/regular_polygon.hpp"
+#include "regular_polygon.hpp"
 #include "../../common/mesh/mesh_buffer.hpp"
 
 class KaleidoscopeMeshManager {
@@ -11,9 +11,9 @@ class KaleidoscopeMeshManager {
 public:
 
     explicit KaleidoscopeMeshManager(VulkanContext &context) {
-        auto meshData = RegularPolygon(4, 0.5f).getMeshData();
-        auto square = std::make_unique<MeshBuffer>(context, meshData);
-        mMeshBuffers.push_back(std::move(square));
+        auto polygon = RegularPolygon(3, 1.0f);
+        auto mesh = std::make_unique<MeshBuffer<Vertex>>(context, polygon.vertices, polygon.indices);
+        mMeshBuffers.push_back(std::move(mesh));
     }
 
     void bind(vk::CommandBuffer& cmd, uint32_t binding) {
@@ -29,5 +29,5 @@ public:
     }
 
 private:
-    std::vector<std::unique_ptr<MeshBuffer>> mMeshBuffers;
+    std::vector<std::unique_ptr<MeshBuffer<Vertex>>> mMeshBuffers;
 };
