@@ -14,8 +14,10 @@ import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
 import androidx.compose.material.icons.filled.Rotate90DegreesCcw
 import androidx.compose.material.icons.filled.Rotate90DegreesCw
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,16 +32,21 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gastornisapp.myvulkan.kaleidoscope.KaleidoscopeView
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 // TODO onResume onPause
 fun KaleidoscopePage(viewModel: KaleidoscopeViewModel = hiltViewModel()) {
+    val context = LocalContext.current
+
+    val rotationState = viewModel.rotationState.collectAsState()
+    val selectedImage = viewModel.selectedImage.collectAsState()
+    val isImagePickerShowing = viewModel.isImagePickerShowing.collectAsState()
+    val imageItems = viewModel.images.collectAsState()
 
     Scaffold(
         bottomBar = {
             BottomBar(viewModel)
         }) { paddingValues ->
-        val context = LocalContext.current
-        val rotationState = viewModel.rotationState.collectAsState()
 
         AndroidView(
             factory = {
@@ -55,6 +62,19 @@ fun KaleidoscopePage(viewModel: KaleidoscopeViewModel = hiltViewModel()) {
                 view.rotationState = rotationState.value
             },
         )
+
+        if (isImagePickerShowing.value) {
+            ModalBottomSheet(
+                onDismissRequest = { viewModel.onEvent(KaleidoscopeEvent.ImagePickerDismissed) },
+                modifier = Modifier.testTag("ImageBottomSheet")
+            ) {
+                DrawablePicker(
+                    imageItems = imageItems.value,
+                    selected = selectedImage.value,
+                    onSelect = { imageItem -> viewModel.onEvent(KaleidoscopeEvent.ImageSelected(imageItem)) }
+                )
+            }
+        }
     }
 }
 
@@ -87,7 +107,7 @@ fun BottomBar(viewModel: KaleidoscopeViewModel) {
         ) {
             IconButton(
                 modifier = Modifier.testTag("ImageButton"),
-                onClick = {},
+                onClick = { viewModel.onEvent(KaleidoscopeEvent.SelectButtonClicked) },
             ) {
                 Icon(
                     modifier = Modifier.size(60.dp),
