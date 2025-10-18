@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -45,6 +47,10 @@ fun HomePage(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+
+    val tabletMinWidth = LocalContext.current.resources.getInteger(R.integer.tablet_width_dp)
+    val configuration = LocalConfiguration.current
+    val columns = if (configuration.screenWidthDp >= tabletMinWidth) 2 else 1
 
     val dialogStatus by viewModel.dialogStatus.collectAsState()
     val items = createItems()
@@ -64,7 +70,7 @@ fun HomePage(
         },
     ) { paddingValues ->
         LazyVerticalGrid(
-            columns = GridCells.Fixed(1), // 列数
+            columns = GridCells.Fixed(columns),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = paddingValues,
@@ -123,7 +129,7 @@ private fun Item(
                 contentDescription = "Sample Image",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp),
+                    .aspectRatio(1f),
                 contentScale = itemInfo.contentScale
             )
             Spacer(modifier = Modifier.height(8.dp))
