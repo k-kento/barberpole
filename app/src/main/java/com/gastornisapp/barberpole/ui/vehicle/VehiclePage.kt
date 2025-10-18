@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.viewinterop.AndroidView
-import com.gastornisapp.barberpole.ui.common.LifecycleAndroidView
+import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @Composable
 fun VehiclePage() {
@@ -22,20 +22,19 @@ fun VehiclePage() {
                 .padding(paddingValues)
         ) {
             val haptic = LocalHapticFeedback.current
+            val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-            LifecycleAndroidView(
+            AndroidView(
                 modifier = Modifier
                     .fillMaxSize()
                     .align(Alignment.Center),
                 factory = {
-                    VehicleView(it).apply {
+                    VehicleView(it, lifecycle).apply {
                         this.onVehicleTouchStart = {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         }
                     }
                 },
-                onResume = { it.onResume() },
-                onPause = { it.onPause() },
                 onRelease = { it.release() }
             )
         }
