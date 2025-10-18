@@ -4,7 +4,7 @@ import com.gastornisapp.barberpole.ui.utils.ColorUtil
 
 class LightTruckLogicModel(id: Int) : VehicleLogicModel(
     id = id,
-    scale = 0.25f
+    scale = 0.4f
 ) {
 
     override val colors: Array<FloatArray>
