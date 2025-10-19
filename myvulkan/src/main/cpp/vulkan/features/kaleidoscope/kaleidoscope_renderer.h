@@ -6,7 +6,7 @@
 #include "kaleidoscope_mesh_manager.hpp"
 #include "kaleidoscope_ubo.hpp"
 #include "renderer_interface.hpp"
-#include "../../common/texture/texture.hpp"
+#include "../../core/texture/texture.hpp"
 #include "render_message.hpp"
 #include "rotation_state.hpp"
 

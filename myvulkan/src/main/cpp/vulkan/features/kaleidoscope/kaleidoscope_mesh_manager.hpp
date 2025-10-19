@@ -4,7 +4,7 @@
 #include "device_buffer.h"
 #include "vulkan_context.h"
 #include "regular_polygon.hpp"
-#include "../../common/mesh/mesh_buffer.hpp"
+#include "../../core/mesh/mesh_buffer.hpp"
 
 class KaleidoscopeMeshManager {
 

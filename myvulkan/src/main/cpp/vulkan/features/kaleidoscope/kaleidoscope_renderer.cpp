@@ -18,7 +18,7 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
 
     mMeshManager = std::make_unique<KaleidoscopeMeshManager>(mVkContext);
     mInstanceData = std::make_unique<KaleidoscopeInstanceBuffer>(mVkContext, viewBounds);
-    mTexture = std::make_unique<Texture>(mVkContext, "images/bus_main .png");
+    mTexture = std::make_unique<Texture>(mVkContext, "images/bus_main.png");
     mUbo = std::make_unique<KaleidoscopeUbo>(mVkContext, *mTexture);
 
     auto layout = mUbo->getDescriptorSetLayout();

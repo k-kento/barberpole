@@ -29,17 +29,17 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         platform/android/jni/vulkan_context_jni.cpp
         platform/android/jni/vulkan_renderer_jni.cpp
 
-        vulkan/common/memory/device_buffer.cpp
-        vulkan/common/pipeline/pipeline_builder.cpp
-        vulkan/common/pipeline/render_pass.cpp
+        vulkan/core/memory/device_buffer.cpp
+        vulkan/core/pipeline/pipeline_builder.cpp
+        vulkan/core/pipeline/render_pass.cpp
 
-        vulkan/common/renderer/vulkan_engine.cpp
-        vulkan/common/renderer/command_executor.cpp
+        vulkan/core/engine/vulkan_engine.cpp
+        vulkan/core/engine/command_executor.cpp
 
-        vulkan/common/surface/surface.cpp
-        vulkan/common/surface/swap_chain.cpp
-        vulkan/common/texture/texture.cpp
-        vulkan/common/utils/vulkan_utils.cpp
+        vulkan/core/surface/surface.cpp
+        vulkan/core/surface/swap_chain.cpp
+        vulkan/core/texture/texture.cpp
+        vulkan/core/utils/vulkan_utils.cpp
 
         vulkan/features/kaleidoscope/kaleidoscope_renderer.cpp
         vulkan/features/kaleidoscope/kaleidoscope_pipeline_config.cpp
@@ -47,12 +47,12 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}vulkan/common
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/memory
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/core/memory
         ${CMAKE_CURRENT_SOURCE_DIR}vulkan/common/mesh
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/pipeline
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/renderer
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/surface
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/common/utils
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/core/pipeline
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/core/engine
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/core/surface
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/core/utils
 
         ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/features/kaleidoscope
 
@@ -67,7 +67,7 @@ add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
 
 find_library(VULKAN_LIB vulkan PATHS ${ANDROID_NDK}/sysroot/usr/lib/${ANDROID_TOOLCHAIN_NAME}/)
 
-add_subdirectory(vulkan/common/context)
+add_subdirectory(vulkan/core/context)
 
 # Specifies libraries CMake should link to your target library. You
 # can link libraries from various origins, such as libraries defined in this

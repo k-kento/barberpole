@@ -4,7 +4,7 @@
 #include "vulkan_context.h"
 #include <memory>
 #include "kaleidoscope_descriptor.hpp"
-#include "../../common/texture/texture.hpp"
+#include "../../core/texture/texture.hpp"
 
 class KaleidoscopeUbo {
 public:
