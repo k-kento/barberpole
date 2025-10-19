@@ -19,15 +19,10 @@ VulkanEngine::VulkanEngine(VulkanContext &vkContext,
 
     mCommandExecutor = std::make_unique<CommandExecutor>(vkContext, *mRenderPass, *mSwapChain, *mRenderer);
 
-    mRendererLooper = std::make_unique<RenderLooper>([this]() {
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        auto deltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mLastTime).count();
-        mLastTime = currentTime;
-
-        float deltaTimeMs = static_cast<float>(deltaMs);
-
-        mCommandExecutor->renderFrame(*mSwapChain, mImageAvailable.get(), mRenderFinished.get(), deltaTimeMs);
-    });
+    mRendererLooper = std::make_unique<RenderLooper>(
+            [this]() { this->onRenderFrame(); },
+            [this](std::unique_ptr<RenderMessage> msg) { this->onRenderMessage(std::move(msg)); }
+    );
 }
 
 VulkanEngine::~VulkanEngine() {
@@ -44,4 +39,25 @@ void VulkanEngine::start() {
 
 void VulkanEngine::stop() {
     mRendererLooper->stop();
+}
+
+void VulkanEngine::postTask(std::function<void()> task) {
+    mRendererLooper->postTask(task);
+}
+
+void VulkanEngine::postMessage(std::unique_ptr<RenderMessage> message) {
+    mRendererLooper->postMessage(std::move(message));
+}
+
+void VulkanEngine::onRenderFrame() {
+    // 経過時間計算
+    auto now = std::chrono::high_resolution_clock::now();
+    float deltaTimeMs = std::chrono::duration<float, std::milli>(now - mLastTime).count();
+    mLastTime = now;
+
+    mCommandExecutor->renderFrame(*mSwapChain, mImageAvailable.get(), mRenderFinished.get(), deltaTimeMs);
+}
+
+void VulkanEngine::onRenderMessage(std::unique_ptr<RenderMessage> message) {
+    mRenderer->handleMessage(std::move(message));
 }

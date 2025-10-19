@@ -3,6 +3,7 @@
 #include "device_buffer.h"
 #include "ubo_buffer.hpp"
 #include "kaleidoscope_pipeline_config.hpp"
+#include "rotation_message.hpp"
 
 KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
                                            RenderPass &renderPass,
@@ -17,7 +18,7 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
 
     mMeshManager = std::make_unique<KaleidoscopeMeshManager>(mVkContext);
     mInstanceData = std::make_unique<KaleidoscopeInstanceBuffer>(mVkContext, viewBounds);
-    mTexture = std::make_unique<Texture>(mVkContext, "textures/sample.png");
+    mTexture = std::make_unique<Texture>(mVkContext, "images/bus_main .png");
     mUbo = std::make_unique<KaleidoscopeUbo>(mVkContext, *mTexture);
 
     auto layout = mUbo->getDescriptorSetLayout();
@@ -49,7 +50,7 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
 }
 
 void KaleidoscopeRenderer::renderFrame(float deltaTimeMs) {
-    auto rotationState = mRotationState.load(std::memory_order_relaxed);
+    auto rotationState = mRotationState;
     if (rotationState != RotationState::None) {
 
         mUvAngle += (rotationState == RotationState::RotatingCCW ? -1 : 1) * rotationSpeed * deltaTimeMs;
@@ -80,6 +81,8 @@ void KaleidoscopeRenderer::recordDrawCommands(vk::CommandBuffer cmdBuffer) {
     mMeshManager->draw(cmdBuffer, mInstanceData->getInstanceCount());
 }
 
-void KaleidoscopeRenderer::setRotationState(RotationState state) {
-    mRotationState.store(state);
+void KaleidoscopeRenderer:: handleMessage(std::unique_ptr<RenderMessage> message) {
+    if (const auto* rotationMsg = dynamic_cast<const RotationMessage*>(message.get())) {
+        mRotationState = rotationMsg->rotationState;
+    }
 }

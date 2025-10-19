@@ -4,6 +4,7 @@
 #include "surface.h"
 #include "swap_chain.h"
 #include "vulkan_engine.hpp"
+#include "rotation_message.hpp"
 
 extern "C" JNIEXPORT jlong JNICALL
 Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeInit(JNIEnv *env, jobject thiz,
@@ -56,21 +57,17 @@ Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeSetRotati
                                                                                         jlong nativeHandle,
                                                                                         jint rotationState) {
     auto *engine = reinterpret_cast<VulkanEngine *>(nativeHandle);
-    auto& renderer = engine->getRenderer();
-    auto* kaleidoscopeRenderer = dynamic_cast<KaleidoscopeRenderer*>(&renderer);
-    if (kaleidoscopeRenderer != nullptr) {
-        switch (rotationState) {
-            case 0:
-                kaleidoscopeRenderer->setRotationState(KaleidoscopeRenderer::RotationState::None);
-                break;
-            case 1:
-                kaleidoscopeRenderer->setRotationState(KaleidoscopeRenderer::RotationState::RotatingCW);
-                break;
-            case 2:
-                kaleidoscopeRenderer->setRotationState(KaleidoscopeRenderer::RotationState::RotatingCCW);
-                break;
-            default:
-                break;
-        }
+
+    RotationState state = RotationState::None;
+    switch (rotationState) {
+        case 1:
+            state = RotationState::RotatingCW;
+            break;
+        case 2:
+            state = RotationState::RotatingCCW;
+            break;
     }
+
+    auto message = std::make_unique<RotationMessage>(state);
+    engine->postMessage(std::move(message));
 }

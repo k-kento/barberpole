@@ -25,9 +25,9 @@ public:
 
     void stop();
 
-    RendererInterface& getRenderer() const {
-        return *mRenderer;
-    }
+    void postTask(std::function<void()> task);
+
+    void postMessage(std::unique_ptr<RenderMessage> message);
 
 private:
     VulkanContext &mVkContext;
@@ -46,4 +46,8 @@ private:
     vk::UniqueSemaphore mRenderFinished;
 
     std::chrono::high_resolution_clock::time_point mLastTime;
+
+    void onRenderFrame();
+
+    void onRenderMessage(std::unique_ptr<RenderMessage> message);
 };

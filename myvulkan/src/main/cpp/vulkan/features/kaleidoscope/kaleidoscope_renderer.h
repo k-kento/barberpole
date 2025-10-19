@@ -7,26 +7,22 @@
 #include "kaleidoscope_ubo.hpp"
 #include "renderer_interface.hpp"
 #include "../../common/texture/texture.hpp"
+#include "render_message.hpp"
+#include "rotation_state.hpp"
 
 class KaleidoscopeRenderer : public RendererInterface {
 public:
-    enum class RotationState : int {
-        None = 0,
-        RotatingCW = 1,
-        RotatingCCW = 2
-    };
-
     // TODO window Android 依存
     KaleidoscopeRenderer(VulkanContext &vkContext,
-             RenderPass &renderPass,
-             uint32_t windowWidth,
-             uint32_t windowHeight);
+                         RenderPass &renderPass,
+                         uint32_t windowWidth,
+                         uint32_t windowHeight);
 
     void recordDrawCommands(vk::CommandBuffer cmdBuffer) override;
 
     void renderFrame(float deltaTimeMs) override;
 
-    void setRotationState(RotationState state);
+    void handleMessage(std::unique_ptr<RenderMessage> message) override;
 
 private:
     // rad/ms
@@ -46,5 +42,5 @@ private:
     glm::mat4 mProjectionMatrix{};
     glm::mat4 mUvMatrix = glm::mat4(1.0f);
     float mUvAngle = 0.0f;
-    std::atomic<RotationState> mRotationState = RotationState::None;
+    RotationState mRotationState = RotationState::None;
 };
