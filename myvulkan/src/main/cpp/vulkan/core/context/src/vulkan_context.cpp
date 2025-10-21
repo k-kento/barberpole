@@ -7,15 +7,20 @@ VulkanContext::VulkanContext(AAssetManager *assetManager) {
     mVkInstance = createVkInstance();
 
     mPhysicalDeviceBundle = PhysicalDeviceHelper::pickPhysicalDevice(mVkInstance.get());
-    mDeviceBundle = DeviceHelper::createDevice(mPhysicalDeviceBundle);
+    mDevice = DeviceHelper::createDevice(mPhysicalDeviceBundle);
+    mGraphicsQueue = mDevice->getQueue(mPhysicalDeviceBundle.queueFamilyIndex, 0);
 
-    mGraphicsCommandPool = createCommandPool(mDeviceBundle.device.get(),
+    mGraphicsCommandPool = createCommandPool(mDevice.get(),
                                              mPhysicalDeviceBundle.queueFamilyIndex,
                                              vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
-    mTransientCommandPool = createCommandPool(mDeviceBundle.device.get(),
+    mTransientCommandPool = createCommandPool(mDevice.get(),
                                               mPhysicalDeviceBundle.queueFamilyIndex,
                                               vk::CommandPoolCreateFlagBits::eTransient);
     LOGI("VulkanContext created.");
+}
+
+VulkanContext::~VulkanContext() {
+    LOGI("VulkanContext destroyed.");
 }
 
 vk::UniqueInstance VulkanContext::createVkInstance() {

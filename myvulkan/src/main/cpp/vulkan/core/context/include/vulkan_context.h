@@ -4,13 +4,14 @@
 #include "vulkan/vulkan.hpp"
 #include "physical_device_helper.hpp"
 #include "device_helper.hpp"
-#include "memory"
 #include "physical_device_helper.hpp"
 
 class VulkanContext {
 
 public:
     explicit VulkanContext(AAssetManager *assetManager) noexcept(false);
+
+    ~VulkanContext();
 
     [[nodiscard]] vk::Instance getVkInstance() const {
         return mVkInstance.get();
@@ -25,11 +26,11 @@ public:
     }
 
     [[nodiscard]] vk::Device getDevice() {
-        return mDeviceBundle.device.get();
+        return mDevice.get();
     }
 
     [[nodiscard]] vk::Queue getGraphicsQueue() const {
-        return mDeviceBundle.graphicsQueue;
+        return mGraphicsQueue;
     }
 
     [[nodiscard]] vk::CommandPool getGraphicsCommandPool() const noexcept {
@@ -56,7 +57,9 @@ private:
 private:
     vk::UniqueInstance mVkInstance;
     PhysicalDeviceBundle mPhysicalDeviceBundle;
-    DeviceBundle mDeviceBundle;
+
+    vk::UniqueDevice mDevice;
+    vk::Queue mGraphicsQueue;
 
     vk::UniqueCommandPool mGraphicsCommandPool;
     vk::UniqueCommandPool mTransientCommandPool;

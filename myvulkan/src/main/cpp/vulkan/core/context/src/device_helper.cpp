@@ -2,7 +2,7 @@
 #include "device_helper.hpp"
 #include <stdexcept>
 
-DeviceBundle DeviceHelper::createDevice(PhysicalDeviceBundle bundle) {
+vk::UniqueDevice DeviceHelper::createDevice(PhysicalDeviceBundle bundle) {
     float queuePriority = 1.0f;
 
     auto physicalDevice = bundle.physicalDevice;
@@ -25,9 +25,7 @@ DeviceBundle DeviceHelper::createDevice(PhysicalDeviceBundle bundle) {
     deviceInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
     try {
-        vk::UniqueDevice device = physicalDevice.createDeviceUnique(deviceInfo);
-        vk::Queue queue = device->getQueue(queueFamilyIndex, 0);
-        return DeviceBundle{std::move(device), queue};
+        return physicalDevice.createDeviceUnique(deviceInfo);
     } catch (vk::SystemError &err) {
         throw std::runtime_error("Failed to create logical device");
     }
