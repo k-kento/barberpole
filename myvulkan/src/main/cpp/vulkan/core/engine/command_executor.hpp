@@ -5,6 +5,10 @@
 #include "swap_chain.h"
 #include "renderer_interface.hpp"
 
+namespace {
+    const uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+};
+
 class CommandExecutor {
 public:
     CommandExecutor(VulkanContext &context,
@@ -27,6 +31,8 @@ private:
     std::vector<vk::UniqueFramebuffer> mFrameBuffers;
     std::vector<vk::UniqueCommandBuffer> mCmdBuffers;
 
-    vk::UniqueSemaphore mImageAvailable;
-    vk::UniqueSemaphore mRenderFinished;
+    std::array<vk::UniqueFence, MAX_FRAMES_IN_FLIGHT> mInFlightFences;
+    std::array<vk::UniqueSemaphore, MAX_FRAMES_IN_FLIGHT> mImageAvailable;
+    std::array<vk::UniqueSemaphore, MAX_FRAMES_IN_FLIGHT> mRenderFinished;
+    uint32_t mCurrentFrame = 0;
 };

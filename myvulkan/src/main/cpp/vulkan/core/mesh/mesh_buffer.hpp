@@ -3,7 +3,6 @@
 #include "vulkan_context.h"
 #include "vulkan/vulkan.hpp"
 #include "device_buffer.h"
-#include "vulkan_context.h"
 
 template <typename VertexType>
 

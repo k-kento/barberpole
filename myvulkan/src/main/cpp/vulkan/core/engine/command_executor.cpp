@@ -10,8 +10,15 @@ CommandExecutor::CommandExecutor(VulkanContext &context,
     uint32_t queueFamilyIndex = context.getPhysicalDeviceBundle().queueFamilyIndex;
     auto device = context.getDevice();
 
-    mImageAvailable = device.createSemaphoreUnique(vk::SemaphoreCreateInfo{});
-    mRenderFinished = device.createSemaphoreUnique(vk::SemaphoreCreateInfo{});
+    vk::SemaphoreCreateInfo semaphoreInfo{};
+    vk::FenceCreateInfo fenceInfo{};
+    fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled; // フェンスの初期状態をシグナルにする
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        mImageAvailable[i] = device.createSemaphoreUnique(semaphoreInfo);
+        mRenderFinished[i] = device.createSemaphoreUnique(semaphoreInfo);
+        mInFlightFences[i] = device.createFenceUnique(fenceInfo);
+    }
 
     mFrameBuffers = VulkanUtils::createFrameBuffers(device, &swapChain, renderPass.getVkRenderPass());
     auto commandPool = mContext.getGraphicsCommandPool();
@@ -25,16 +32,22 @@ void CommandExecutor::renderFrame(SwapChain &swapChain, float deltaTimeMs) {
     auto graphicsQueue = mContext.getGraphicsQueue();
     auto swapChainKHR = swapChain.getSwapChain();
 
+    uint32_t currentFrame = mCurrentFrame % MAX_FRAMES_IN_FLIGHT;
+    mCurrentFrame++;
+
     // 次に表示可能な画像のインデックスを取得する
     auto acquireResult = device.acquireNextImageKHR(
             swapChainKHR,
             UINT64_MAX,
-            mImageAvailable.get(),
+            mImageAvailable[currentFrame].get(),
             nullptr
     );
 
     uint32_t imageIndex = acquireResult.value;
 
+    // 前フレームが GPU 完了するのを待つ
+    device.waitForFences(1, &mInFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
+    device.resetFences(1, &mInFlightFences[currentFrame].get());
 
     mRenderer.renderFrame(deltaTimeMs);
 
@@ -43,17 +56,17 @@ void CommandExecutor::renderFrame(SwapChain &swapChain, float deltaTimeMs) {
 
     // コマンドバッファを GPU キューに送信
     vk::SubmitInfo submitInfo{};
-    submitInfo.setWaitSemaphores(mImageAvailable.get())
+    submitInfo.setWaitSemaphores(mImageAvailable[currentFrame].get())
             .setWaitDstStageMask(waitStages)
             .setCommandBuffers(mCmdBuffers[imageIndex].get())
-            .setSignalSemaphores(mRenderFinished.get());
+            .setSignalSemaphores(mRenderFinished[currentFrame].get());
 
-    graphicsQueue.submit(submitInfo, nullptr);
+    graphicsQueue.submit(submitInfo, mInFlightFences[currentFrame].get());
 
     // GPU が描画完了したフレームを表示
     vk::SwapchainKHR swapChains[] = {swapChainKHR};
     vk::PresentInfoKHR presentInfo{};
-    presentInfo.setWaitSemaphores(mRenderFinished.get())
+    presentInfo.setWaitSemaphores(mRenderFinished[currentFrame].get())
             .setSwapchains(swapChains)
             .setImageIndices(imageIndex);
 
