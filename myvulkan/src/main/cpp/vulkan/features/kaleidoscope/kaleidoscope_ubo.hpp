@@ -14,7 +14,7 @@ public:
     };
 
     explicit KaleidoscopeUbo(VulkanContext &context, Texture& texture) : mContext(context) {
-        auto device = mContext.getVkDevice();
+        auto device = mContext.getDevice();
         mUboBuffer = std::make_unique<UboBuffer<UboData>>(context);
         mDescriptor = std::make_unique<KaleidoscopeDescriptor>(device);
 

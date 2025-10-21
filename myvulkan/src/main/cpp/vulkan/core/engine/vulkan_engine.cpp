@@ -12,10 +12,7 @@ VulkanEngine::VulkanEngine(VulkanContext &vkContext,
           mRenderPass(std::move(renderPass)),
           mRenderer(std::move(renderer)) {
 
-    vk::Device device = mVkContext.getVkDevice();
-
-    mImageAvailable = device.createSemaphoreUnique(vk::SemaphoreCreateInfo{});
-    mRenderFinished = device.createSemaphoreUnique(vk::SemaphoreCreateInfo{});
+    vk::Device device = mVkContext.getDevice();
 
     mCommandExecutor = std::make_unique<CommandExecutor>(vkContext, *mRenderPass, *mSwapChain, *mRenderer);
 
@@ -26,7 +23,7 @@ VulkanEngine::VulkanEngine(VulkanContext &vkContext,
 }
 
 VulkanEngine::~VulkanEngine() {
-    vk::Device device = mVkContext.getVkDevice();
+    vk::Device device = mVkContext.getDevice();
     stop();
     if (device) vkDeviceWaitIdle(device);  // GPU の処理完了を待機
 
@@ -55,7 +52,7 @@ void VulkanEngine::onRenderFrame() {
     float deltaTimeMs = std::chrono::duration<float, std::milli>(now - mLastTime).count();
     mLastTime = now;
 
-    mCommandExecutor->renderFrame(*mSwapChain, mImageAvailable.get(), mRenderFinished.get(), deltaTimeMs);
+    mCommandExecutor->renderFrame(*mSwapChain, deltaTimeMs);
 }
 
 void VulkanEngine::onRenderMessage(std::unique_ptr<RenderMessage> message) {

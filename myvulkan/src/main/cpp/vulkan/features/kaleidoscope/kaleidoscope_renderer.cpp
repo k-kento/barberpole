@@ -11,7 +11,7 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
                                            uint32_t windowHeight)
         : mVkContext(vkContext), mRenderPass(renderPass) {
 
-    auto device = mVkContext.getVkDevice();
+    auto device = mVkContext.getDevice();
 
     auto viewBounds = ViewBounds::fromSize(windowWidth, windowHeight);
     mProjectionMatrix = viewBounds.toOrthoMatrix();

@@ -12,10 +12,7 @@ public:
                     SwapChain &swapChain,
                     RendererInterface &renderer);
 
-    void renderFrame(SwapChain &swapChain,
-                     vk::Semaphore imageAvailable,
-                     vk::Semaphore renderFinished,
-                     float deltaTimeMs);
+    void renderFrame(SwapChain &swapChain, float deltaTimeMs);
 
 private:
 
@@ -29,4 +26,7 @@ private:
 
     std::vector<vk::UniqueFramebuffer> mFrameBuffers;
     std::vector<vk::UniqueCommandBuffer> mCmdBuffers;
+
+    vk::UniqueSemaphore mImageAvailable;
+    vk::UniqueSemaphore mRenderFinished;
 };

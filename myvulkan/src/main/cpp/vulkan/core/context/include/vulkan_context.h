@@ -2,9 +2,10 @@
 
 #include <android/asset_manager.h>
 #include "vulkan/vulkan.hpp"
-#include "physical_device.h"
-#include "device.h"
+#include "physical_device_helper.hpp"
+#include "device_helper.hpp"
 #include "memory"
+#include "physical_device_helper.hpp"
 
 class VulkanContext {
 
@@ -15,29 +16,29 @@ public:
         return mVkInstance.get();
     }
 
-    [[nodiscard]] PhysicalDevice getPhysicalDevice() const {
-        return *mPhysicalDevice.get();
+    [[nodiscard]] vk::PhysicalDevice getPhysicalDevice() const {
+        return mPhysicalDeviceBundle.physicalDevice;
     }
 
-    [[nodiscard]] vk::PhysicalDevice getVkPhysicalDevice() const {
-        return mPhysicalDevice->getPhysicalDevice();
+    [[nodiscard]] PhysicalDeviceBundle getPhysicalDeviceBundle() const {
+        return mPhysicalDeviceBundle;
     }
 
-    [[nodiscard]] vk::Device getVkDevice() {
-        return mDevice->getDevice();
+    [[nodiscard]] vk::Device getDevice() {
+        return mDeviceBundle.device.get();
     }
 
-    [[nodiscard]] Device &getDevice() {
-        return *mDevice.get();
+    [[nodiscard]] vk::Queue getGraphicsQueue() const {
+        return mDeviceBundle.graphicsQueue;
     }
 
-    [[nodiscard]] const vk::CommandPool getGraphicsCommandPool() const noexcept {
+    [[nodiscard]] vk::CommandPool getGraphicsCommandPool() const noexcept {
         return mGraphicsCommandPool.get();
     };
 
     // 一時的にしか使用しない Command buffer 用の Command Pool
     // テクスチャ転送、レイアウト遷移、バッファコピー等で使用
-    [[nodiscard]] const vk::CommandPool getTransientCommandPool() const noexcept {
+    [[nodiscard]] vk::CommandPool getTransientCommandPool() const noexcept {
         return mTransientCommandPool.get();
     };
 
@@ -46,15 +47,17 @@ public:
     };
 
 private:
-    vk::UniqueInstance createVkInstance();
+    static vk::UniqueInstance createVkInstance();
+
     static vk::UniqueCommandPool createCommandPool(const vk::Device &device,
-                                                   const uint32_t queueFamilyIndex,
-                                                   const vk::CommandPoolCreateFlagBits flagBits);
+                                                   uint32_t queueFamilyIndex,
+                                                   vk::CommandPoolCreateFlagBits flagBits);
 
 private:
     vk::UniqueInstance mVkInstance;
-    std::unique_ptr<PhysicalDevice> mPhysicalDevice;
-    std::unique_ptr<Device> mDevice;
+    PhysicalDeviceBundle mPhysicalDeviceBundle;
+    DeviceBundle mDeviceBundle;
+
     vk::UniqueCommandPool mGraphicsCommandPool;
     vk::UniqueCommandPool mTransientCommandPool;
 

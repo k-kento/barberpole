@@ -1,6 +1,6 @@
 add_library(vulkan_context STATIC
-        device.cpp
-        physical_device.cpp
+        device_helper.cpp
+        physical_device_helper.cpp
         vulkan_context.cpp
 )
 

@@ -11,7 +11,7 @@ class MeshBuffer {
 
 public:
     MeshBuffer(VulkanContext &context, const std::vector<VertexType> &vertices, const std::vector<uint16_t> &indices) {
-        auto device = context.getVkDevice();
+        auto device = context.getDevice();
 
         // Vertex buffer
         VkDeviceSize vboSize = sizeof(vertices[0]) * vertices.size();

@@ -14,7 +14,7 @@ public:
 
     KaleidoscopeInstanceBuffer(VulkanContext &context, const ViewBounds &viewBounds) {
 
-        auto device = context.getVkDevice();
+        auto device = context.getDevice();
 
         auto slices = MirrorTileGrid::createTileGrid(viewBounds);
         mInstanceCount = static_cast<uint32_t>(slices.size());

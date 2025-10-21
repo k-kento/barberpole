@@ -42,9 +42,6 @@ private:
     std::unique_ptr<Surface> mSurface;
     std::unique_ptr<SwapChain> mSwapChain;
 
-    vk::UniqueSemaphore mImageAvailable;
-    vk::UniqueSemaphore mRenderFinished;
-
     std::chrono::high_resolution_clock::time_point mLastTime;
 
     void onRenderFrame();

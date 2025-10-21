@@ -11,7 +11,7 @@ KaleidoscopePipelineConfig::createPipeline(VulkanContext &context,
                                            vk::PipelineLayout &pipelineLayout,
                                            RenderPass &renderPass) {
 
-    vk::Device device = context.getVkDevice();
+    vk::Device device = context.getDevice();
     AAssetManager *assetManager = context.getAssetManager();
 
     std::vector<char> vertexShaderSrc = VulkanUtils::readTextFile(assetManager, "shaders/kaleidoscope.vert.spv");
@@ -32,7 +32,7 @@ KaleidoscopePipelineConfig::createPipeline(VulkanContext &context,
             .setDepthBiasEnable(VK_FALSE)
             .setLineWidth(1.0f);
 
-    return builder.build(context.getVkDevice(), nullptr);
+    return builder.build(context.getDevice(), nullptr);
 }
 
 vk::PipelineVertexInputStateCreateInfo KaleidoscopePipelineConfig::createVertexConfig() {

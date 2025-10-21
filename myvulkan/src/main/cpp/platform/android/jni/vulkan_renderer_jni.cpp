@@ -18,7 +18,7 @@ Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeInit(JNIE
 
     auto surface = std::make_unique<Surface>(vkContext->getVkInstance(), window);
     auto swapChain = std::make_unique<SwapChain>(vkContext, surface->getSurface());
-    auto renderPass = std::make_unique<RenderPass>(vkContext->getVkDevice(), swapChain->getFormat());
+    auto renderPass = std::make_unique<RenderPass>(vkContext->getDevice(), swapChain->getFormat());
 
     auto renderer = std::make_unique<KaleidoscopeRenderer>(*vkContext, *renderPass, windowWidth, windowHeight);
     auto *engine = new VulkanEngine(*vkContext, std::move(surface), std::move(swapChain), std::move(renderPass),

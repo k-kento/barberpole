@@ -11,6 +11,7 @@
 #include "texture_utils.hpp"
 #include "command_utils.hpp"
 #include "vulkan_utils.h"
+#include "physical_device_helper.hpp"
 
 Texture::Texture(VulkanContext &context, const std::string &path)
         : mContext(context) {
@@ -67,7 +68,7 @@ void Texture::loadImageFromFile(const std::string &path) {
 }
 
 void Texture::createImage(uint32_t width, uint32_t height) {
-    auto device = mContext.getVkDevice();
+    auto device = mContext.getDevice();
     auto physicalDevice = mContext.getPhysicalDevice();
 
     vk::ImageCreateInfo imageInfo{};
@@ -85,8 +86,7 @@ void Texture::createImage(uint32_t width, uint32_t height) {
     mImage = device.createImageUnique(imageInfo);
 
     vk::MemoryRequirements memReq = device.getImageMemoryRequirements(*mImage);
-    auto memoryType = mContext.getPhysicalDevice().findMemoryType(memReq.memoryTypeBits,
-                                                                  vk::MemoryPropertyFlagBits::eDeviceLocal);
+    auto memoryType = PhysicalDeviceHelper::findMemoryType(physicalDevice, memReq.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal);
     vk::MemoryAllocateInfo allocInfo(memReq.size, memoryType);
 
     mMemory = device.allocateMemoryUnique(allocInfo);
@@ -102,7 +102,7 @@ void Texture::createImageView() {
     viewInfo.subresourceRange.levelCount = 1;
     viewInfo.subresourceRange.layerCount = 1;
 
-    mImageView = mContext.getVkDevice().createImageViewUnique(viewInfo);
+    mImageView = mContext.getDevice().createImageViewUnique(viewInfo);
 }
 
 void Texture::createSampler() {
@@ -120,5 +120,5 @@ void Texture::createSampler() {
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
 
-    mSampler = mContext.getVkDevice().createSamplerUnique(samplerInfo);
+    mSampler = mContext.getDevice().createSamplerUnique(samplerInfo);
 }

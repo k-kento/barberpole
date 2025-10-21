@@ -7,8 +7,11 @@ CommandExecutor::CommandExecutor(VulkanContext &context,
                                  RendererInterface &renderer)
         : mContext(context), mRenderer(renderer) {
 
-    uint32_t queueFamilyIndex = context.getPhysicalDevice().getQueueFamilyIndex();
-    auto device = context.getVkDevice();
+    uint32_t queueFamilyIndex = context.getPhysicalDeviceBundle().queueFamilyIndex;
+    auto device = context.getDevice();
+
+    mImageAvailable = device.createSemaphoreUnique(vk::SemaphoreCreateInfo{});
+    mRenderFinished = device.createSemaphoreUnique(vk::SemaphoreCreateInfo{});
 
     mFrameBuffers = VulkanUtils::createFrameBuffers(device, &swapChain, renderPass.getVkRenderPass());
     auto commandPool = mContext.getGraphicsCommandPool();
@@ -17,43 +20,40 @@ CommandExecutor::CommandExecutor(VulkanContext &context,
     recordCommandBuffers(renderPass, swapChain);
 }
 
-void CommandExecutor::renderFrame(
-        SwapChain &swapChain,
-        vk::Semaphore imageAvailable,
-        vk::Semaphore renderFinished,
-        float deltaTimeMs) {
-    auto device = mContext.getVkDevice();
-    auto graphicsQueue = mContext.getDevice().getGraphicsQueue();
+void CommandExecutor::renderFrame(SwapChain &swapChain, float deltaTimeMs) {
+    auto device = mContext.getDevice();
+    auto graphicsQueue = mContext.getGraphicsQueue();
     auto swapChainKHR = swapChain.getSwapChain();
 
-    // 次に描画する SwapChain イメージを取得
+    // 次に表示可能な画像のインデックスを取得する
     auto acquireResult = device.acquireNextImageKHR(
             swapChainKHR,
             UINT64_MAX,
-            imageAvailable,
+            mImageAvailable.get(),
             nullptr
     );
 
     uint32_t imageIndex = acquireResult.value;
 
+
     mRenderer.renderFrame(deltaTimeMs);
 
-    // コマンドバッファをキューに流す
+    // 描画の最終段階で同期
     vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
 
-
+    // コマンドバッファを GPU キューに送信
     vk::SubmitInfo submitInfo{};
-    submitInfo.setWaitSemaphores(imageAvailable)
+    submitInfo.setWaitSemaphores(mImageAvailable.get())
             .setWaitDstStageMask(waitStages)
             .setCommandBuffers(mCmdBuffers[imageIndex].get())
-            .setSignalSemaphores(renderFinished);
+            .setSignalSemaphores(mRenderFinished.get());
 
     graphicsQueue.submit(submitInfo, nullptr);
 
-    // 表示
+    // GPU が描画完了したフレームを表示
     vk::SwapchainKHR swapChains[] = {swapChainKHR};
     vk::PresentInfoKHR presentInfo{};
-    presentInfo.setWaitSemaphores(renderFinished)
+    presentInfo.setWaitSemaphores(mRenderFinished.get())
             .setSwapchains(swapChains)
             .setImageIndices(imageIndex);
 

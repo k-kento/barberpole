@@ -1,18 +1,20 @@
 #include "vulkan_context.h"
 #include "log.h"
+#include "physical_device_helper.hpp"
 
 VulkanContext::VulkanContext(AAssetManager *assetManager) {
     mAssetManager = assetManager;
     mVkInstance = createVkInstance();
-    mPhysicalDevice = std::make_unique<PhysicalDevice>(mVkInstance.get());
-    mDevice = std::make_unique<Device>(mPhysicalDevice.get());
-    auto device = mDevice->getDevice();
-    mGraphicsCommandPool = createCommandPool(device,
-                                             mPhysicalDevice->getQueueFamilyIndex(),
+
+    mPhysicalDeviceBundle = PhysicalDeviceHelper::pickPhysicalDevice(mVkInstance.get());
+    mDeviceBundle = DeviceHelper::createDevice(mPhysicalDeviceBundle);
+
+    mGraphicsCommandPool = createCommandPool(mDeviceBundle.device.get(),
+                                             mPhysicalDeviceBundle.queueFamilyIndex,
                                              vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
-    mTransientCommandPool = createCommandPool(device,
-                                             mPhysicalDevice->getQueueFamilyIndex(),
-                                             vk::CommandPoolCreateFlagBits::eTransient);
+    mTransientCommandPool = createCommandPool(mDeviceBundle.device.get(),
+                                              mPhysicalDeviceBundle.queueFamilyIndex,
+                                              vk::CommandPoolCreateFlagBits::eTransient);
     LOGI("VulkanContext created.");
 }
 

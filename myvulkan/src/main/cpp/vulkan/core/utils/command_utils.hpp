@@ -13,7 +13,7 @@ public:
         allocInfo.commandPool = context.getTransientCommandPool();
         allocInfo.commandBufferCount = 1;
 
-        auto commandBuffer = std::move(context.getVkDevice().allocateCommandBuffersUnique(allocInfo).front());
+        auto commandBuffer = std::move(context.getDevice().allocateCommandBuffersUnique(allocInfo).front());
 
         vk::CommandBufferBeginInfo beginInfo{vk::CommandBufferUsageFlagBits::eOneTimeSubmit};
         commandBuffer->begin(beginInfo);
@@ -29,7 +29,7 @@ public:
         vk::CommandBuffer cbHandle = *commandBuffer;
         submitInfo.pCommandBuffers = &cbHandle;
 
-        auto graphicsQueue = context.getDevice().getGraphicsQueue();
+        auto graphicsQueue = context.getGraphicsQueue();
 
         graphicsQueue.submit(submitInfo, nullptr);
         graphicsQueue.waitIdle();

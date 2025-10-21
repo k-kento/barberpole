@@ -1,13 +1,15 @@
 #include "device_buffer.h"
 #include <stdexcept>
 #include <cstring>
+#include "physical_device_helper.hpp"
 
 DeviceBuffer::DeviceBuffer(VulkanContext &context,
                            vk::DeviceSize size,
                            vk::BufferUsageFlags usage,
                            vk::MemoryPropertyFlags properties)
         : mContext(context), mSize(size) {
-    auto device = context.getVkDevice();
+    auto physicalDevice = context.getPhysicalDevice();
+    auto device = context.getDevice();
 
     vk::BufferCreateInfo bufferInfo{};
     bufferInfo.size = size;
@@ -17,7 +19,7 @@ DeviceBuffer::DeviceBuffer(VulkanContext &context,
     mBuffer = device.createBufferUnique(bufferInfo);
 
     vk::MemoryRequirements requirements = device.getBufferMemoryRequirements(*mBuffer);
-    uint32_t memoryTypeIndex = context.getPhysicalDevice().findMemoryType(requirements.memoryTypeBits, properties);
+    uint32_t memoryTypeIndex = PhysicalDeviceHelper::findMemoryType(physicalDevice, requirements.memoryTypeBits, properties);
 
     // デバイス上にメモリを確保
     vk::MemoryAllocateInfo allocInfo{};
@@ -55,7 +57,7 @@ void DeviceBuffer::copyFrom(const void *data, vk::DeviceSize size, vk::DeviceSiz
     if (size + offset > mSize)
         throw std::runtime_error("Copy size exceeds buffer size");
 
-    auto device = mContext.getVkDevice();
+    auto device = mContext.getDevice();
     void *mapped = device.mapMemory(*mMemory, offset, size);
     std::memcpy(mapped, data, static_cast<size_t>(size));
     device.unmapMemory(*mMemory);
