@@ -60,6 +60,7 @@ fun KaleidoscopePage(viewModel: KaleidoscopeViewModel = hiltViewModel()) {
                 .fillMaxSize(),
             update = { view ->
                 view.rotationState = rotationState.value
+                view.imagePath = selectedImage.value.kaleidoscopeImage
             },
         )
 

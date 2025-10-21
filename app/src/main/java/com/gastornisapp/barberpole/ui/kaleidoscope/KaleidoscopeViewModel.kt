@@ -2,6 +2,7 @@ package com.gastornisapp.barberpole.ui.kaleidoscope
 
 import androidx.lifecycle.ViewModel
 import com.gastornisapp.myvulkan.VulkanContext
+import com.gastornisapp.myvulkan.kaleidoscope.KaleidoscopeImage
 import com.gastornisapp.myvulkan.kaleidoscope.RotationState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,12 +21,12 @@ class KaleidoscopeViewModel @Inject constructor(
     val isImagePickerShowing: StateFlow<Boolean> = _isImagePickerShowing
 
     private val _images = MutableStateFlow(
-        listOf("bus_body.png", "bus_main.png", "car_body.png").map(::ImageItem)
+        KaleidoscopeImage.getImages().map { ImageItem(it) }
     )
     val images: StateFlow<List<ImageItem>> = _images
 
-    private val _selectedImage = MutableStateFlow<ImageItem?>(null)
-    val selectedImage: StateFlow<ImageItem?> = _selectedImage
+    private val _selectedImage = MutableStateFlow<ImageItem>(_images.value[0])
+    val selectedImage: StateFlow<ImageItem> = _selectedImage
 
     fun onEvent(intent: KaleidoscopeEvent) {
         when (intent) {
