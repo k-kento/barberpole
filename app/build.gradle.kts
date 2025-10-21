@@ -94,6 +94,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation.testing.android)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.coil.compose)
     implementation(project(":myvulkan"))
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx) // Coroutine対応
