@@ -1,10 +1,12 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
+#include "kaleidoscope_config.hpp"
+#include "log.h"
 
 class KaleidoscopeDescriptor {
 public:
-    explicit KaleidoscopeDescriptor(vk::Device &device) : mDevice(device) {
+    explicit KaleidoscopeDescriptor(vk::Device device) : mDevice(device) {
         createDescriptorSetLayout();
         createDescriptorPool();
     }
@@ -19,36 +21,50 @@ public:
         allocInfo.descriptorSetCount = 1;
         allocInfo.pSetLayouts = &*mDescriptorSetLayout;
 
-        auto sets = mDevice.allocateDescriptorSetsUnique(allocInfo);
-        auto descriptorSet = std::move(sets[0]);
+        vk::UniqueDescriptorSet descriptorSet;
 
-        std::vector<vk::WriteDescriptorSet> writes;
-
-        // UBO
-        vk::DescriptorBufferInfo bufferInfo{uboBuffer, 0, uboSize};
-        vk::WriteDescriptorSet uboWrite{};
-        uboWrite.dstSet = descriptorSet.get();
-        uboWrite.dstBinding = 0;
-        uboWrite.dstArrayElement = 0;
-        uboWrite.descriptorCount = 1;
-        uboWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
-        uboWrite.pBufferInfo = &bufferInfo;
-        writes.push_back(uboWrite);
-
-        // Image Sampler
-        if (imageView && sampler) {
-            vk::DescriptorImageInfo imageInfo{sampler, imageView, vk::ImageLayout::eShaderReadOnlyOptimal};
-            vk::WriteDescriptorSet imageWrite{};
-            imageWrite.dstSet = descriptorSet.get();
-            imageWrite.dstBinding = 1;
-            imageWrite.dstArrayElement = 0;
-            imageWrite.descriptorCount = 1;
-            imageWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-            imageWrite.pImageInfo = &imageInfo;
-            writes.push_back(imageWrite);
+        try {
+            descriptorSet = std::move(mDevice.allocateDescriptorSetsUnique(allocInfo).front());
+        } catch (const vk::SystemError &err) {
+            throw std::runtime_error("Failed to allocate descriptor set: " + std::string(err.what()));
         }
 
-        mDevice.updateDescriptorSets(writes, {});
+        vk::DescriptorBufferInfo bufferInfo{};
+        bufferInfo.buffer = uboBuffer;
+        bufferInfo.offset = 0;
+        bufferInfo.range = uboSize;
+
+        vk::DescriptorImageInfo imageInfo{};
+        imageInfo.imageView = imageView;
+        imageInfo.sampler = sampler;
+        imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+        std::array<vk::WriteDescriptorSet, 2> descriptorWrites{};
+
+        descriptorWrites[0] = vk::WriteDescriptorSet(
+                *descriptorSet,
+                0,  // binding
+                0,  // array element
+                1,  // descriptor count
+                vk::DescriptorType::eUniformBuffer,
+                nullptr, // pImageInfo
+                &bufferInfo,
+                nullptr
+        );
+
+        descriptorWrites[1] = vk::WriteDescriptorSet(
+                *descriptorSet,
+                1,
+                0,
+                1,
+                vk::DescriptorType::eCombinedImageSampler,
+                &imageInfo,
+                nullptr,
+                nullptr
+        );
+
+        mDevice.updateDescriptorSets(descriptorWrites, nullptr);
+
         return descriptorSet;
     }
 
@@ -57,7 +73,7 @@ public:
     }
 
 private:
-    vk::Device &mDevice;
+    vk::Device mDevice;
     vk::UniqueDescriptorSetLayout mDescriptorSetLayout;
     vk::UniqueDescriptorPool mDescriptorPool;
 
@@ -66,16 +82,22 @@ private:
         std::array<vk::DescriptorSetLayoutBinding, 2> bindings = {};
 
         // binding 0 → UBO
-        bindings[0].binding = 0;
-        bindings[0].descriptorType = vk::DescriptorType::eUniformBuffer;
-        bindings[0].descriptorCount = 1;
-        bindings[0].stageFlags = vk::ShaderStageFlagBits::eVertex;
+        bindings[0] = vk::DescriptorSetLayoutBinding(
+                0,
+                vk::DescriptorType::eUniformBuffer,
+                1,
+                vk::ShaderStageFlagBits::eVertex,
+                nullptr
+        );
 
         // binding 1 → sampler2D
-        bindings[1].binding = 1;
-        bindings[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        bindings[1].descriptorCount = 1;
-        bindings[1].stageFlags = vk::ShaderStageFlagBits::eFragment;
+        bindings[1] = vk::DescriptorSetLayoutBinding(
+                1,
+                vk::DescriptorType::eCombinedImageSampler,
+                1,
+                vk::ShaderStageFlagBits::eFragment,
+                nullptr
+        );
 
         vk::DescriptorSetLayoutCreateInfo layoutInfo{{}, bindings};
         mDescriptorSetLayout = mDevice.createDescriptorSetLayoutUnique(layoutInfo);
@@ -83,20 +105,21 @@ private:
 
     // DescriptorSet を作るためのプールを作成
     void createDescriptorPool() {
-        auto maxFramesInFlight = 1;
+
+        uint32_t maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
 
         std::array<vk::DescriptorPoolSize, 2> poolSizes{};
 
         // 1. UBO
         poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
-        poolSizes[0].descriptorCount = 1 * maxFramesInFlight;
+        poolSizes[0].descriptorCount = maxFramesInFlight;
 
-        // 2. テクスチャサンプラー用
+        // 2. テクスチャサンプラー
         poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-        poolSizes[1].descriptorCount = 1 * maxFramesInFlight;
+        poolSizes[1].descriptorCount = maxFramesInFlight;
 
         vk::DescriptorPoolCreateInfo poolInfo{};
-        poolInfo.maxSets = maxFramesInFlight;
+        poolInfo.maxSets = maxFramesInFlight * 2; // DescriptorSet 作り直し分も考慮
         poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         poolInfo.pPoolSizes = poolSizes.data();
 

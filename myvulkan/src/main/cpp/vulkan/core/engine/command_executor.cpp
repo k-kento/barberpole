@@ -14,10 +14,14 @@ CommandExecutor::CommandExecutor(VulkanContext &context,
     vk::FenceCreateInfo fenceInfo{};
     fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled; // フェンスの初期状態をシグナルにする
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        mImageAvailable[i] = device.createSemaphoreUnique(semaphoreInfo);
-        mRenderFinished[i] = device.createSemaphoreUnique(semaphoreInfo);
-        mInFlightFences[i] = device.createFenceUnique(fenceInfo);
+    mImageAvailable.reserve(mRenderer.getMaxFramesInFlight());
+    mRenderFinished.reserve(mRenderer.getMaxFramesInFlight());
+    mInFlightFences.reserve(mRenderer.getMaxFramesInFlight());
+
+    for (size_t i = 0; i < mRenderer.getMaxFramesInFlight(); i++) {
+        mImageAvailable.push_back(device.createSemaphoreUnique(semaphoreInfo));
+        mRenderFinished.push_back(device.createSemaphoreUnique(semaphoreInfo));
+        mInFlightFences.push_back(device.createFenceUnique(fenceInfo));
     }
 
     mFrameBuffers = VulkanUtils::createFrameBuffers(device, &swapChain, renderPass.getVkRenderPass());
@@ -32,41 +36,50 @@ void CommandExecutor::renderFrame(SwapChain &swapChain, float deltaTimeMs) {
     auto graphicsQueue = mContext.getGraphicsQueue();
     auto swapChainKHR = swapChain.getSwapChain();
 
-    uint32_t currentFrame = mCurrentFrame % MAX_FRAMES_IN_FLIGHT;
-    mCurrentFrame++;
+    uint32_t frameIndex = mFrameIndex % mRenderer.getMaxFramesInFlight();
+    mFrameIndex++;
+
+    auto imageAvailable = mImageAvailable[frameIndex].get();
+    auto renderFinished = mRenderFinished[frameIndex].get();
+    auto inFlightFence = mInFlightFences[frameIndex].get();
+
+    // 前フレームが GPU 完了するのを待つ
+    device.waitForFences(1, &inFlightFence, VK_TRUE, UINT64_MAX);
+    device.resetFences(1, &inFlightFence);
 
     // 次に表示可能な画像のインデックスを取得する
     auto acquireResult = device.acquireNextImageKHR(
             swapChainKHR,
             UINT64_MAX,
-            mImageAvailable[currentFrame].get(),
+            imageAvailable,
             nullptr
     );
 
+    if (acquireResult.result == vk::Result::eErrorOutOfDateKHR) {
+        // TODO リサイズなど スワップチェーン作り直し
+        return;
+    }
+
     uint32_t imageIndex = acquireResult.value;
 
-    // 前フレームが GPU 完了するのを待つ
-    device.waitForFences(1, &mInFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
-    device.resetFences(1, &mInFlightFences[currentFrame].get());
-
-    mRenderer.renderFrame(deltaTimeMs);
+    mRenderer.renderFrame(deltaTimeMs, frameIndex);
 
     // 描画の最終段階で同期
     vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
 
     // コマンドバッファを GPU キューに送信
     vk::SubmitInfo submitInfo{};
-    submitInfo.setWaitSemaphores(mImageAvailable[currentFrame].get())
+    submitInfo.setWaitSemaphores(imageAvailable)
             .setWaitDstStageMask(waitStages)
             .setCommandBuffers(mCmdBuffers[imageIndex].get())
-            .setSignalSemaphores(mRenderFinished[currentFrame].get());
+            .setSignalSemaphores(renderFinished);
 
-    graphicsQueue.submit(submitInfo, mInFlightFences[currentFrame].get());
+    graphicsQueue.submit(submitInfo, inFlightFence);
 
     // GPU が描画完了したフレームを表示
     vk::SwapchainKHR swapChains[] = {swapChainKHR};
     vk::PresentInfoKHR presentInfo{};
-    presentInfo.setWaitSemaphores(mRenderFinished[currentFrame].get())
+    presentInfo.setWaitSemaphores(renderFinished)
             .setSwapchains(swapChains)
             .setImageIndices(imageIndex);
 
@@ -75,30 +88,33 @@ void CommandExecutor::renderFrame(SwapChain &swapChain, float deltaTimeMs) {
 
 void CommandExecutor::recordCommandBuffers(RenderPass &renderPass, SwapChain &swapChain) {
     auto extent = swapChain.getExtent();
-    for (size_t i = 0; i < mCmdBuffers.size(); ++i) {
+    for (size_t imageIndex = 0; imageIndex < mCmdBuffers.size(); ++imageIndex) {
         vk::CommandBufferBeginInfo beginInfo{};
         beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
-        mCmdBuffers[i]->begin(beginInfo);
+        mCmdBuffers[imageIndex]->begin(beginInfo);
 
         vk::ClearValue clearColor = vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f});
         vk::RenderPassBeginInfo rpBegin{};
         rpBegin.renderPass = renderPass.getVkRenderPass();
-        rpBegin.framebuffer = mFrameBuffers[i].get();
+        rpBegin.framebuffer = mFrameBuffers[imageIndex].get();
         rpBegin.renderArea.extent = extent;
         rpBegin.clearValueCount = 1;
         rpBegin.pClearValues = &clearColor;
 
-        mCmdBuffers[i]->beginRenderPass(rpBegin, vk::SubpassContents::eInline);
+        mCmdBuffers[imageIndex]->beginRenderPass(rpBegin, vk::SubpassContents::eInline);
 
         vk::Viewport viewport{0, 0, (float) extent.width, (float) extent.height, 0.0f, 1.0f};
-        mCmdBuffers[i]->setViewport(0, viewport);
+        mCmdBuffers[imageIndex]->setViewport(0, viewport);
         vk::Rect2D scissor{{0, 0}, extent};
-        mCmdBuffers[i]->setScissor(0, scissor);
+        mCmdBuffers[imageIndex]->setScissor(0, scissor);
 
-        mRenderer.recordDrawCommands(mCmdBuffers[i].get());
+        // CommandBuffer 記録時点では実際のフレーム番号は不明
+        // 各 SwapChain イメージに対して MaxFramesInFlight 分の DescriptorSet を割り当て
+        uint32_t frameIndex = imageIndex % mRenderer.getMaxFramesInFlight();
+        mRenderer.recordDrawCommands(mCmdBuffers[imageIndex].get(), frameIndex);
 
-        mCmdBuffers[i]->endRenderPass();
-        mCmdBuffers[i]->end();
+        mCmdBuffers[imageIndex]->endRenderPass();
+        mCmdBuffers[imageIndex]->end();
     }
 }
 

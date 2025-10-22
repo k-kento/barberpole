@@ -5,11 +5,14 @@
 #include "swap_chain.h"
 #include "vulkan_engine.hpp"
 #include "rotation_message.hpp"
+#include "update_texture_message.hpp"
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeInit(JNIEnv *env, jobject thiz,
+Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeInit(JNIEnv *env,
+                                                                            jobject thiz,
                                                                             jobject androidSurface,
-                                                                            jlong vulkanContextHandle) {
+                                                                            jlong vulkanContextHandle,
+                                                                            jstring jFilePath) {
     auto *vkContext = reinterpret_cast<VulkanContext *>(vulkanContextHandle);
     ANativeWindow *window = ANativeWindow_fromSurface(env, androidSurface);
 
@@ -20,8 +23,20 @@ Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeInit(JNIE
     auto swapChain = std::make_unique<SwapChain>(vkContext, surface->getSurface());
     auto renderPass = std::make_unique<RenderPass>(vkContext->getDevice(), swapChain->getFormat());
 
-    auto renderer = std::make_unique<KaleidoscopeRenderer>(*vkContext, *renderPass, windowWidth, windowHeight);
-    auto *engine = new VulkanEngine(*vkContext, std::move(surface), std::move(swapChain), std::move(renderPass),
+    const char *cStr = env->GetStringUTFChars(jFilePath, nullptr);
+    std::string filePath(cStr);
+    env->ReleaseStringUTFChars(jFilePath, cStr);
+
+    auto renderer = std::make_unique<KaleidoscopeRenderer>(*vkContext,
+                                                           *renderPass,
+                                                           windowWidth,
+                                                           windowHeight,
+                                                           filePath);
+
+    auto *engine = new VulkanEngine(*vkContext,
+                                    std::move(surface),
+                                    std::move(swapChain),
+                                    std::move(renderPass),
                                     std::move(renderer));
     return reinterpret_cast<jlong>(engine);
 }
@@ -35,7 +50,8 @@ Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeStart(JNI
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeStop(JNIEnv *env, jobject thiz,
+Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeStop(JNIEnv *env,
+                                                                            jobject thiz,
                                                                             jlong nativeHandle) {
     auto *engine = reinterpret_cast<VulkanEngine *>(nativeHandle);
     if (engine) engine->stop();
@@ -43,7 +59,8 @@ Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeStop(JNIE
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeDestroy(JNIEnv *env, jobject thiz,
+Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeDestroy(JNIEnv *env,
+                                                                               jobject thiz,
                                                                                jlong nativeHandle) {
     auto *engine = reinterpret_cast<VulkanEngine *>(nativeHandle);
     if (engine) {
@@ -53,7 +70,8 @@ Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeDestroy(J
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeSetRotationState(JNIEnv *env, jobject thiz,
+Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeSetRotationState(JNIEnv *env,
+                                                                                        jobject thiz,
                                                                                         jlong nativeHandle,
                                                                                         jint rotationState) {
     auto *engine = reinterpret_cast<VulkanEngine *>(nativeHandle);
@@ -69,5 +87,21 @@ Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeSetRotati
     }
 
     auto message = std::make_unique<RotationMessage>(state);
+    engine->postMessage(std::move(message));
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeSetImage(JNIEnv *env,
+                                                                                jobject thiz,
+                                                                                jlong nativeHandle,
+                                                                                jstring jFilePath) {
+    auto *engine = reinterpret_cast<VulkanEngine *>(nativeHandle);
+
+    const char *cStr = env->GetStringUTFChars(jFilePath, nullptr);
+    std::string filePath(cStr);
+    env->ReleaseStringUTFChars(jFilePath, cStr);
+
+    auto message = std::make_unique<UpdateTextureMessage>(filePath);
     engine->postMessage(std::move(message));
 }

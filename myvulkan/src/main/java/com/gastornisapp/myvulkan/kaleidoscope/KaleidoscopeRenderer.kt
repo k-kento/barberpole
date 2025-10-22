@@ -9,7 +9,11 @@ class KaleidoscopeRenderer {
 
     fun init(context: VulkanContext, surface: Surface) {
         if (nativeHandle == 0L) {
-            nativeHandle = nativeInit(surface = surface, contextHandle = context.nativeHandle)
+            nativeHandle = nativeInit(
+                surface = surface,
+                contextHandle = context.nativeHandle,
+                KaleidoscopeImage.getImages().first().getPath()
+            )
         }
     }
 
@@ -34,13 +38,20 @@ class KaleidoscopeRenderer {
 
     fun setRorationState(rotationState: RotationState) {
         if (nativeHandle != 0L) {
-            nativeSetRotationState(nativeHandle,rotationState.value)
+            nativeSetRotationState(nativeHandle, rotationState.value)
         }
     }
 
-    private external fun nativeInit(surface: Surface, contextHandle: Long): Long
+    fun setImage(image: KaleidoscopeImage) {
+        if (nativeHandle != 0L) {
+            nativeSetImage(nativeHandle, image.getPath())
+        }
+    }
+
+    private external fun nativeInit(surface: Surface, contextHandle: Long, filePath: String): Long
     private external fun nativeStart(nativeHandle: Long)
     private external fun nativeStop(nativeHandle: Long)
     private external fun nativeDestroy(nativeHandle: Long)
     private external fun nativeSetRotationState(nativeHandle: Long, rotationState: Int)
+    private external fun nativeSetImage(nativeHandle: Long, filePath: String)
 }

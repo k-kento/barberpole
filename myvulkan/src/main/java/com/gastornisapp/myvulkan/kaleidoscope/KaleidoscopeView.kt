@@ -10,12 +10,18 @@ import com.gastornisapp.myvulkan.VulkanContext
 class KaleidoscopeView(context: Context, val vulkanContext: VulkanContext) : SurfaceView(context),
     SurfaceHolder.Callback {
 
-    private lateinit var kaleidoscopeRenderer: KaleidoscopeRenderer
+    private var kaleidoscopeRenderer: KaleidoscopeRenderer? = null
 
     var rotationState: RotationState = RotationState.None
         set(value) {
-            if (::kaleidoscopeRenderer.isInitialized) {
-                kaleidoscopeRenderer.setRorationState(value)
+            kaleidoscopeRenderer?.setRorationState(value)
+        }
+
+    var imagePath: KaleidoscopeImage? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                value?.let { img -> kaleidoscopeRenderer?.setImage(img) }
             }
         }
 
@@ -25,8 +31,8 @@ class KaleidoscopeView(context: Context, val vulkanContext: VulkanContext) : Sur
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         kaleidoscopeRenderer = KaleidoscopeRenderer()
-        kaleidoscopeRenderer.init(context = vulkanContext, surface = holder.surface)
-        kaleidoscopeRenderer.start()
+        kaleidoscopeRenderer?.init(context = vulkanContext, surface = holder.surface)
+        kaleidoscopeRenderer?.start()
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
@@ -34,7 +40,7 @@ class KaleidoscopeView(context: Context, val vulkanContext: VulkanContext) : Sur
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
-        kaleidoscopeRenderer.stop()
-        kaleidoscopeRenderer.destroy()
+        kaleidoscopeRenderer?.stop()
+        kaleidoscopeRenderer?.destroy()
     }
 }

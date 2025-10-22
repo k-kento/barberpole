@@ -9,20 +9,29 @@
 #include "../../core/texture/texture.hpp"
 #include "render_message.hpp"
 #include "rotation_state.hpp"
+#include "kaleidoscope_config.hpp"
 
 class KaleidoscopeRenderer : public RendererInterface {
 public:
+
     // TODO window Android 依存
     KaleidoscopeRenderer(VulkanContext &vkContext,
                          RenderPass &renderPass,
                          uint32_t windowWidth,
-                         uint32_t windowHeight);
+                         uint32_t windowHeight,
+                         const std::string &texturePath);
 
-    void recordDrawCommands(vk::CommandBuffer cmdBuffer) override;
+    void recordDrawCommands(vk::CommandBuffer cmdBuffer, uint32_t frameIndex) override;
 
-    void renderFrame(float deltaTimeMs) override;
+    void renderFrame(float deltaTimeMs, uint32_t currentFrame) override;
 
     void handleMessage(std::unique_ptr<RenderMessage> message) override;
+
+    uint32_t getMaxFramesInFlight() override {
+        return MAX_FRAMES_IN_FLIGHT;
+    };
+
+    void updateTexture(const std::string &path);
 
 private:
     // rad/ms
