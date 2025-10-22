@@ -5,10 +5,6 @@
 # Sets the minimum CMake version required for this project.
 cmake_minimum_required(VERSION 3.22.1)
 
-# Declares the project name. The project name can be accessed via ${ PROJECT_NAME},
-# Since this is the top level CMakeLists.txt, the project name is also accessible
-# with ${CMAKE_PROJECT_NAME} (both CMake variables are in-sync within the top level
-# build script scope).
 project("myvulkan")
 
 # Creates and names a library, sets it as either STATIC
@@ -25,42 +21,16 @@ project("myvulkan")
 # for GameActivity/NativeActivity derived applications, the same library name must be
 # used in the AndroidManifest.xml file.
 add_library(${CMAKE_PROJECT_NAME} SHARED
-        # List C/C++ source files with relative paths to this CMakeLists.txt.
         platform/android/jni/vulkan_context_jni.cpp
         platform/android/jni/vulkan_renderer_jni.cpp
-
-        vulkan/core/memory/device_buffer.cpp
-        vulkan/core/pipeline/pipeline_builder.cpp
-        vulkan/core/pipeline/render_pass.cpp
-
-        vulkan/core/engine/vulkan_engine.cpp
-        vulkan/core/engine/command_executor.cpp
-
-        vulkan/core/surface/surface.cpp
-        vulkan/core/surface/swap_chain.cpp
-        vulkan/core/texture/texture.cpp
-        vulkan/core/utils/vulkan_utils.cpp
-
-        vulkan/features/kaleidoscope/kaleidoscope_renderer.cpp
-        vulkan/features/kaleidoscope/kaleidoscope_pipeline_config.cpp
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}vulkan/common
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/core/memory
-        ${CMAKE_CURRENT_SOURCE_DIR}vulkan/common/mesh
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/core/pipeline
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/core/engine
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/core/surface
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/core/utils
-
-        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/features/kaleidoscope
-
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/features/kaleidoscope/include
         ${CMAKE_CURRENT_SOURCE_DIR}/platform/android/jni
         ${CMAKE_CURRENT_SOURCE_DIR}/util
         ${CMAKE_CURRENT_SOURCE_DIR}/external/Vulkan-Hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/external/glm
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/stb
 )
 
 add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
@@ -68,13 +38,13 @@ add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
 find_library(VULKAN_LIB vulkan PATHS ${ANDROID_NDK}/sysroot/usr/lib/${ANDROID_TOOLCHAIN_NAME}/)
 
 add_subdirectory(vulkan/core/context)
+add_subdirectory(vulkan/core)
+add_subdirectory(vulkan/features/kaleidoscope)
 
-# Specifies libraries CMake should link to your target library. You
-# can link libraries from various origins, such as libraries defined in this
-# build script, prebuilt third-party libraries, or Android system libraries.
 target_link_libraries(${CMAKE_PROJECT_NAME}
-        # List libraries link to the target library
         vulkan_context
+        core
+        kaleidoscope
         ${VULKAN_LIB}
         android
         log)
