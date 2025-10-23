@@ -19,6 +19,7 @@ public:
                          RenderPass &renderPass,
                          uint32_t windowWidth,
                          uint32_t windowHeight,
+                         uint32_t deviceRotationDegree,
                          const std::string &texturePath);
 
     void recordDrawCommands(vk::CommandBuffer cmdBuffer, uint32_t frameIndex) override;

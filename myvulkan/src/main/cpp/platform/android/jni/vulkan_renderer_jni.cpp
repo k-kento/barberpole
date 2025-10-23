@@ -12,7 +12,8 @@ Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeInit(JNIE
                                                                             jobject thiz,
                                                                             jobject androidSurface,
                                                                             jlong vulkanContextHandle,
-                                                                            jstring jFilePath) {
+                                                                            jstring jFilePath,
+                                                                            jint deviceRotationDegree) {
     auto *vkContext = reinterpret_cast<VulkanContext *>(vulkanContextHandle);
     ANativeWindow *window = ANativeWindow_fromSurface(env, androidSurface);
 
@@ -31,6 +32,7 @@ Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeInit(JNIE
                                                            *renderPass,
                                                            windowWidth,
                                                            windowHeight,
+                                                           deviceRotationDegree,
                                                            filePath);
 
     auto *engine = new VulkanEngine(*vkContext,

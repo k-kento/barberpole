@@ -23,7 +23,7 @@ public:
         float dx = (tileWidth + tileWidth / 2.0f);
         float dy = tileHeight / 2;
 
-        int cols = static_cast<int>(screenWidth / dx) + 1;
+        int cols = static_cast<int>(screenWidth / dx) + 2;
         int rows = static_cast<int>(screenHeight / dy) + 2;
 
         auto tiles = createTile();

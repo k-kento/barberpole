@@ -10,13 +10,16 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
                                            RenderPass &renderPass,
                                            uint32_t windowWidth,
                                            uint32_t windowHeight,
+                                           uint32_t deviceRotationDegree,
                                            const std::string &texturePath)
         : mVkContext(vkContext), mRenderPass(renderPass) {
 
     auto device = mVkContext.getDevice();
 
     auto viewBounds = ViewBounds::fromSize(windowWidth, windowHeight);
-    mProjectionMatrix = viewBounds.toOrthoMatrix();
+    float deviceRotationRad = glm::radians(static_cast<float>(deviceRotationDegree));
+    auto deviceRotation = glm::rotate(glm::mat4(1.0f), deviceRotationRad, glm::vec3(0.0f, 0.0f, 1.0f));
+    mProjectionMatrix = deviceRotation * viewBounds.toOrthoMatrix();
 
     mMeshManager = std::make_unique<KaleidoscopeMeshManager>(mVkContext);
     mInstanceData = std::make_unique<KaleidoscopeInstanceBuffer>(mVkContext, viewBounds);
