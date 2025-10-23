@@ -40,7 +40,7 @@ void KaleidoscopeRenderer::renderFrame(float deltaTimeMs, uint32_t currentFrame)
     auto rotationState = mRotationState;
     if (rotationState != RotationState::None) {
 
-        mUvAngle += (rotationState == RotationState::RotatingCCW ? -1 : 1) * rotationSpeed * deltaTimeMs;
+        mUvAngle += (rotationState == RotationState::RotatingCCW ? -1.0f : 1.0f) * rotationSpeed * deltaTimeMs;
         mUvAngle = glm::mod(mUvAngle, glm::two_pi<float>()); // 0 ~ 2π に収める
 
         // UV を 0.5, 0.5 を中心に回転

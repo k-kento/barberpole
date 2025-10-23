@@ -51,7 +51,7 @@ fun KaleidoscopePage(viewModel: KaleidoscopeViewModel = hiltViewModel()) {
         AndroidView(
             factory = {
                 KaleidoscopeView(
-                    context = context.applicationContext,
+                    context = context,
                     vulkanContext = viewModel.vulkanContext,
                 )
             },
