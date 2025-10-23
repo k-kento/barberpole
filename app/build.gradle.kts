@@ -79,7 +79,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.material.icons.extended.android)
+    implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
@@ -94,14 +94,13 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation.testing.android)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.coil.compose)
+    implementation(project(":myvulkan"))
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx) // Coroutine対応
     kapt(libs.hilt.compiler)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.config)
-
-//    debugImplementation(libs.androidx.ui.tooling)
-//    debugImplementation(libs.androidx.ui.test.manifest)
 
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -117,14 +116,12 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation(libs.androidx.navigation.testing)
     androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.ui.test.junit4)
     kaptAndroidTest(libs.hilt.android.compiler)
     androidTestImplementation(libs.mockk.android)
 }
-
 
 tasks.withType<Test> {
     useJUnitPlatform()

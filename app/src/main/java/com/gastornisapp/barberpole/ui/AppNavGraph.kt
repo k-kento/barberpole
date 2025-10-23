@@ -12,6 +12,7 @@ import com.gastornisapp.barberpole.ui.confiramtion.ConfirmationPage
 import com.gastornisapp.barberpole.ui.harmony.HarmonyPage
 import com.gastornisapp.barberpole.ui.home.HomePage
 import com.gastornisapp.barberpole.ui.info.InfoPage
+import com.gastornisapp.barberpole.ui.kaleidoscope.KaleidoscopePage
 import com.gastornisapp.barberpole.ui.percussion.PercussionPage
 import com.gastornisapp.barberpole.ui.swarm.SwarmPage
 import com.gastornisapp.barberpole.ui.vehicle.VehiclePage
@@ -44,6 +45,8 @@ fun AppNavGraph(
             val url = backStackEntry.arguments?.getString("url") ?: error("url is null")
             WebPage(url = url)
         }
+        composable(PageType.Swarm.route ) { SwarmPage() }
+        composable(PageType.Kaleidoscope.route ) { KaleidoscopePage() }
         composable(PageType.Info.route) { InfoPage(navController) }
         composable(PageType.License.route) { LicensePage() }
     }

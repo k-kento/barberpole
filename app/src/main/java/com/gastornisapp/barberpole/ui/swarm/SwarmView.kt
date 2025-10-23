@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.view.MotionEvent
+import androidx.lifecycle.Lifecycle
+import com.gastornisapp.barberpole.ui.common.LifecycleAwareGLSurfaceView
 
-class SwarmView(context: Context) : GLSurfaceView(context) {
+class SwarmView(context: Context, lifecycle: Lifecycle) : LifecycleAwareGLSurfaceView(context, lifecycle) {
     private val renderer: SwarmRenderer
     private var activePointerId = -1
 
