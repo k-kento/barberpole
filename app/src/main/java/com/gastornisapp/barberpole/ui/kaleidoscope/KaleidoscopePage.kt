@@ -117,16 +117,6 @@ fun BottomBar(viewModel: KaleidoscopeViewModel) {
                 )
             }
             IconButton(
-                modifier = Modifier.testTag("SizeButton"),
-                onClick = {},
-            ) {
-                Icon(
-                    modifier = Modifier.size(60.dp),
-                    imageVector = Icons.Default.PhotoSizeSelectLarge,
-                    contentDescription = null,
-                )
-            }
-            IconButton(
                 modifier = Modifier.testTag("CwButton"),
                 onClick = {},
                 interactionSource = cwInteraction,
