@@ -146,13 +146,13 @@ private fun createItems(): List<ItemInfo> {
             PageType.Swarm
         ),
         ItemInfo(
-            drawableRes = R.drawable.barberpole,
-            PageType.BarberPole,
+            drawableRes = R.drawable.kaleidoscope,
+            PageType.Kaleidoscope,
             contentScale = ContentScale.Fit
         ),
         ItemInfo(
-            drawableRes = R.drawable.ic_launcher_background,
-            PageType.Kaleidoscope,
+            drawableRes = R.drawable.barberpole,
+            PageType.BarberPole,
             contentScale = ContentScale.Fit
         ),
     )
