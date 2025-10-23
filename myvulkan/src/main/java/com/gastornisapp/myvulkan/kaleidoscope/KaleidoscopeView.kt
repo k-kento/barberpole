@@ -31,7 +31,7 @@ class KaleidoscopeView(context: Context, val vulkanContext: VulkanContext) : Sur
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         kaleidoscopeRenderer = KaleidoscopeRenderer()
-        kaleidoscopeRenderer?.init(context = vulkanContext, surface = holder.surface)
+        kaleidoscopeRenderer?.init(context = context.applicationContext, vulkanContext = vulkanContext, surface = holder.surface)
         kaleidoscopeRenderer?.start()
     }
 

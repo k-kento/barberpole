@@ -1,5 +1,6 @@
 package com.gastornisapp.myvulkan.kaleidoscope
 
+import android.content.Context
 import android.view.Surface
 import com.gastornisapp.myvulkan.VulkanContext
 
@@ -7,12 +8,12 @@ class KaleidoscopeRenderer {
 
     private var nativeHandle: Long = 0L
 
-    fun init(context: VulkanContext, surface: Surface) {
+    fun init(context: Context, vulkanContext: VulkanContext, surface: Surface) {
         if (nativeHandle == 0L) {
             nativeHandle = nativeInit(
                 surface = surface,
-                contextHandle = context.nativeHandle,
-                KaleidoscopeImage.getImages().first().getPath()
+                contextHandle = vulkanContext.nativeHandle,
+                KaleidoscopeImage.getImages(context).first().getPath()
             )
         }
     }
