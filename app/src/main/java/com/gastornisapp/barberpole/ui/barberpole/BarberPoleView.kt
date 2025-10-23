@@ -1,11 +1,12 @@
 package com.gastornisapp.barberpole.ui.barberpole
 
 import android.content.Context
-import android.opengl.GLSurfaceView
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.lifecycle.Lifecycle
+import com.gastornisapp.barberpole.ui.common.LifecycleAwareGLSurfaceView
 
-class BarberPoleView(context: Context) : GLSurfaceView(context) {
+class BarberPoleView(context: Context, lifecycle: Lifecycle) : LifecycleAwareGLSurfaceView(context, lifecycle) {
 
     private var renderer: BarberPoleRenderer?
 

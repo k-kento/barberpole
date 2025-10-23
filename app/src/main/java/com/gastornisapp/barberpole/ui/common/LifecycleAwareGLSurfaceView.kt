@@ -15,12 +15,12 @@ abstract class LifecycleAwareGLSurfaceView(
     private val observer = object : DefaultLifecycleObserver {
         override fun onResume(owner: LifecycleOwner) {
             Log.d("LifecycleAwareGLSurfaceView", "onResume")
-            this@LifecycleAwareGLSurfaceView.onResume()
+            renderMode = RENDERMODE_CONTINUOUSLY
         }
 
         override fun onPause(owner: LifecycleOwner) {
             Log.d("LifecycleAwareGLSurfaceView", "onPause")
-            this@LifecycleAwareGLSurfaceView.onPause()
+            renderMode = RENDERMODE_WHEN_DIRTY
         }
     }
 

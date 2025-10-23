@@ -11,19 +11,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.gastornisapp.barberpole.ui.barberpole.BarberPoleBottomBar
 import com.gastornisapp.barberpole.ui.barberpole.BarberPoleView
 import com.gastornisapp.barberpole.ui.barberpole.BarberPoleViewModel
 import com.gastornisapp.barberpole.ui.barberpole.ColorBottomSheet
 import com.gastornisapp.barberpole.ui.barberpole.SpeedBottomSheet
-import com.gastornisapp.barberpole.ui.common.LifecycleAndroidView
 
 @Composable
 fun BarberPolePage(viewModel: BarberPoleViewModel = hiltViewModel()) {
+    val haptic = LocalHapticFeedback.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
     Scaffold { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
-            val haptic = LocalHapticFeedback.current
 
             Box(
                 modifier = Modifier
@@ -31,12 +34,12 @@ fun BarberPolePage(viewModel: BarberPoleViewModel = hiltViewModel()) {
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                LifecycleAndroidView(
+                AndroidView(
                     modifier = Modifier
                         .fillMaxHeight(0.7f)
                         .aspectRatio(0.2f)
                         .testTag("BarberPoleViewComposable"),
-                    factory = { context -> BarberPoleView(context) },
+                    factory = { context -> BarberPoleView(context, lifecycle = lifecycle) },
                     update = {
                         it.apply {
                             setPlaying(viewModel.isPlaying)
@@ -45,8 +48,6 @@ fun BarberPolePage(viewModel: BarberPoleViewModel = hiltViewModel()) {
                             setColors(viewModel.colors.first, viewModel.colors.second)
                         }
                     },
-                    onResume = { it.onResume() },
-                    onPause = { it.onPause() },
                     onRelease = { it.release() }
                 )
             }
