@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Barber pole"
 include(":app")
-include(":audio")
+include(":myvulkan")

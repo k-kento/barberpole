@@ -1,0 +1,6 @@
+[submodule "myvulkan/src/main/cpp/include/Vulkan-Hpp"]
+	path = myvulkan/src/main/cpp/include/Vulkan-Hpp
+	url = https://github.com/KhronosGroup/Vulkan-Hpp
+[submodule "myvulkan/src/main/cpp/include/glm"]
+	path = myvulkan/src/main/cpp/include/glm
+	url = https://github.com/g-truc/glm
