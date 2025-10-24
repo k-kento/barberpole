@@ -70,9 +70,10 @@ sealed class VehicleLogicModel(
         val isLeft = (loop and 1) == 0
         val direction = if (isLeft) -1 else 1
         val posX = newDistance - loop * viewBounds.width
+        val halfHeight = scale / 2f // 車両の下の位置を一致させるための補正に使用する
 
         this.posX = direction * posX
-        this.posY = laneHeight * loop - laneHeight / 2f
+        this.posY = laneHeight * loop - laneHeight / 2f + halfHeight
         this.orientation = if (isLeft) Orientation.Left else Orientation.Right
         this.distance = newDistance
     }
