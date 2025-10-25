@@ -2,6 +2,7 @@ package com.gastornisapp.barberpole.domain.repository
 
 import com.gastornisapp.barberpole.domain.entity.Notice
 import com.gastornisapp.barberpole.domain.entity.SemVer
+import kotlinx.coroutines.flow.Flow
 
 interface AppSettingsRepository {
     suspend fun refreshConfig(): Result<Unit>
@@ -31,6 +32,10 @@ interface AppSettingsRepository {
     suspend fun setPrivacyPolicyAcceptedVersion(version: Int)
 
     // end region user agreement
+
+    fun isLockEnabled(): Flow<Boolean>
+
+    suspend fun setLockEnabled(enabled: Boolean)
 
     fun getCurrentAppVersion(): Result<SemVer> // TODO infra に移動
 

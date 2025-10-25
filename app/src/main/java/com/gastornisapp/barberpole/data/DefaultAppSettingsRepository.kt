@@ -8,6 +8,7 @@ import com.gastornisapp.barberpole.data.remoteconfig.RemoteConfigDataSource
 import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
 import com.gastornisapp.barberpole.domain.entity.Notice
 import com.gastornisapp.barberpole.domain.entity.SemVer
+import kotlinx.coroutines.flow.Flow
 
 class DefaultAppSettingsRepository(
     private val context: Context,
@@ -69,6 +70,14 @@ class DefaultAppSettingsRepository(
 
     override suspend fun setPrivacyPolicyAcceptedVersion(version: Int) {
         appPreferencesDataSource.setPrivacyPolicyAcceptedVersion(version)
+    }
+
+    override fun isLockEnabled(): Flow<Boolean> {
+        return appPreferencesDataSource.isLockEnabled()
+    }
+
+    override suspend fun setLockEnabled(enabled: Boolean) {
+        appPreferencesDataSource.setLockEnabled(enabled)
     }
 
     override fun getCurrentAppVersion(): Result<SemVer> {

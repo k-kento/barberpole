@@ -14,6 +14,7 @@ import com.gastornisapp.barberpole.ui.home.HomePage
 import com.gastornisapp.barberpole.ui.info.InfoPage
 import com.gastornisapp.barberpole.ui.kaleidoscope.KaleidoscopePage
 import com.gastornisapp.barberpole.ui.percussion.PercussionPage
+import com.gastornisapp.barberpole.ui.settings.SettingsPage
 import com.gastornisapp.barberpole.ui.swarm.SwarmPage
 import com.gastornisapp.barberpole.ui.vehicle.VehiclePage
 
@@ -48,6 +49,7 @@ fun AppNavGraph(
         composable(PageType.Swarm.route ) { SwarmPage() }
         composable(PageType.Kaleidoscope.route ) { KaleidoscopePage() }
         composable(PageType.Info.route) { InfoPage(navController) }
+        composable(PageType.Settings.route) { SettingsPage() }
         composable(PageType.License.route) { LicensePage() }
     }
 }

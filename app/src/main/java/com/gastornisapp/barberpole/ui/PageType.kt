@@ -11,5 +11,6 @@ enum class PageType(val route: String) {
     Kaleidoscope("kaleidoscope"),
     WebPage("webpage?url={url}"),
     Info("info"),
+    Settings("settings"),
     License("license");
 }
