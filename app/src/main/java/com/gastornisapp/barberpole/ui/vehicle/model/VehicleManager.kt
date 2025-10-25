@@ -1,5 +1,6 @@
 package com.gastornisapp.barberpole.ui.vehicle.model
 
+import android.util.Log
 import com.gastornisapp.barberpole.ui.ViewBounds
 import kotlin.math.floor
 
@@ -12,6 +13,14 @@ class VehicleManager {
     private val pendingAddQueue = ArrayDeque<VehicleModel>()
 
     var viewBounds = ViewBounds(0f, 0f, 0f, 0f)
+        set(value) {
+            field = ViewBounds(
+                left = value.left - SCREEN_WIDTH_OFFSET,
+                top = value.top,
+                right = value.right + SCREEN_WIDTH_OFFSET,
+                bottom = value.bottom
+            )
+        }
 
     // 毎フレーム呼ばれる処理
     fun update(deltaTime: Long) {
@@ -21,8 +30,7 @@ class VehicleManager {
 
     fun addVehicle(vehicleType: VehicleType) {
         if (pendingAddQueue.size <= MAX_PENDING_VEHICLES) {
-            val initialDistance = -1 * viewBounds.right
-            val vehicle = VehicleModel.create(vehicleType, initialDistance)
+            val vehicle = VehicleModel.create(vehicleType)
             pendingAddQueue.addLast(vehicle)
         }
     }
@@ -38,6 +46,7 @@ class VehicleManager {
         if (newVehicle != null) {
             if (tailVehicle == null || newVehicle.isFollowingDistanceSafe(tailVehicle, viewBounds)) {
                 _activeVehicles.add(newVehicle)
+                Log.d("VehicleManager", "vehicle added.size = ${_activeVehicles.size}")
                 pendingAddQueue.removeFirst()
             }
         }
@@ -65,10 +74,11 @@ class VehicleManager {
             }
 
             // distance を [screenInfo.left, screenInfo.right] のループに変換
-            val loop = floor((newDistance + viewBounds.right) / viewBounds.width).toInt() // 何周目か
+            val loop = floor(newDistance / viewBounds.width).toInt() // 何周目か
             if (LANE_NUM <= loop) {
                 //折り返さず、車両を削除
                 _activeVehicles.removeAt(index)
+                Log.d("VehicleManager", "Vehicle removed. size=${_activeVehicles.size}")
             } else {
                 vehicle.updatePosition(
                     loop = loop,
@@ -101,5 +111,7 @@ class VehicleManager {
         private const val LANE_NUM = 2
         // 最大キューサイズ
         private const val MAX_PENDING_VEHICLES = 3
+        // 画面幅補正
+        private const val SCREEN_WIDTH_OFFSET = 0.3f
     }
 }

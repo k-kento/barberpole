@@ -3,8 +3,7 @@ package com.gastornisapp.barberpole.ui.vehicle.model
 import com.gastornisapp.barberpole.ui.ViewBounds
 
 sealed class VehicleModel(
-    val scale: Float,
-    distance: Float
+    val scale: Float
 ) {
 
     var velocity: Float = 0.0004f
@@ -12,7 +11,7 @@ sealed class VehicleModel(
 
     var pressed: Boolean = false
 
-    var distance: Float = distance
+    var distance: Float = 0f
         private set
 
     var posX: Float = 0f
@@ -68,7 +67,7 @@ sealed class VehicleModel(
         // 偶数ループなら左向き、奇数なら右向き
         val isLeft = (loop and 1) == 0
         val direction = if (isLeft) -1 else 1
-        val posX = newDistance - loop * viewBounds.width
+        val posX = newDistance - loop * viewBounds.width - viewBounds.right
         val halfHeight = scale / 2f // 車両の下の位置を一致させるための補正に使用する
 
         this.posX = direction * posX
@@ -100,11 +99,11 @@ sealed class VehicleModel(
     }
 
     companion object {
-        fun create(vehicleType: VehicleType, distance: Float): VehicleModel {
+        fun create(vehicleType: VehicleType): VehicleModel {
             return when (vehicleType) {
-                VehicleType.Car -> CarModel(distance = distance)
-                VehicleType.Bus -> BusModel(distance = distance)
-                VehicleType.LightTruck -> LightTruckModel(distance = distance)
+                VehicleType.Car -> CarModel()
+                VehicleType.Bus -> BusModel()
+                VehicleType.LightTruck -> LightTruckModel()
             }
         }
     }
