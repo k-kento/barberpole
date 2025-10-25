@@ -1,10 +1,10 @@
-package com.gastornisapp.barberpole.ui.vehicle.logic
+package com.gastornisapp.barberpole.ui.vehicle.model
 
 import com.gastornisapp.barberpole.ui.utils.ColorUtil
 
-class CarLogicModel(id: Int) : VehicleLogicModel(
-    id = id,
-    scale = 0.27f
+class BusModel(distance: Float) : VehicleModel(
+    scale = 0.4f,
+    distance = distance
 ) {
 
     override val colors: Array<FloatArray>
@@ -14,9 +14,6 @@ class CarLogicModel(id: Int) : VehicleLogicModel(
         private val COLORS = arrayOf(
             ColorUtil.colorToFloatArray(0xE66C5C),
             ColorUtil.colorToFloatArray(0x655CE6),
-            ColorUtil.colorToFloatArray(0xE6A85C),
-            ColorUtil.colorToFloatArray(0x75EB7F),
-            ColorUtil.colorToFloatArray(0x61F2E6),
         )
     }
 

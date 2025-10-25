@@ -1,59 +1,46 @@
-package com.gastornisapp.barberpole.ui.vehicle.logic
+package com.gastornisapp.barberpole.ui.vehicle.model
 
 import com.gastornisapp.barberpole.ui.ViewBounds
 import kotlin.math.floor
-import kotlin.random.Random
 
 class VehicleManager {
 
-    /**
-     * 走行中の車
-     */
-    private val _activeVehicles = mutableListOf<VehicleLogicModel>()
-    val activeVehicles: List<VehicleLogicModel>
+    private val _activeVehicles = mutableListOf<VehicleModel>()
+    val activeVehicles: List<VehicleModel>
         get() = _activeVehicles
-    private val inactiveVehicles = mutableListOf<VehicleLogicModel>()
 
-    private var elapsedTime = 0L
-    private var nextSpawnTime = getRandomSpawnTime()
+    private val pendingAddQueue = ArrayDeque<VehicleModel>()
 
     var viewBounds = ViewBounds(0f, 0f, 0f, 0f)
 
-    init {
-        val vehicles = VehicleFactory.create()
-        inactiveVehicles.addAll(vehicles)
-    }
-
     // 毎フレーム呼ばれる処理
     fun update(deltaTime: Long) {
-        elapsedTime += deltaTime
-        if (nextSpawnTime <= elapsedTime) {
-            addVehicle()
-            elapsedTime = 0L
-            nextSpawnTime = getRandomSpawnTime()
-        }
+        processPendingVehicles()
         updatePosition(deltaTime = deltaTime)
     }
 
-    private fun addVehicle() {
-        if (inactiveVehicles.isEmpty()) return
+    fun addVehicle(vehicleType: VehicleType) {
+        if (pendingAddQueue.size <= MAX_PENDING_VEHICLES) {
+            val initialDistance = -1 * viewBounds.right
+            val vehicle = VehicleModel.create(vehicleType, initialDistance)
+            pendingAddQueue.addLast(vehicle)
+        }
+    }
 
-        // 未使用車両からランダムに1台選ぶ
-        val randomIndex = (inactiveVehicles.indices).random()
-        val candidateVehicle = inactiveVehicles[randomIndex]
-        val lastVehicle = _activeVehicles.lastOrNull()
-
-        // 車両追加時に位置をチェックするため、削除時に位置を初期化する
-        candidateVehicle.reset(viewBounds)
-
-        if (lastVehicle != null) {
-            if (!candidateVehicle.isFollowingDistanceSafe(lastVehicle, viewBounds)) {
-                // 近すぎるので追加しない
-                return
+    /**
+     * 保留中の車両追加リクエストを処理する
+     * - キューの先頭車両を確認して追加可能なら activeVehicles に登録
+     * - 安全距離を確保できない場合は次フレームに持ち越す
+     */
+    private fun processPendingVehicles() {
+        val tailVehicle = activeVehicles.lastOrNull()
+        val newVehicle = pendingAddQueue.firstOrNull()
+        if (newVehicle != null) {
+            if (tailVehicle == null || newVehicle.isFollowingDistanceSafe(tailVehicle, viewBounds)) {
+                _activeVehicles.add(newVehicle)
+                pendingAddQueue.removeFirst()
             }
         }
-        inactiveVehicles.removeAt(randomIndex)
-        _activeVehicles.add(candidateVehicle)
     }
 
     private fun updatePosition(deltaTime: Long) {
@@ -82,7 +69,6 @@ class VehicleManager {
             if (LANE_NUM <= loop) {
                 //折り返さず、車両を削除
                 _activeVehicles.removeAt(index)
-                inactiveVehicles.add(vehicle)
             } else {
                 vehicle.updatePosition(
                     loop = loop,
@@ -111,11 +97,9 @@ class VehicleManager {
         }
     }
 
-    private fun getRandomSpawnTime(): Long {
-        return Random.nextLong(1000L, 3000L) // 1〜3秒の間でランダム
-    }
-
     companion object {
         private const val LANE_NUM = 2
+        // 最大キューサイズ
+        private const val MAX_PENDING_VEHICLES = 3
     }
 }

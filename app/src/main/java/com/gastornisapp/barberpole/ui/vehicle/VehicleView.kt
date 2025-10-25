@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.MotionEvent
 import androidx.lifecycle.Lifecycle
 import com.gastornisapp.barberpole.ui.common.LifecycleAwareGLSurfaceView
+import com.gastornisapp.barberpole.ui.vehicle.model.VehicleType
 
 class VehicleView(context: Context, lifecycle: Lifecycle) : LifecycleAwareGLSurfaceView(context, lifecycle) {
 
@@ -34,7 +35,7 @@ class VehicleView(context: Context, lifecycle: Lifecycle) : LifecycleAwareGLSurf
                 queueEvent {
                     val touch = renderer?.handleTouchDown(x, y, width, height)
                     if (touch == true) {
-                        post {
+                        queueEvent {
                             onVehicleTouchStart?.invoke()
                         }
                     }
@@ -53,8 +54,14 @@ class VehicleView(context: Context, lifecycle: Lifecycle) : LifecycleAwareGLSurf
         return true
     }
 
+    fun addVehicle(vehicleType: VehicleType) {
+        queueEvent {
+            renderer?.addVehicle(vehicleType)
+        }
+    }
+
     fun release() {
-        post {
+        queueEvent {
             renderer?.release()
         }
     }
