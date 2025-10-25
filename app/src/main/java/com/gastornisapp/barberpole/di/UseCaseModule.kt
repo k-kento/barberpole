@@ -2,6 +2,7 @@ package com.gastornisapp.barberpole.di
 
 import com.gastornisapp.barberpole.domain.port.SoundPlayer
 import com.gastornisapp.barberpole.domain.repository.AppSettingsRepository
+import com.gastornisapp.barberpole.domain.usecase.AppLockUseCase
 import com.gastornisapp.barberpole.domain.usecase.ForceUpdateUseCase
 import com.gastornisapp.barberpole.domain.usecase.NoticeUseCase
 import com.gastornisapp.barberpole.domain.usecase.PlaySoundUseCase
@@ -14,6 +15,14 @@ import dagger.hilt.android.scopes.ViewModelScoped
 @Module
 @InstallIn(ViewModelComponent::class)
 object UseCaseModule {
+
+    @Provides
+    @ViewModelScoped
+    fun provideAppLockUseCase(
+        appSettingsRepository: AppSettingsRepository
+    ): AppLockUseCase {
+        return AppLockUseCase(appSettingsRepository = appSettingsRepository)
+    }
 
     @Provides
     @ViewModelScoped
