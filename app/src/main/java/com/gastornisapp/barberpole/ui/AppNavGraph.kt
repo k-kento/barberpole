@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.gastornisapp.barberpole.ui.confiramtion.ConfirmationPage
-import com.gastornisapp.barberpole.ui.harmony.HarmonyPage
 import com.gastornisapp.barberpole.ui.home.HomePage
 import com.gastornisapp.barberpole.ui.info.InfoPage
 import com.gastornisapp.barberpole.ui.kaleidoscope.KaleidoscopePage
@@ -31,7 +30,6 @@ fun AppNavGraph(
         composable(PageType.BarberPole.route) { BarberPolePage() }
         composable(PageType.Confirmation.route) { ConfirmationPage(navController) }
         composable(PageType.Vehicle.route) { VehiclePage() }
-        composable(PageType.Harmony.route) { HarmonyPage() }
         composable(PageType.Percussion.route) { PercussionPage() }
         composable(PageType.Swarm.route ) { SwarmPage() }
         composable(
