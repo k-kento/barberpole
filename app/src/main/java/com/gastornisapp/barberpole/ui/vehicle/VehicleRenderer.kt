@@ -10,11 +10,12 @@ import com.gastornisapp.barberpole.ui.gl.GlUtil
 import com.gastornisapp.barberpole.ui.gl.mesh.SquareMesh
 import com.gastornisapp.barberpole.ui.gl.shader.TexturedShaderProgram
 import com.gastornisapp.barberpole.ui.gl.shader.TexturedTintShaderProgram
-import com.gastornisapp.barberpole.ui.vehicle.logic.BusLogicModel
-import com.gastornisapp.barberpole.ui.vehicle.logic.CarLogicModel
-import com.gastornisapp.barberpole.ui.vehicle.logic.LightTruckLogicModel
-import com.gastornisapp.barberpole.ui.vehicle.logic.VehicleLogicModel
-import com.gastornisapp.barberpole.ui.vehicle.logic.VehicleManager
+import com.gastornisapp.barberpole.ui.vehicle.model.BusModel
+import com.gastornisapp.barberpole.ui.vehicle.model.CarModel
+import com.gastornisapp.barberpole.ui.vehicle.model.LightTruckModel
+import com.gastornisapp.barberpole.ui.vehicle.model.VehicleModel
+import com.gastornisapp.barberpole.ui.vehicle.model.VehicleManager
+import com.gastornisapp.barberpole.ui.vehicle.model.VehicleType
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.reflect.KClass
@@ -32,11 +33,11 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
     private lateinit var vehicleMainMesh: SquareMesh
     private lateinit var vehicleBodyMesh: SquareMesh
 
-    private var textures: Map<KClass<out VehicleLogicModel>, VehicleTextureSet> = emptyMap()
+    private var textures: Map<KClass<out VehicleModel>, VehicleTextureSet> = emptyMap()
     private val vehicleResources = mapOf(
-        CarLogicModel::class to VehicleResourceSet(R.drawable.car_main, R.drawable.car_body),
-        BusLogicModel::class to VehicleResourceSet(R.drawable.bus_main, R.drawable.bus_body),
-        LightTruckLogicModel::class to VehicleResourceSet(R.drawable.light_truck_main, R.drawable.light_truck_body)
+        CarModel::class to VehicleResourceSet(R.drawable.car_main, R.drawable.car_body),
+        BusModel::class to VehicleResourceSet(R.drawable.bus_main, R.drawable.bus_body),
+        LightTruckModel::class to VehicleResourceSet(R.drawable.light_truck_main, R.drawable.light_truck_body)
     )
 
     // 前回のフレーム時間
@@ -142,6 +143,10 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         vehicleManager.handleTouchUp()
     }
 
+    fun addVehicle(vehicleType: VehicleType) {
+        vehicleManager.addVehicle(vehicleType)
+    }
+
     fun release() {
         textures.flatMap { listOf(it.value.main, it.value.body) }
             .forEach { texture ->
@@ -151,7 +156,7 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
         vehicleBodyMesh.release()
     }
 
-    private fun calculateMvpMatrix(vehicle: VehicleLogicModel) {
+    private fun calculateMvpMatrix(vehicle: VehicleModel) {
         Matrix.setIdentityM(modelMatrix, 0)
         Matrix.translateM(modelMatrix, 0, vehicle.posX, vehicle.posY, 0f)
         Matrix.scaleM(modelMatrix, 0, vehicle.orientation.value * vehicle.scale, vehicle.scale, 1f)
@@ -160,8 +165,8 @@ class VehicleRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
     private fun loadVehicleTextures(
         context: Context,
-        vehicleResources: Map<KClass<out VehicleLogicModel>, VehicleResourceSet>
-    ): Map<KClass<out VehicleLogicModel>, VehicleTextureSet> {
+        vehicleResources: Map<KClass<out VehicleModel>, VehicleResourceSet>
+    ): Map<KClass<out VehicleModel>, VehicleTextureSet> {
 
         var textureUnitCounter = 0
 

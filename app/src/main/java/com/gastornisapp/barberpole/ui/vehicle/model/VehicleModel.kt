@@ -1,10 +1,10 @@
-package com.gastornisapp.barberpole.ui.vehicle.logic
+package com.gastornisapp.barberpole.ui.vehicle.model
 
 import com.gastornisapp.barberpole.ui.ViewBounds
 
-sealed class VehicleLogicModel(
-    val id: Int,
+sealed class VehicleModel(
     val scale: Float,
+    distance: Float
 ) {
 
     var velocity: Float = 0.0004f
@@ -12,7 +12,7 @@ sealed class VehicleLogicModel(
 
     var pressed: Boolean = false
 
-    var distance: Float = 0f
+    var distance: Float = distance
         private set
 
     var posX: Float = 0f
@@ -24,8 +24,7 @@ sealed class VehicleLogicModel(
     var orientation: Orientation = Orientation.Left
         private set
 
-    var color: FloatArray = colors.random()
-        private set
+    val color: FloatArray = colors.random()
 
     // MVP のキャッシュ TODO VehicleLogicModel で mvp Matrixを持たない方がいい
     val mvpMatrix = FloatArray(16)
@@ -49,7 +48,7 @@ sealed class VehicleLogicModel(
      * @param viewBounds   画面情報（幅など）
      * @return true: 追従距離が十分に確保されている / false: 接近しすぎている
      */
-    fun isFollowingDistanceSafe(frontVehicle: VehicleLogicModel, viewBounds: ViewBounds): Boolean {
+    fun isFollowingDistanceSafe(frontVehicle: VehicleModel, viewBounds: ViewBounds): Boolean {
         // 中心点同士の距離（この車両の距離との差）
         val centerToCenterDistance = frontVehicle.distance - this.distance
 
@@ -95,14 +94,18 @@ sealed class VehicleLogicModel(
         return pressed
     }
 
-    fun reset(viewBounds: ViewBounds) {
-        distance = -1 * viewBounds.right
-        orientation = Orientation.Left
-        color = colors.random()
-    }
-
     enum class Orientation(val value: Int) {
         Left(-1),
         Right(1)
+    }
+
+    companion object {
+        fun create(vehicleType: VehicleType, distance: Float): VehicleModel {
+            return when (vehicleType) {
+                VehicleType.Car -> CarModel(distance = distance)
+                VehicleType.Bus -> BusModel(distance = distance)
+                VehicleType.LightTruck -> LightTruckModel(distance = distance)
+            }
+        }
     }
 }
