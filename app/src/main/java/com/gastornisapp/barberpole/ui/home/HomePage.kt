@@ -49,6 +49,7 @@ import com.gastornisapp.barberpole.ui.common.navigateToWebPage
 import com.gastornisapp.barberpole.ui.PageType
 import androidx.core.net.toUri
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalResources
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +59,7 @@ fun HomePage(
 ) {
     val context = LocalContext.current
 
-    val tabletMinWidth = LocalContext.current.resources.getInteger(R.integer.tablet_width_dp)
+    val tabletMinWidth = LocalResources.current.getInteger(R.integer.tablet_width_dp)
     val configuration = LocalConfiguration.current
     val columns = if (configuration.screenWidthDp >= tabletMinWidth) 2 else 1
 
