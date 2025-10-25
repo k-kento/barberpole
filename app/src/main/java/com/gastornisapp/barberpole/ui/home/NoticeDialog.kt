@@ -5,6 +5,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.gastornisapp.barberpole.R
 import com.gastornisapp.barberpole.domain.entity.Notice
 
 @Composable
@@ -26,7 +28,7 @@ fun NoticeDialog(
                 TextButton(
                     onClick = { onDetailsClick(notice.url) }
                 ) {
-                    Text("詳細を見る")
+                    Text(stringResource(R.string.see_details))
                 }
             }
         },
@@ -34,7 +36,7 @@ fun NoticeDialog(
             TextButton(
                 onClick = { onDismissRequest(notice.id) }
             ) {
-                Text("閉じる")
+                Text(stringResource(R.string.close))
             }
         }
     )

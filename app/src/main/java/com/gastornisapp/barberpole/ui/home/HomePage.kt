@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -99,7 +100,7 @@ fun HomePage(
                     IconButton(
                         onClick = { viewModel.onIntent(HomeIntent.TapMenu) }
                     ) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "メニュー")
+                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.menu))
                     }
 
                     DropdownMenu(
@@ -107,12 +108,12 @@ fun HomePage(
                         onDismissRequest = { viewModel.onIntent(HomeIntent.CloseMenu) }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("アプリ情報") },
+                            text = { Text(stringResource(R.string.app_info)) },
                             leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
                             onClick = { viewModel.onIntent(HomeIntent.TapInfo) }
                         )
                         DropdownMenuItem(
-                            text = { Text("設定") },
+                            text = { Text(stringResource(R.string.settings)) },
                             leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null) },
                             onClick = { viewModel.onIntent(HomeIntent.TapSettings) }
                         )
@@ -181,7 +182,7 @@ private fun Item(
         ) {
             Image(
                 painter = painterResource(id = itemInfo.drawableRes),
-                contentDescription = "Sample Image",
+                contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f),

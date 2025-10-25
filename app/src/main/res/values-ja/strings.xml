@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">バーバーポール</string>
+    <string name="menu">メニュー</string>
+    <string name="app_info">アプリ情報</string>
+    <string name="settings">設定</string>
+    <string name="sample_image">サンプル画像</string>
+    <string name="screen_pinning_disabled_toast">画面固定は次回のアプリ起動時から無効になります。</string>
+    <string name="screen_pinning_title">アプリの画面固定</string>
+    <string name="screen_pinning_description">このアプリの画面を固定し、お子さまが他のアプリを操作できないようにします。
+この機能を利用するには、端末のセキュリティ設定で「アプリ固定」を有効にしておく必要があります。</string>
+    <string name="open_security_settings">端末のセキュリティ設定を開く</string>
+    <string name="play">再生</string>
+    <string name="pause">一時停止</string>
+    <string name="orientation">向き</string>
+    <string name="terms_of_service">利用規約</string>
+    <string name="confirmation_page_description">本アプリをご利用いただくには、利用規約への同意が必要です。
+データの取り扱い、お客様のプライバシーについては、プライバシーポリシーをご確認ください。
+内容をご確認のうえ、「同意する」ボタンをタップしてください。</string>
+    <string name="privacy_policy">プライバシーポリシー</string>
+    <string name="exit_app">アプリを終了</string>
+    <string name="agree">同意する</string>
+    <string name="force_update_title">アプリの更新が必要です</string>
+    <string name="force_update_description">ご利用中のアプリバージョンはサポートが終了しています。
+引き続きサービスをご利用いただくには、最新バージョンへのアップデートが必要です。</string>
+    <string name="update">アップデート</string>
+    <string name="see_details">詳細を見る</string>
+    <string name="close">閉じる</string>
+    <string name="oss_licenses">OSS ライセンス</string>
+    <string name="app_version">アプリバージョン</string>
+    <string name="loading">読み込み中...</string>
+    <string name="licenses">ライセンス</string>
+</resources>
