@@ -22,8 +22,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gastornisapp.barberpole.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +34,7 @@ fun SettingsPage(
 ) {
     val context = LocalContext.current
     val isLockEnabled by viewModel.isLockEnabled.collectAsState()
+    val screenPinningDisabledText = stringResource(R.string.screen_pinning_disabled_toast)
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -45,7 +48,7 @@ fun SettingsPage(
                 }
 
                 SettingsEvent.StopLock -> {
-                    Toast.makeText(context, "画面固定は次回のアプリ起動時から無効になります。", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, screenPinningDisabledText, Toast.LENGTH_LONG).show()
                 }
 
                 SettingsEvent.OpenSecuritySettings -> {
@@ -58,24 +61,21 @@ fun SettingsPage(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("設定") })
+            TopAppBar(title = { Text(stringResource(R.string.settings)) })
         }
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues = paddingValues)) {
             ListItem(
                 headlineContent = {
-                    Text("アプリの画面固定")
+                    Text(stringResource(R.string.screen_pinning_title))
                 },
                 supportingContent = {
                     Column {
-                        Text(
-                            "このアプリの画面を固定し、お子さまが他のアプリを操作できないようにします。\n" +
-                                    "この機能を利用するには、端末のセキュリティ設定で「アプリ固定」を有効にしておく必要があります。"
-                        )
+                        Text(stringResource(R.string.screen_pinning_description))
                         Spacer(Modifier.height(8.dp))
                         TextButton(
                             onClick = { viewModel.onEvent(SettingsIntent.TapSecurityScreenButton) }) {
-                            Text("端末のセキュリティ設定を開く")
+                            Text(stringResource(R.string.open_security_settings))
                         }
                     }
                 },

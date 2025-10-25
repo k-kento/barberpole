@@ -23,10 +23,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gastornisapp.barberpole.Constants
+import com.gastornisapp.barberpole.R
 import com.gastornisapp.barberpole.ui.common.navigateToWebPage
 
 /**
@@ -39,7 +41,7 @@ fun ConfirmationPage(
     viewModel: ConfirmationViewModel = hiltViewModel()
 ) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("利用規約") }) },
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.terms_of_service)) }) },
     ) { paddingValues ->
         val context = LocalContext.current
 
@@ -65,20 +67,18 @@ fun ConfirmationPage(
                     .fillMaxSize()
             ) {
                 Text(
-                    text = "本アプリをご利用いただくには、利用規約への同意が必要です。\n" +
-                            "データの取り扱いやお客様のプライバシーについては、プライバシーポリシーをご確認ください。\n" +
-                            "内容をご確認のうえ、「同意する」ボタンをタップしてください。",
+                    text = stringResource(R.string.confirmation_page_description),
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 TextButton(onClick = {
                     navController.navigateToWebPage(Constants.termsUrl)
                 }) {
-                    Text("利用規約")
+                    Text(stringResource(R.string.terms_of_service))
                 }
                 TextButton(onClick = {
                     navController.navigateToWebPage(Constants.privacyUrl)
                 }) {
-                    Text("プライバシーポリシー")
+                    Text(stringResource(R.string.privacy_policy))
                 }
             }
             Row(
@@ -93,7 +93,7 @@ fun ConfirmationPage(
                         activity?.finish()
                     },
                 ) {
-                    Text("アプリを終了")
+                    Text(stringResource(R.string.exit_app))
                 }
 
                 Button(
@@ -101,7 +101,7 @@ fun ConfirmationPage(
                         viewModel.acceptTerms()
                     },
                 ) {
-                    Text("同意する")
+                    Text(stringResource(R.string.agree))
                 }
             }
         }

@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">Barber pole</string>
+    <string name="menu">Menu</string>
+    <string name="app_info">App Info</string>
+    <string name="settings">Settings</string>
+    <string name="screen_pinning_disabled_toast">Screen pinning will be disabled the next time you start the app.</string>
+    <string name="screen_pinning_title">Pin app screen</string>
+    <string name="screen_pinning_description">Pin this app to the screen to prevent your child from using other apps.\nTo use this feature, you must enable \"App pinning\" in your device\'s security settings.</string>
+    <string name="open_security_settings">Open security settings</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="orientation">Orientation</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="confirmation_page_description">To use this app, you must agree to the Terms of Service.&#xA;Please review our Privacy Policy for information on how we handle your data.&#xA;After reviewing the content, please tap the \'Agree\' button.</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="exit_app">Exit App</string>
+    <string name="agree">Agree</string>
+    <string name="force_update_title">App update required</string>
+    <string name="force_update_description">The app version you are using is no longer supported.
+To continue using the service, you need to update to the latest version.</string>
+    <string name="update">Update</string>
+    <string name="see_details">See Details</string>
+    <string name="close">Close</string>
+    <string name="oss_licenses">OSS Licenses</string>
+    <string name="app_version">App Version</string>
+    <string name="loading">Loading…</string>
+    <string name="licenses">Licenses</string>
 </resources>

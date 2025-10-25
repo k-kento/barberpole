@@ -17,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.gastornisapp.barberpole.R
 import com.gastornisapp.barberpole.ui.barberpole.Orientation.Left
 import com.gastornisapp.barberpole.ui.barberpole.Orientation.Right
 
@@ -48,7 +50,7 @@ fun BarberPoleBottomBar(
             Icon(
                 modifier = Modifier.size(60.dp),
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                contentDescription = if (isPlaying) "Pause" else "Play"
+                contentDescription = stringResource(if (isPlaying) R.string.pause else R.string.play)
             )
         }
         IconButton(
@@ -63,7 +65,7 @@ fun BarberPoleBottomBar(
                 modifier = Modifier.size(60.dp), imageVector = when (orientation) {
                     Left -> Icons.Default.SwitchLeft
                     Right -> Icons.Default.SwitchRight
-                }, contentDescription = "Orientation"
+                }, contentDescription = stringResource(R.string.orientation)
             )
         }
         IconButton(

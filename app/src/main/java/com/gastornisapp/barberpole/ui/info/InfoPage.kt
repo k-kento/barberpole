@@ -10,10 +10,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.gastornisapp.barberpole.Constants
+import com.gastornisapp.barberpole.R
 import com.gastornisapp.barberpole.ui.common.navigateToWebPage
 
 @Composable
@@ -27,22 +29,22 @@ fun InfoPage(navController: NavHostController, viewModel: InfoViewModel = hiltVi
                 .padding(16.dp)
         ) {
             ListItem({
-                Text("利用規約")
+                Text(stringResource(R.string.terms_of_service))
             }, modifier = Modifier.clickable {
                 navController.navigateToWebPage(Constants.termsUrl)
             })
             ListItem({
-                Text("プライバシーポリシー")
+                Text(stringResource(R.string.privacy_policy))
             }, modifier = Modifier.clickable {
                 navController.navigateToWebPage(Constants.privacyUrl)
             })
             ListItem({
-                Text("OSS ライセンス")
+                Text(stringResource(R.string.oss_licenses))
             }, modifier = Modifier.clickable {
                 navController.navigate("license")
             })
             ListItem(
-                headlineContent = { Text("アプリバージョン") },
+                headlineContent = { Text(stringResource(R.string.app_version)) },
                 supportingContent = { Text(version) },
             )
         }
