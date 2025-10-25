@@ -2,10 +2,7 @@ package com.gastornisapp.barberpole.ui.vehicle.model
 
 import com.gastornisapp.barberpole.ui.utils.ColorUtil
 
-class LightTruckModel(distance: Float) : VehicleModel(
-    scale = 0.35f,
-    distance = distance
-) {
+class LightTruckModel() : VehicleModel(scale = 0.35f) {
 
     override val colors: Array<FloatArray>
         get() = COLORS
