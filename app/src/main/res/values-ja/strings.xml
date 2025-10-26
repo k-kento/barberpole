@@ -1,9 +1,8 @@
 <resources>
-    <string name="app_name">バーバーポール</string>
+    <string name="app_name">オモチャバコ</string>
     <string name="menu">メニュー</string>
     <string name="app_info">アプリ情報</string>
     <string name="settings">設定</string>
-    <string name="sample_image">サンプル画像</string>
     <string name="screen_pinning_disabled_toast">画面固定は次回のアプリ起動時から無効になります。</string>
     <string name="screen_pinning_title">アプリの画面固定</string>
     <string name="screen_pinning_description">このアプリの画面を固定し、お子さまが他のアプリを操作できないようにします。
@@ -27,6 +26,6 @@
     <string name="close">閉じる</string>
     <string name="oss_licenses">OSS ライセンス</string>
     <string name="app_version">アプリバージョン</string>
-    <string name="loading">読み込み中...</string>
+    <string name="loading">読み込み中…</string>
     <string name="licenses">ライセンス</string>
 </resources>
