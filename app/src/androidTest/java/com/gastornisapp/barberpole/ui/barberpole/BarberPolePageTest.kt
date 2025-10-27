@@ -13,6 +13,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.gastornisapp.barberpole.ui.page.barberpole.BarberPoleViewModel
+import com.gastornisapp.barberpole.ui.page.barberpole.Orientation
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule

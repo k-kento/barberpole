@@ -15,6 +15,8 @@ import com.gastornisapp.barberpole.domain.entity.Notice
 import com.gastornisapp.barberpole.ui.AppNavGraph
 import com.gastornisapp.barberpole.ui.PageType
 import com.gastornisapp.barberpole.ui.assertCurrentRoute
+import com.gastornisapp.barberpole.ui.page.home.DialogStatus
+import com.gastornisapp.barberpole.ui.page.home.HomeViewModel
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest

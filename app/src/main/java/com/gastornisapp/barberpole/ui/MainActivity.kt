@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.gastornisapp.barberpole.ui.page.LoadingPage
 import com.gastornisapp.barberpole.ui.theme.BarberPoleTheme
 import dagger.hilt.android.AndroidEntryPoint
 

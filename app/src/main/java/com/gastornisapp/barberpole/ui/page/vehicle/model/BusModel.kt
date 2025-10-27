@@ -1,0 +1,17 @@
+package com.gastornisapp.barberpole.ui.page.vehicle.model
+
+import com.gastornisapp.barberpole.ui.utils.ColorUtil
+
+class BusModel() : VehicleModel(scale = 0.4f) {
+
+    override val colors: Array<FloatArray>
+        get() = COLORS
+
+    companion object {
+        private val COLORS = arrayOf(
+            ColorUtil.colorToFloatArray(0xE66C5C),
+            ColorUtil.colorToFloatArray(0x655CE6),
+        )
+    }
+
+}

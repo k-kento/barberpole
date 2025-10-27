@@ -8,14 +8,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.gastornisapp.barberpole.ui.confiramtion.ConfirmationPage
-import com.gastornisapp.barberpole.ui.home.HomePage
-import com.gastornisapp.barberpole.ui.info.InfoPage
-import com.gastornisapp.barberpole.ui.kaleidoscope.KaleidoscopePage
-import com.gastornisapp.barberpole.ui.percussion.PercussionPage
-import com.gastornisapp.barberpole.ui.settings.SettingsPage
-import com.gastornisapp.barberpole.ui.swarm.SwarmPage
-import com.gastornisapp.barberpole.ui.vehicle.VehiclePage
+import com.gastornisapp.barberpole.ui.page.LicensePage
+import com.gastornisapp.barberpole.ui.page.WebPage
+import com.gastornisapp.barberpole.ui.page.confiramtion.ConfirmationPage
+import com.gastornisapp.barberpole.ui.page.home.HomePage
+import com.gastornisapp.barberpole.ui.page.info.InfoPage
+import com.gastornisapp.barberpole.ui.page.kaleidoscope.KaleidoscopePage
+import com.gastornisapp.barberpole.ui.page.percussion.PercussionPage
+import com.gastornisapp.barberpole.ui.page.settings.SettingsPage
+import com.gastornisapp.barberpole.ui.page.swarm.SwarmPage
+import com.gastornisapp.barberpole.ui.page.vehicle.VehiclePage
 
 @Composable
 fun AppNavGraph(
