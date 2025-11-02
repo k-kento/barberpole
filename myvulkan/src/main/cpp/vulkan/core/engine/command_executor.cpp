@@ -1,5 +1,6 @@
 #include "command_executor.hpp"
 #include "vulkan_utils.h"
+#include "engine_config.hpp"
 
 CommandExecutor::CommandExecutor(VulkanContext &context,
                                  RenderPass &renderPass,
@@ -14,11 +15,11 @@ CommandExecutor::CommandExecutor(VulkanContext &context,
     vk::FenceCreateInfo fenceInfo{};
     fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled; // フェンスの初期状態をシグナルにする
 
-    mImageAvailable.reserve(mRenderer.getMaxFramesInFlight());
-    mRenderFinished.reserve(mRenderer.getMaxFramesInFlight());
-    mInFlightFences.reserve(mRenderer.getMaxFramesInFlight());
+    mImageAvailable.reserve(EngineConfig::MAX_FRAMES_IN_FLIGHT);
+    mRenderFinished.reserve(EngineConfig::MAX_FRAMES_IN_FLIGHT);
+    mInFlightFences.reserve(EngineConfig::MAX_FRAMES_IN_FLIGHT);
 
-    for (size_t i = 0; i < mRenderer.getMaxFramesInFlight(); i++) {
+    for (size_t i = 0; i < EngineConfig::MAX_FRAMES_IN_FLIGHT; i++) {
         mImageAvailable.push_back(device.createSemaphoreUnique(semaphoreInfo));
         mRenderFinished.push_back(device.createSemaphoreUnique(semaphoreInfo));
         mInFlightFences.push_back(device.createFenceUnique(fenceInfo));
@@ -36,7 +37,7 @@ void CommandExecutor::renderFrame(SwapChain &swapChain, float deltaTimeMs) {
     auto graphicsQueue = mContext.getGraphicsQueue();
     auto swapChainKHR = swapChain.getSwapChain();
 
-    uint32_t frameIndex = mFrameIndex % mRenderer.getMaxFramesInFlight();
+    uint32_t frameIndex = mFrameIndex % EngineConfig::MAX_FRAMES_IN_FLIGHT;
     mFrameIndex++;
 
     auto imageAvailable = mImageAvailable[frameIndex].get();
@@ -110,7 +111,7 @@ void CommandExecutor::recordCommandBuffers(RenderPass &renderPass, SwapChain &sw
 
         // CommandBuffer 記録時点では実際のフレーム番号は不明
         // 各 SwapChain イメージに対して MaxFramesInFlight 分の DescriptorSet を割り当て
-        uint32_t frameIndex = imageIndex % mRenderer.getMaxFramesInFlight();
+        uint32_t frameIndex = imageIndex % EngineConfig::MAX_FRAMES_IN_FLIGHT;
         mRenderer.recordDrawCommands(mCmdBuffers[imageIndex].get(), frameIndex);
 
         mCmdBuffers[imageIndex]->endRenderPass();
