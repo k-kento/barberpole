@@ -5,6 +5,7 @@
 #include "kaleidoscope_pipeline_config.hpp"
 #include "rotation_message.hpp"
 #include "update_texture_message.hpp"
+#include "engine_config.hpp"
 
 KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
                                            RenderPass &renderPass,
@@ -24,7 +25,7 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
     mMeshManager = std::make_unique<KaleidoscopeMeshManager>(mVkContext);
     mInstanceData = std::make_unique<KaleidoscopeInstanceBuffer>(mVkContext, viewBounds);
     mTexture = std::make_unique<Texture>(mVkContext, texturePath);
-    mUbo = std::make_unique<KaleidoscopeUbo>(mVkContext, *mTexture, MAX_FRAMES_IN_FLIGHT);
+    mUbo = std::make_unique<KaleidoscopeUbo>(mVkContext, *mTexture, EngineConfig::MAX_FRAMES_IN_FLIGHT);
 
     auto layout = mUbo->getDescriptorSetLayout();
     vk::DescriptorSetLayout layouts[] = {layout};
@@ -33,7 +34,7 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
     layoutInfo.pSetLayouts = layouts;
     mPipelineLayout = device.createPipelineLayoutUnique(layoutInfo);
 
-    mPipeline = KaleidoscopePipelineConfig::createPipeline(mVkContext, mPipelineLayout.get(), mRenderPass);
+    mPipeline = KaleidoscopePipelineConfig{}.createPipeline(mVkContext, mPipelineLayout.get(), mRenderPass);
 }
 
 void KaleidoscopeRenderer::renderFrame(float deltaTimeMs, uint32_t currentFrame) {

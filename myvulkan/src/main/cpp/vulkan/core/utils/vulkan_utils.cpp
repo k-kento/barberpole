@@ -1,6 +1,7 @@
 #include "vulkan_utils.h"
 #include "log.h"
 #include <android/asset_manager_jni.h>
+#include "view_bounds.hpp"
 
 std::vector<char> VulkanUtils::readTextFile(AAssetManager *assetManager, const std::string &filename) {
     std::vector<char> buffer;
@@ -95,4 +96,10 @@ VulkanUtils::createFrameBuffers(vk::Device device, SwapChain *swapChain, vk::Ren
     LOGI("Frame Buffers created.");
 
     return frameBuffers;
+}
+
+glm::mat4 VulkanUtils::generateProjectionMatrix(uint32_t deviceRotationDegree, ViewBounds &viewBounds) {
+    float deviceRotationRad = glm::radians(static_cast<float>(deviceRotationDegree));
+    auto deviceRotation = glm::rotate(glm::mat4(1.0f), deviceRotationRad, glm::vec3(0.0f, 0.0f, 1.0f));
+    return deviceRotation * viewBounds.toOrthoMatrix();
 }

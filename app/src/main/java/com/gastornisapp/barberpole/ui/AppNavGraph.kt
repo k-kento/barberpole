@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import com.gastornisapp.barberpole.ui.page.LicensePage
 import com.gastornisapp.barberpole.ui.page.WebPage
 import com.gastornisapp.barberpole.ui.page.confiramtion.ConfirmationPage
+import com.gastornisapp.barberpole.ui.page.drawing.DrawingPage
 import com.gastornisapp.barberpole.ui.page.home.HomePage
 import com.gastornisapp.barberpole.ui.page.info.InfoPage
 import com.gastornisapp.barberpole.ui.page.kaleidoscope.KaleidoscopePage
@@ -33,7 +34,6 @@ fun AppNavGraph(
         composable(PageType.Confirmation.route) { ConfirmationPage(navController) }
         composable(PageType.Vehicle.route) { VehiclePage() }
         composable(PageType.Percussion.route) { PercussionPage() }
-        composable(PageType.Swarm.route ) { SwarmPage() }
         composable(
             route = PageType.WebPage.route,
             arguments = listOf(
@@ -48,6 +48,7 @@ fun AppNavGraph(
         }
         composable(PageType.Swarm.route ) { SwarmPage() }
         composable(PageType.Kaleidoscope.route ) { KaleidoscopePage() }
+        composable(PageType.Drawing.route ) { DrawingPage() }
         composable(PageType.Info.route) { InfoPage(navController) }
         composable(PageType.Settings.route) { SettingsPage() }
         composable(PageType.License.route) { LicensePage() }

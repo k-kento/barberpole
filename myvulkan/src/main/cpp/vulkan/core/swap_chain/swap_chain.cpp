@@ -35,8 +35,14 @@ SwapChain::SwapChain(VulkanContext *vkContext, vk::SurfaceKHR surface) {
     mExtent = extent;
 
     uint32_t imageCount = std::min(surfaceCapabilities.minImageCount + 1,
-                                   surfaceCapabilities.maxImageCount > 0 ? surfaceCapabilities.maxImageCount
-                                                                         : UINT32_MAX);
+                                   surfaceCapabilities.maxImageCount > 0 ?
+                                   surfaceCapabilities.maxImageCount : UINT32_MAX);
+
+    vk::CompositeAlphaFlagBitsKHR compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+
+    if (!(surfaceCapabilities.supportedCompositeAlpha & compositeAlpha)) {
+        compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eInherit;
+    }
 
     vk::SwapchainCreateInfoKHR scInfo{};
     scInfo.surface = surface;
@@ -48,9 +54,9 @@ SwapChain::SwapChain(VulkanContext *vkContext, vk::SurfaceKHR surface) {
     scInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
     scInfo.imageSharingMode = vk::SharingMode::eExclusive;
     scInfo.preTransform = surfaceCapabilities.currentTransform;
-    scInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
     scInfo.presentMode = selectPresentMode(physicalDevice, surface);
     scInfo.clipped = VK_TRUE;
+    scInfo.compositeAlpha = compositeAlpha;
 
     mSwapChain = device.createSwapchainKHRUnique(scInfo);
 

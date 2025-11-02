@@ -10,6 +10,4 @@ public:
     virtual void renderFrame(float deltaTimeMs, uint32_t currentFrame) = 0;
 
     virtual void handleMessage(std::unique_ptr<RenderMessage> message) = 0;
-
-    virtual uint32_t getMaxFramesInFlight() = 0;
 };

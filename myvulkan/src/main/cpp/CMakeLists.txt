@@ -21,6 +21,7 @@ project("myvulkan")
 # for GameActivity/NativeActivity derived applications, the same library name must be
 # used in the AndroidManifest.xml file.
 add_library(${CMAKE_PROJECT_NAME} SHARED
+        platform/android/jni/drawing_renderer_jni.cpp
         platform/android/jni/vulkan_context_jni.cpp
         platform/android/jni/vulkan_renderer_jni.cpp
 )
@@ -40,11 +41,13 @@ find_library(VULKAN_LIB vulkan PATHS ${ANDROID_NDK}/sysroot/usr/lib/${ANDROID_TO
 add_subdirectory(vulkan/core/context)
 add_subdirectory(vulkan/core)
 add_subdirectory(vulkan/features/kaleidoscope)
+add_subdirectory(vulkan/features/drawing)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
         vulkan_context
         core
         kaleidoscope
+        drawing
         ${VULKAN_LIB}
         android
         log)

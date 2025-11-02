@@ -7,10 +7,13 @@
 class KaleidoscopePipelineConfig {
 
 public:
-    static vk::UniquePipeline createPipeline(VulkanContext& context, vk::PipelineLayout &pipelineLayout, RenderPass &renderPass);
+    vk::UniquePipeline createPipeline(VulkanContext& context, vk::PipelineLayout &pipelineLayout, RenderPass &renderPass);
 
 private:
-    static vk::PipelineVertexInputStateCreateInfo createVertexConfig();
+    vk::PipelineVertexInputStateCreateInfo createVertexConfig();
 
-    static std::vector<vk::PipelineShaderStageCreateInfo> createShaderStages(vk::ShaderModule& vertexModule, vk::ShaderModule& fragmentModule);
+    std::vector<vk::PipelineShaderStageCreateInfo> createShaderStages(vk::ShaderModule& vertexModule, vk::ShaderModule& fragmentModule);
+
+    std::vector<vk::VertexInputBindingDescription> mBindings;
+    std::vector<vk::VertexInputAttributeDescription> mAttributes;
 };

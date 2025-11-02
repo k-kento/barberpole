@@ -210,7 +210,10 @@ private fun createItems(): List<ItemInfo> {
         ItemInfo(
             drawableRes = R.drawable.kaleidoscope,
             PageType.Kaleidoscope,
-            contentScale = ContentScale.Fit
+        ),
+        ItemInfo(
+            drawableRes = R.drawable.bus_body,
+            PageType.Drawing,
         ),
         ItemInfo(
             drawableRes = R.drawable.barberpole,

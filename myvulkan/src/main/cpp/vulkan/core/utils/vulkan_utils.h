@@ -3,6 +3,7 @@
 #include <android/asset_manager.h>
 #include <vulkan/vulkan.hpp>
 #include "swap_chain.h"
+#include "view_bounds.hpp"
 
 class VulkanUtils {
 public:
@@ -17,4 +18,6 @@ public:
     static vk::UniqueShaderModule createShaderModule(vk::Device device, const std::vector<char> &code);
 
     static std::vector<vk::UniqueFramebuffer> createFrameBuffers(vk::Device device, SwapChain *swapChain, vk::RenderPass renderPass);
+
+    static glm::mat4 generateProjectionMatrix(uint32_t deviceRotationDegree, ViewBounds& viewBounds);
 };

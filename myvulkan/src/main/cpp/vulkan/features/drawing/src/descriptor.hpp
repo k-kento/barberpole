@@ -4,17 +4,16 @@
 #include "engine_config.hpp"
 #include "log.h"
 
-class KaleidoscopeDescriptor {
+class Descriptor {
 public:
-    explicit KaleidoscopeDescriptor(vk::Device device) : mDevice(device) {
+    explicit Descriptor(vk::Device device) : mDevice(device) {
         createDescriptorSetLayout();
         createDescriptorPool();
     }
 
     vk::UniqueDescriptorSet allocate(vk::Buffer uboBuffer,
-                                     vk::DeviceSize uboSize,
-                                     vk::ImageView imageView,
-                                     vk::Sampler sampler) {
+                                     vk::DeviceSize uboSize
+    ) {
 
         vk::DescriptorSetAllocateInfo allocInfo{};
         allocInfo.descriptorPool = *mDescriptorPool;
@@ -24,7 +23,8 @@ public:
         vk::UniqueDescriptorSet descriptorSet;
 
         try {
-            descriptorSet = std::move(mDevice.allocateDescriptorSetsUnique(allocInfo).front());
+            auto sets = mDevice.allocateDescriptorSetsUnique(allocInfo);
+            descriptorSet = std::move(sets.front());
         } catch (const vk::SystemError &err) {
             throw std::runtime_error("Failed to allocate descriptor set: " + std::string(err.what()));
         }
@@ -34,32 +34,16 @@ public:
         bufferInfo.offset = 0;
         bufferInfo.range = uboSize;
 
-        vk::DescriptorImageInfo imageInfo{};
-        imageInfo.imageView = imageView;
-        imageInfo.sampler = sampler;
-        imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-
-        std::array<vk::WriteDescriptorSet, 2> descriptorWrites{};
+        std::array<vk::WriteDescriptorSet, 1> descriptorWrites{};
 
         descriptorWrites[0] = vk::WriteDescriptorSet(
                 *descriptorSet,
-                0,  // binding
-                0,  // array element
-                1,  // descriptor count
-                vk::DescriptorType::eUniformBuffer,
-                nullptr, // pImageInfo
-                &bufferInfo,
-                nullptr
-        );
-
-        descriptorWrites[1] = vk::WriteDescriptorSet(
-                *descriptorSet,
-                1,
+                0,
                 0,
                 1,
-                vk::DescriptorType::eCombinedImageSampler,
-                &imageInfo,
+                vk::DescriptorType::eUniformBuffer,
                 nullptr,
+                &bufferInfo,
                 nullptr
         );
 
@@ -79,7 +63,7 @@ private:
 
     // Shader で使うリソースの「型と場所」を Vulkan に教える
     void createDescriptorSetLayout() {
-        std::array<vk::DescriptorSetLayoutBinding, 2> bindings = {};
+        std::array<vk::DescriptorSetLayoutBinding, 1> bindings = {};
 
         // binding 0 → UBO
         bindings[0] = vk::DescriptorSetLayoutBinding(
@@ -87,15 +71,6 @@ private:
                 vk::DescriptorType::eUniformBuffer,
                 1,
                 vk::ShaderStageFlagBits::eVertex,
-                nullptr
-        );
-
-        // binding 1 → sampler2D
-        bindings[1] = vk::DescriptorSetLayoutBinding(
-                1,
-                vk::DescriptorType::eCombinedImageSampler,
-                1,
-                vk::ShaderStageFlagBits::eFragment,
                 nullptr
         );
 
@@ -108,18 +83,14 @@ private:
 
         uint32_t maxFramesInFlight = EngineConfig::MAX_FRAMES_IN_FLIGHT;
 
-        std::array<vk::DescriptorPoolSize, 2> poolSizes{};
+        std::array<vk::DescriptorPoolSize, 1> poolSizes{};
 
-        // 1. UBO
+        // UBO
         poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
         poolSizes[0].descriptorCount = maxFramesInFlight;
 
-        // 2. テクスチャサンプラー
-        poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-        poolSizes[1].descriptorCount = maxFramesInFlight;
-
         vk::DescriptorPoolCreateInfo poolInfo{};
-        poolInfo.maxSets = maxFramesInFlight * 2; // DescriptorSet 作り直し分も考慮
+        poolInfo.maxSets = maxFramesInFlight;
         poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         poolInfo.pPoolSizes = poolSizes.data();
 

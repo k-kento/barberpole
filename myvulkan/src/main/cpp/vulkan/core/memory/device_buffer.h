@@ -27,6 +27,14 @@ public:
 
     vk::DeviceMemory getMemory() const { return mMemory.get(); }
 
+    void* map() {
+        return mContext.getDevice().mapMemory(*mMemory, 0, mSize);
+    }
+
+    void unmap() {
+        mContext.getDevice().unmapMemory(*mMemory);
+    }
+
 private:
     VulkanContext &mContext;
     vk::UniqueBuffer mBuffer;

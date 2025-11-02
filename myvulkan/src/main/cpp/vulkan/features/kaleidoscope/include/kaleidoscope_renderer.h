@@ -9,7 +9,7 @@
 #include "texture.hpp"
 #include "render_message.hpp"
 #include "rotation_state.hpp"
-#include "kaleidoscope_config.hpp"
+#include "engine_config.hpp"
 
 class KaleidoscopeRenderer : public RendererInterface {
 public:
@@ -27,10 +27,6 @@ public:
     void renderFrame(float deltaTimeMs, uint32_t currentFrame) override;
 
     void handleMessage(std::unique_ptr<RenderMessage> message) override;
-
-    uint32_t getMaxFramesInFlight() override {
-        return MAX_FRAMES_IN_FLIGHT;
-    };
 
     void updateTexture(const std::string &path);
 

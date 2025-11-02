@@ -11,6 +11,10 @@
 #include "render_looper.hpp"
 #include "command_executor.hpp"
 
+namespace Engine {
+    inline constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+}
+
 class VulkanEngine {
 public:
     VulkanEngine(VulkanContext &vkContext,
