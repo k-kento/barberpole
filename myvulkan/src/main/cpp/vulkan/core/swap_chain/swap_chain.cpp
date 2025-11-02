@@ -1,8 +1,8 @@
 #include "swap_chain.h"
 
-SwapChain::SwapChain(VulkanContext *vkContext, vk::SurfaceKHR surface) {
-    auto physicalDevice = vkContext->getPhysicalDevice();
-    auto device = vkContext->getDevice();
+SwapChain::SwapChain(VulkanContext &vkContext, vk::SurfaceKHR surface) {
+    auto physicalDevice = vkContext.getPhysicalDevice();
+    auto device = vkContext.getDevice();
 
     vk::SurfaceCapabilitiesKHR surfaceCapabilities;
     surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);

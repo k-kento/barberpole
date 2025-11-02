@@ -7,7 +7,7 @@
 
 class SwapChain {
 public:
-    SwapChain(VulkanContext *vkContext, vk::SurfaceKHR surface);
+    SwapChain(VulkanContext& vkContext, vk::SurfaceKHR surface);
 
     [[nodiscard]] vk::Format getFormat() const { return mFormat; }
 
