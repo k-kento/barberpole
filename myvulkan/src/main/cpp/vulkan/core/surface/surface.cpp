@@ -16,4 +16,5 @@ Surface::Surface(vk::Instance vkInstance, ANativeWindow *window) : mWindow(windo
 Surface::~Surface() {
     ANativeWindow_release(mWindow);
     mWindow = nullptr;
+    LOGI("Surface destroyed");
 }

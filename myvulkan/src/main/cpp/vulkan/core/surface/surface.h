@@ -14,6 +14,14 @@ public:
         return mSurface.get();
     }
 
+    [[nodiscard]] uint32_t getWidth() const {
+        return mWindow ? static_cast<uint32_t>(ANativeWindow_getWidth(mWindow)) : 0;
+    }
+
+    [[nodiscard]] uint32_t getHeight() const {
+        return mWindow ? static_cast<uint32_t>(ANativeWindow_getHeight(mWindow)) : 0;
+    }
+
 private:
     vk::UniqueSurfaceKHR mSurface;
     ANativeWindow *mWindow = nullptr;

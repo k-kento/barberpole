@@ -7,13 +7,15 @@ class DrawingRenderer {
 
     private var nativeHandle: Long = 0L
 
-    fun init(vulkanContext: VulkanContext, surface: Surface, deviceRotationDegree: Int) {
+    fun init(vulkanContext: VulkanContext, surface: Surface) {
         if (nativeHandle == 0L) {
-            nativeHandle = nativeInit(
-                surface = surface,
-                contextHandle = vulkanContext.nativeHandle,
-                deviceRotationDegree = deviceRotationDegree,
-            )
+            nativeHandle = nativeInit(contextHandle = vulkanContext.nativeHandle, surface = surface)
+        }
+    }
+
+    fun onSurfaceChanged(surface: Surface, deviceRotationDegree: Int) {
+        if (nativeHandle != 0L) {
+            nativeOnSurfaceChanged(nativeHandle = nativeHandle, surface = surface, deviceRotationDegree = deviceRotationDegree)
         }
     }
 
@@ -48,7 +50,8 @@ class DrawingRenderer {
         }
     }
 
-    private external fun nativeInit(surface: Surface, contextHandle: Long, deviceRotationDegree: Int): Long
+    private external fun nativeInit(surface: Surface, contextHandle: Long): Long
+    private external fun nativeOnSurfaceChanged(nativeHandle: Long, surface: Surface, deviceRotationDegree: Int)
     private external fun nativeStart(nativeHandle: Long)
     private external fun nativeStop(nativeHandle: Long)
     private external fun nativeDestroy(nativeHandle: Long)

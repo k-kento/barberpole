@@ -3,6 +3,7 @@
 #include <functional>
 #include <thread>
 #include "render_message.hpp"
+#include "log.h"
 
 class RenderLooper {
 public:
@@ -16,11 +17,13 @@ public:
         if (mRunning.load()) return;
         mRunning.store(true);
         mThread = std::thread(&RenderLooper::loop, this);
+        LOGI("[RenderLooper] start");
     }
 
     void stop() {
         if (!mRunning.load()) return;
         mRunning.store(false);
+        LOGI("[RenderLooper] stop");
         if (mThread.joinable()) mThread.join();
     }
 
@@ -31,6 +34,7 @@ public:
 
     void postMessage(std::unique_ptr<RenderMessage> message) {
         std::lock_guard<std::mutex> lock(mMutex);
+        LOGI("[RenderLooper] Message posted.");
         mMessageQueue.push(std::move(message));
     }
 
@@ -63,9 +67,13 @@ private:
                 if (!mMessageQueue.empty()) {
                     message = std::move(mMessageQueue.front());
                     mMessageQueue.pop();
+                    LOGI("[RenderLooper] Message dequeued.");
                 }
             }
-            if (message) mHandleMessage(std::move(message));
+            if (message) {
+                LOGI("[RenderLooper] Handling message.");
+                mHandleMessage(std::move(message));
+            }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(16)); // 60FPS
         }

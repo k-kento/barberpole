@@ -15,7 +15,7 @@ class Mesh;
 class DrawingRenderer : public RendererInterface {
 public:
 
-    DrawingRenderer(VulkanContext &vkContext, RenderPass &renderPass, ViewBounds &viewBounds, glm::mat4 projectionMatrix);
+    DrawingRenderer(VulkanContext &vkContext, RenderPass &renderPass);
 
     ~DrawingRenderer();
 
@@ -36,6 +36,6 @@ private:
     vk::UniquePipelineLayout mPipelineLayout;
     RenderPass &mRenderPass;
     std::deque<glm::mat4> mTouchPoints;
-    ViewBounds& mViewBounds;
-    glm::mat4 mProjectionMatrix;
+    glm::mat4 mProjection{1.0f};
+    ViewBounds mViewBounds{0.0f, 0.0f, 0.0f, 0.0f};
 };

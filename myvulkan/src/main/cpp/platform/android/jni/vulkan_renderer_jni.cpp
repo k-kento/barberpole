@@ -21,7 +21,7 @@ Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeInit(JNIE
     auto windowHeight = ANativeWindow_getHeight(window);
 
     auto surface = std::make_unique<Surface>(vkContext->getVkInstance(), window);
-    auto swapChain = std::make_unique<SwapChain>(vkContext, surface->getSurface());
+    auto swapChain = std::make_unique<SwapChain>(*vkContext, surface->getSurface());
     auto renderPass = std::make_unique<RenderPass>(vkContext->getDevice(), swapChain->getFormat());
 
     const char *cStr = env->GetStringUTFChars(jFilePath, nullptr);

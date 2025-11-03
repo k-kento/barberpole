@@ -22,14 +22,18 @@ class DrawingView(context: Context, val vulkanContext: VulkanContext) : SurfaceV
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-        val rotationDegree = Utility.rotationToDegrees(context.display.rotation)
+
         renderer = DrawingRenderer()
-        renderer?.init(vulkanContext = vulkanContext, surface = holder.surface, rotationDegree)
+        renderer?.init(vulkanContext = vulkanContext, surface = holder.surface)
         renderer?.start()
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        // TODO
+        val rotationDegree = Utility.rotationToDegrees(context.display.rotation)
+        renderer?.onSurfaceChanged(
+            surface = holder.surface,
+            deviceRotationDegree = rotationDegree
+        )
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
@@ -56,10 +60,7 @@ class DrawingView(context: Context, val vulkanContext: VulkanContext) : SurfaceV
                 }
                 lastX = x
                 lastY = y
-
-                val normalizedX = (x / width) * 2.0f - 1.0f
-                val normalizedY = (y / height) * 2.0f - 1.0f
-                renderer?.notifyTouchMoveEvent(x = normalizedX, y = normalizedY)
+                renderer?.notifyTouchMoveEvent(x = x / width, y = y / height)
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {

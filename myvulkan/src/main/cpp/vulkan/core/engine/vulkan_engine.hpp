@@ -33,6 +33,8 @@ public:
 
     void postMessage(std::unique_ptr<RenderMessage> message);
 
+    const Surface& getSurface() const { return *mSurface; }
+
 private:
     VulkanContext &mVkContext;
 

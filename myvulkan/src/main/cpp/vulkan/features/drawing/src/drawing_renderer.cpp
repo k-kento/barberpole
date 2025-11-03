@@ -8,15 +8,13 @@
 #include "instance_buffer.hpp"
 #include "touch_message.hpp"
 #include "mesh.hpp"
+#include "log.h"
+#include "suraface_changed_message.hpp"
 
 DrawingRenderer::DrawingRenderer(VulkanContext &vkContext,
-                                 RenderPass &renderPass,
-                                 ViewBounds &viewBounds,
-                                 glm::mat4 projectionMatrix) :
+                                 RenderPass &renderPass) :
         mVkContext(vkContext),
-        mRenderPass(renderPass),
-        mViewBounds(viewBounds),
-        mProjectionMatrix(projectionMatrix) {
+        mRenderPass(renderPass) {
 
     auto device = mVkContext.getDevice();
 
@@ -42,11 +40,11 @@ void DrawingRenderer::renderFrame(float deltaTimeMs, uint32_t currentFrame) {
     }
     std::vector<InstanceData> instances;
     instances.reserve(mTouchPoints.size());
-    for (const auto &mat : mTouchPoints) {
+    for (const auto &mat: mTouchPoints) {
         instances.push_back(InstanceData{mat});
     }
     mInstanceBuffer->updateInstances(currentFrame, instances);
-    mUbo->update({mProjectionMatrix}, currentFrame);
+    mUbo->update({mProjection}, currentFrame);
 }
 
 void DrawingRenderer::recordDrawCommands(vk::CommandBuffer cmdBuffer, uint32_t frameIndex) {
@@ -68,13 +66,17 @@ void DrawingRenderer::recordDrawCommands(vk::CommandBuffer cmdBuffer, uint32_t f
 }
 
 void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
-    if (auto touchMsg = dynamic_cast<const TouchMessage *>(message.get())) {
+    if (auto *surfaceChangedMsg = dynamic_cast<const SurfaceChangedMessage *>(message.get())) {
+        mViewBounds = surfaceChangedMsg->viewBounds;
+        mProjection = surfaceChangedMsg->projection;
+    } else if (auto touchMsg = dynamic_cast<const TouchMessage *>(message.get())) {
         switch (touchMsg->touchType) {
             case TouchMessage::Move: {
-                auto tapX = touchMsg->x;
-                auto tapY = touchMsg->y;
-                auto point = glm::translate(glm::mat4(1.0f), glm::vec3(tapX, tapY, 0.0f));
-                mTouchPoints.push_back(point);
+                auto normalizedX = touchMsg->x * mViewBounds.width() + mViewBounds.left;
+                auto normalizedY = touchMsg->y * mViewBounds.height() - mViewBounds.top;
+                auto translate = glm::translate(glm::mat4(1.0f), glm::vec3(normalizedX, normalizedY, 0.0f));
+                auto scale = glm::scale(glm::mat4(1.0f), {0.2f, 0.2f, 1.0});
+                mTouchPoints.push_back(translate * scale);
                 break;
             }
             case TouchMessage::UP:
@@ -85,5 +87,3 @@ void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
         }
     }
 }
-
-

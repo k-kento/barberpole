@@ -20,6 +20,7 @@ VulkanEngine::VulkanEngine(VulkanContext &vkContext,
             [this]() { this->onRenderFrame(); },
             [this](std::unique_ptr<RenderMessage> msg) { this->onRenderMessage(std::move(msg)); }
     );
+    mRendererLooper->start();
 }
 
 VulkanEngine::~VulkanEngine() {
@@ -31,7 +32,7 @@ VulkanEngine::~VulkanEngine() {
 }
 
 void VulkanEngine::start() {
-    mRendererLooper->start();
+    // mRendererLooper->start();
 }
 
 void VulkanEngine::stop() {

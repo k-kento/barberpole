@@ -2,7 +2,6 @@ package com.gastornisapp.myvulkan.kaleidoscope
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.gastornisapp.myvulkan.Utility
@@ -32,7 +31,7 @@ class KaleidoscopeView(context: Context, val vulkanContext: VulkanContext) : Sur
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-        val rotationDegree = Utility.rotationToDegrees(context.display.rotation)
+        val rotationDegree = Utility.rotationToDegrees(context.display.rotation) // TODO
         kaleidoscopeRenderer = KaleidoscopeRenderer()
         kaleidoscopeRenderer?.init(context = context.applicationContext, vulkanContext = vulkanContext, surface = holder.surface, rotationDegree)
         kaleidoscopeRenderer?.start()
