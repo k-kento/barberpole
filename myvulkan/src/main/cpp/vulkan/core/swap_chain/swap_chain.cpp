@@ -1,6 +1,6 @@
-#include "swap_chain.h"
+#include "swap_chain.hpp"
 
-SwapChain::SwapChain(VulkanContext &vkContext, vk::SurfaceKHR surface) {
+SwapChain::SwapChain(VulkanContext &vkContext, vk::SurfaceKHR surface) : mVkContext(vkContext) {
     auto physicalDevice = vkContext.getPhysicalDevice();
     auto device = vkContext.getDevice();
 
@@ -73,6 +73,33 @@ SwapChain::SwapChain(VulkanContext &vkContext, vk::SurfaceKHR surface) {
     } catch (const vk::SystemError &e) {
         throw std::runtime_error(std::string("Failed to create image views: ") + e.what());
     }
+}
+
+uint32_t SwapChain::acquireNextImage(vk::Semaphore imageAvailable) {
+    auto device = mVkContext.getDevice();
+    auto graphicsQueue = mVkContext.getGraphicsQueue();
+
+    // 次に表示可能な画像のインデックスを取得する
+    auto acquireResult = device.acquireNextImageKHR(mSwapChain.get(), UINT64_MAX, imageAvailable, nullptr);
+
+    if (acquireResult.result == vk::Result::eErrorOutOfDateKHR) {
+        // TODO リサイズなど スワップチェーン作り直し
+    }
+
+    mCurrentImageIndex = acquireResult.value;
+
+    return mCurrentImageIndex;
+}
+
+void SwapChain::present(vk::Semaphore renderFinished) {
+    // GPU が描画完了したフレームを表示
+    vk::SwapchainKHR swapChains[] = {mSwapChain.get()};
+    vk::PresentInfoKHR presentInfo{};
+    presentInfo.setWaitSemaphores(renderFinished)
+            .setSwapchains(swapChains)
+            .setImageIndices(mCurrentImageIndex);
+
+    mVkContext.getGraphicsQueue().presentKHR(presentInfo);
 }
 
 std::vector<vk::UniqueImageView>

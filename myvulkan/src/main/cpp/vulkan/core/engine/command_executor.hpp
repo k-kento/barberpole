@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.hpp>
 #include "render_pass.h"
-#include "swap_chain.h"
+#include "swap_chain.hpp"
 #include "renderer_interface.hpp"
 
 class CommandExecutor {

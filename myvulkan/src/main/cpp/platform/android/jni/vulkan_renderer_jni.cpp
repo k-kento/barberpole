@@ -2,7 +2,7 @@
 #include <jni.h>
 #include "kaleidoscope_renderer.h"
 #include "surface.h"
-#include "swap_chain.h"
+#include "swap_chain.hpp"
 #include "vulkan_engine.hpp"
 #include "rotation_message.hpp"
 #include "update_texture_message.hpp"

@@ -4,7 +4,7 @@
 #include <android/native_window.h>
 #include <vector>
 #include "vulkan_context.h"
-#include "swap_chain.h"
+#include "swap_chain.hpp"
 #include "surface.h"
 #include "render_pass.h"
 #include "renderer_interface.hpp"

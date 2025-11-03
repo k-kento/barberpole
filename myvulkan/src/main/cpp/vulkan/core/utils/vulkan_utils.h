@@ -2,7 +2,7 @@
 #include <vector>
 #include <android/asset_manager.h>
 #include <vulkan/vulkan.hpp>
-#include "swap_chain.h"
+#include "swap_chain.hpp"
 #include "view_bounds.hpp"
 
 class VulkanUtils {

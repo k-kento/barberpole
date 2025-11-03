@@ -10,10 +10,14 @@ add_library(core STATIC
         swap_chain/swap_chain.cpp
         texture/texture.cpp
         utils/vulkan_utils.cpp
+
+        frame_context.cpp
+        surface_context.cpp
 )
 
 target_include_directories(core
         PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/memory
         ${CMAKE_CURRENT_SOURCE_DIR}/mesh
         ${CMAKE_CURRENT_SOURCE_DIR}/pipeline
