@@ -6,18 +6,26 @@
 #include "vulkan_utils.h"
 #include "touch_message.hpp"
 #include "suraface_changed_message.hpp"
-#include "drawing_engine.hpp"
+#include "engine.hpp"
 
 extern "C" JNIEXPORT jlong JNICALL
 Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeInit(JNIEnv *env,
                                                                   jobject thiz,
                                                                   jobject androidSurface,
                                                                   jlong vulkanContextHandle) {
-    auto *vkContext = reinterpret_cast<VulkanContext *>(vulkanContextHandle);
+
     ANativeWindow *window = ANativeWindow_fromSurface(env, androidSurface);
 
-    auto surface = std::make_unique<Surface>(vkContext->getVkInstance(), window);
-    auto engine = new DrawingEngine(*vkContext, std::move(surface));
+    auto engine = new Engine();
+
+    engine->postTask([engine, vulkanContextHandle, window]() {
+        auto *vkContext = reinterpret_cast<VulkanContext *>(vulkanContextHandle);
+        auto surface = std::make_unique<Surface>(vkContext->getVkInstance(), window);
+        auto surfaceContext = std::make_unique<SurfaceContext>(*vkContext, std::move(surface));
+
+        auto renderer = std::make_unique<DrawingRenderer>(*vkContext, std::move(surfaceContext));
+        engine->setRenderer(std::move(renderer));
+    });
 
     return reinterpret_cast<jlong>(engine);
 }
@@ -29,7 +37,7 @@ Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeOnSurfaceChanged(JN
                                                                               jlong nativeHandle,
                                                                               jobject androidSurface,
                                                                               jint deviceRotationDegree) {
-    auto *engine = reinterpret_cast<DrawingEngine *>(nativeHandle);
+    auto *engine = reinterpret_cast<Engine *>(nativeHandle);
     if (engine) {
         ANativeWindow *window = ANativeWindow_fromSurface(env, androidSurface); // TODO
 
@@ -47,7 +55,7 @@ Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeOnSurfaceChanged(JN
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeStart(JNIEnv *env, jobject, jlong nativeHandle) {
-    auto *engine = reinterpret_cast<DrawingEngine *>(nativeHandle);
+    auto *engine = reinterpret_cast<Engine *>(nativeHandle);
     if (engine) engine->start();
 }
 
@@ -56,7 +64,7 @@ JNIEXPORT void JNICALL
 Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeStop(JNIEnv *env,
                                                                   jobject thiz,
                                                                   jlong nativeHandle) {
-    auto *engine = reinterpret_cast<DrawingEngine *>(nativeHandle);
+    auto *engine = reinterpret_cast<Engine *>(nativeHandle);
     if (engine) engine->stop();
 }
 
@@ -65,7 +73,7 @@ JNIEXPORT void JNICALL
 Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeDestroy(JNIEnv *env,
                                                                      jobject thiz,
                                                                      jlong nativeHandle) {
-    auto *engine = reinterpret_cast<DrawingEngine *>(nativeHandle);
+    auto *engine = reinterpret_cast<Engine *>(nativeHandle);
     if (engine) {
         delete engine;
     }
@@ -78,7 +86,7 @@ Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeNotifyTouchMoveEven
                                                                                   jlong nativeHandle,
                                                                                   jfloat x,
                                                                                   jfloat y) {
-    auto *engine = reinterpret_cast<DrawingEngine *>(nativeHandle);
+    auto *engine = reinterpret_cast<Engine *>(nativeHandle);
     auto message = std::make_unique<TouchMessage>(TouchMessage::TouchType::Move, x, y);
     engine->postMessage(std::move(message));
 }
@@ -88,7 +96,7 @@ JNIEXPORT void JNICALL
 Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeNotifyTouchUpEvent(JNIEnv *env,
                                                                                 jobject thiz,
                                                                                 jlong nativeHandle) {
-    auto *engine = reinterpret_cast<DrawingEngine *>(nativeHandle);
+    auto *engine = reinterpret_cast<Engine *>(nativeHandle);
     auto message = std::make_unique<TouchMessage>(TouchMessage::TouchType::UP);
     engine->postMessage(std::move(message));
 }

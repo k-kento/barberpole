@@ -4,7 +4,7 @@
 #include "vulkan_context.h"
 #include "view_bounds.hpp"
 #include <glm/glm.hpp>
-#include "engine_config.hpp"
+#include "surface_context.hpp"
 
 namespace {
     constexpr uint32_t MAX_INSTANCE_COUNT = 10000;
@@ -21,7 +21,7 @@ public:
     explicit InstanceBuffer(VulkanContext &context) {
         VkDeviceSize instanceBufferSize = sizeof(InstanceData) * MAX_INSTANCE_COUNT;
 
-        for (uint32_t i = 0; i < EngineConfig::MAX_FRAMES_IN_FLIGHT; ++i) {
+        for (uint32_t i = 0; i < SurfaceContext::MAX_FRAMES_IN_FLIGHT; ++i) {
             mDeviceBuffers[i] = std::make_unique<DeviceBuffer>(
                     context,
                     instanceBufferSize,
@@ -56,8 +56,8 @@ public:
     }
 
 private:
-    std::array<uint32_t, EngineConfig::MAX_FRAMES_IN_FLIGHT> mInstanceCounts{};
-    std::array<InstanceData *, EngineConfig::MAX_FRAMES_IN_FLIGHT> mMappedPtrs;
-    std::array<std::unique_ptr<DeviceBuffer>, EngineConfig::MAX_FRAMES_IN_FLIGHT> mDeviceBuffers;
+    std::array<uint32_t, SurfaceContext::MAX_FRAMES_IN_FLIGHT> mInstanceCounts{};
+    std::array<InstanceData *, SurfaceContext::MAX_FRAMES_IN_FLIGHT> mMappedPtrs;
+    std::array<std::unique_ptr<DeviceBuffer>, SurfaceContext::MAX_FRAMES_IN_FLIGHT> mDeviceBuffers;
 
 };

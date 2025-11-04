@@ -1,19 +1,19 @@
-#include "kaleidoscope_renderer.h"
+#include "kaleidoscope_renderer.hpp"
 #include "view_bounds.hpp"
 #include "device_buffer.h"
 #include "ubo_buffer.hpp"
 #include "kaleidoscope_pipeline_config.hpp"
 #include "rotation_message.hpp"
 #include "update_texture_message.hpp"
-#include "engine_config.hpp"
+#include "surface_context.hpp"
 
 KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
-                                           RenderPass &renderPass,
                                            uint32_t windowWidth,
                                            uint32_t windowHeight,
                                            uint32_t deviceRotationDegree,
-                                           const std::string &texturePath)
-        : mVkContext(vkContext), mRenderPass(renderPass) {
+                                           const std::string &texturePath,
+                                           std::unique_ptr<SurfaceContext> surfaceContext)
+        : mVkContext(vkContext), mSurfaceContext(std::move(surfaceContext)) {
 
     auto device = mVkContext.getDevice();
 
@@ -25,7 +25,7 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
     mMeshManager = std::make_unique<KaleidoscopeMeshManager>(mVkContext);
     mInstanceData = std::make_unique<KaleidoscopeInstanceBuffer>(mVkContext, viewBounds);
     mTexture = std::make_unique<Texture>(mVkContext, texturePath);
-    mUbo = std::make_unique<KaleidoscopeUbo>(mVkContext, *mTexture, EngineConfig::MAX_FRAMES_IN_FLIGHT);
+    mUbo = std::make_unique<KaleidoscopeUbo>(mVkContext, *mTexture, SurfaceContext::MAX_FRAMES_IN_FLIGHT);
 
     auto layout = mUbo->getDescriptorSetLayout();
     vk::DescriptorSetLayout layouts[] = {layout};
@@ -34,10 +34,14 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
     layoutInfo.pSetLayouts = layouts;
     mPipelineLayout = device.createPipelineLayoutUnique(layoutInfo);
 
-    mPipeline = KaleidoscopePipelineConfig{}.createPipeline(mVkContext, mPipelineLayout.get(), mRenderPass);
+    mPipeline = KaleidoscopePipelineConfig{}.createPipeline(mVkContext, mPipelineLayout.get(), mSurfaceContext->getRenderPass());
 }
 
-void KaleidoscopeRenderer::renderFrame(float deltaTimeMs, uint32_t currentFrame) {
+void KaleidoscopeRenderer::renderFrame(float deltaTimeMs) {
+    mSurfaceContext->acquireNextImage();
+
+    auto currentFrameIndex = mSurfaceContext->getCurrentFrameIndex();
+
     auto rotationState = mRotationState;
     if (rotationState != RotationState::None) {
 
@@ -52,25 +56,32 @@ void KaleidoscopeRenderer::renderFrame(float deltaTimeMs, uint32_t currentFrame)
         mUvMatrix = translateBack * rotation * translateToCenter;
     }
 
-    mUbo->update({mProjectionMatrix, mUvMatrix}, currentFrame);
-}
+    mUbo->update({mProjectionMatrix, mUvMatrix}, currentFrameIndex);
 
-void KaleidoscopeRenderer::recordDrawCommands(vk::CommandBuffer cmdBuffer, uint32_t frameIndex) {
-    cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
+    mSurfaceContext->recordCommandBuffers([this]() {
+        auto *frameContext = mSurfaceContext->getFrameContext();
+        auto cmdBuffer = frameContext->getCommandBuffer();
+        auto currentFrameIndex = mSurfaceContext->getCurrentFrameIndex();
 
-    cmdBuffer.bindDescriptorSets(
-            vk::PipelineBindPoint::eGraphics,
-            mPipelineLayout.get(),
-            0,
-            {mUbo->getDescriptorSet(frameIndex)},
-            nullptr);
+        cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
 
-    vk::Buffer instanceBuffers[] = {mInstanceData->getDeviceBuffer()};
-    vk::DeviceSize offsets[] = {0};
+        cmdBuffer.bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics,
+                mPipelineLayout.get(),
+                0,
+                {mUbo->getDescriptorSet(currentFrameIndex)},
+                nullptr);
 
-    cmdBuffer.bindVertexBuffers(1, 1, instanceBuffers, offsets);
-    mMeshManager->bind(cmdBuffer, 0);
-    mMeshManager->draw(cmdBuffer, mInstanceData->getInstanceCount());
+        vk::Buffer instanceBuffers[] = {mInstanceData->getDeviceBuffer()};
+        vk::DeviceSize offsets[] = {0};
+
+        cmdBuffer.bindVertexBuffers(1, 1, instanceBuffers, offsets);
+        mMeshManager->bind(cmdBuffer, 0);
+        mMeshManager->draw(cmdBuffer, mInstanceData->getInstanceCount());
+    });
+
+    mSurfaceContext->submit();
+    mSurfaceContext->present();
 }
 
 void KaleidoscopeRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {

@@ -5,26 +5,23 @@
 #include "kaleidoscope_instance_buffer.hpp"
 #include "kaleidoscope_mesh_manager.hpp"
 #include "kaleidoscope_ubo.hpp"
-#include "renderer_interface.hpp"
+#include "renderer.hpp"
 #include "texture.hpp"
 #include "render_message.hpp"
 #include "rotation_state.hpp"
-#include "engine_config.hpp"
 
-class KaleidoscopeRenderer : public RendererInterface {
+class KaleidoscopeRenderer : public Renderer {
 public:
 
     // TODO window Android 依存
     KaleidoscopeRenderer(VulkanContext &vkContext,
-                         RenderPass &renderPass,
                          uint32_t windowWidth,
                          uint32_t windowHeight,
                          uint32_t deviceRotationDegree,
-                         const std::string &texturePath);
+                         const std::string &texturePath,
+                         std::unique_ptr<SurfaceContext> surfaceContext);
 
-    void recordDrawCommands(vk::CommandBuffer cmdBuffer, uint32_t frameIndex) override;
-
-    void renderFrame(float deltaTimeMs, uint32_t currentFrame) override;
+    void renderFrame(float deltaTimeMs) override;
 
     void handleMessage(std::unique_ptr<RenderMessage> message) override;
 
@@ -36,6 +33,7 @@ private:
 
     VulkanContext &mVkContext;
 
+    std::unique_ptr<SurfaceContext> mSurfaceContext;
     std::unique_ptr<KaleidoscopeMeshManager> mMeshManager;
     std::unique_ptr<KaleidoscopeInstanceBuffer> mInstanceData;
     std::unique_ptr<KaleidoscopeUbo> mUbo;
@@ -43,7 +41,6 @@ private:
 
     vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;
-    RenderPass &mRenderPass;
 
     glm::mat4 mProjectionMatrix{};
     glm::mat4 mUvMatrix = glm::mat4(1.0f);

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "vulkan/vulkan.hpp"
-#include "engine_config.hpp"
 #include "log.h"
 
 class Descriptor {
@@ -81,7 +80,7 @@ private:
     // DescriptorSet を作るためのプールを作成
     void createDescriptorPool() {
 
-        uint32_t maxFramesInFlight = EngineConfig::MAX_FRAMES_IN_FLIGHT;
+        uint32_t maxFramesInFlight = SurfaceContext::MAX_FRAMES_IN_FLIGHT;
 
         std::array<vk::DescriptorPoolSize, 1> poolSizes{};
 

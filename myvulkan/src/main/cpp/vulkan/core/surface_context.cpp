@@ -1,6 +1,6 @@
 #include "surface_context.hpp"
 
-SurfaceContext::SurfaceContext(VulkanContext &vkContext, std::shared_ptr<Surface> surface) :
+SurfaceContext::SurfaceContext(VulkanContext &vkContext, std::unique_ptr<Surface> surface) :
         mVkContext(vkContext),
         mSurface(std::move(surface)) {
 

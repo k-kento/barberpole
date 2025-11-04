@@ -3,7 +3,7 @@
 #include <vulkan/vulkan.hpp>
 #include "render_pass.h"
 #include "swap_chain.hpp"
-#include "renderer_interface.hpp"
+#include "renderer.hpp"
 
 class FrameContext {
 public:

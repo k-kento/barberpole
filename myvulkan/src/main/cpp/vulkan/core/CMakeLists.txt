@@ -3,8 +3,7 @@ add_library(core STATIC
         pipeline/pipeline_builder.cpp
         pipeline/render_pass.cpp
 
-        engine/vulkan_engine.cpp
-        engine/command_executor.cpp
+        engine.cpp
 
         surface/surface.cpp
         swap_chain/swap_chain.cpp
@@ -21,7 +20,6 @@ target_include_directories(core
         ${CMAKE_CURRENT_SOURCE_DIR}/memory
         ${CMAKE_CURRENT_SOURCE_DIR}/mesh
         ${CMAKE_CURRENT_SOURCE_DIR}/pipeline
-        ${CMAKE_CURRENT_SOURCE_DIR}/engine
         ${CMAKE_CURRENT_SOURCE_DIR}/surface
         ${CMAKE_CURRENT_SOURCE_DIR}/swap_chain
         ${CMAKE_CURRENT_SOURCE_DIR}/texture

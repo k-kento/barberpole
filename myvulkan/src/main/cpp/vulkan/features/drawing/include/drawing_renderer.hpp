@@ -3,26 +3,27 @@
 #include "vulkan_context.h"
 #include "render_pass.h"
 #include <vector>
-#include "renderer_interface.hpp"
+#include "renderer.hpp"
 #include "render_message.hpp"
 #include "glm/glm.hpp"
 #include "view_bounds.hpp"
 #include "surface_context.hpp"
+#include "renderer.hpp"
 
 class Ubo;
 class InstanceBuffer;
 class Mesh;
 
-class DrawingRenderer {
+class DrawingRenderer : public Renderer {
 public:
 
     DrawingRenderer(VulkanContext &vkContext, std::unique_ptr<SurfaceContext> surface);
 
     ~DrawingRenderer();
 
-    void renderFrame(float deltaTimeMs);
+    void renderFrame(float deltaTimeMs) override;
 
-    void handleMessage(std::unique_ptr<RenderMessage> message);
+    void handleMessage(std::unique_ptr<RenderMessage> message) override;
 
 private:
 

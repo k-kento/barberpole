@@ -4,7 +4,6 @@
 #include "ubo_buffer.hpp"
 #include "pipeline_config.hpp"
 #include "ubo.hpp"
-#include "engine_config.hpp"
 #include "instance_buffer.hpp"
 #include "touch_message.hpp"
 #include "mesh.hpp"
@@ -15,7 +14,7 @@ DrawingRenderer::DrawingRenderer(VulkanContext &vkContext, std::unique_ptr<Surfa
         mVkContext(vkContext), mSurfaceContext(std::move(surfaceContext)) {
     auto device = mVkContext.getDevice();
 
-    mUbo = std::make_unique<Ubo>(mVkContext, EngineConfig::MAX_FRAMES_IN_FLIGHT);
+    mUbo = std::make_unique<Ubo>(mVkContext, SurfaceContext::MAX_FRAMES_IN_FLIGHT);
     mInstanceBuffer = std::make_unique<InstanceBuffer>(mVkContext);
     mMesh = std::make_unique<Mesh>(vkContext);
 

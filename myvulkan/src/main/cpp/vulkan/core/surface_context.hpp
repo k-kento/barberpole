@@ -10,7 +10,7 @@ class SurfaceContext {
 public:
     static constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
-    SurfaceContext(VulkanContext &vkContext, std::shared_ptr<Surface> surface);
+    SurfaceContext(VulkanContext &vkContext, std::unique_ptr<Surface> surface);
 
     ~SurfaceContext() = default;
 
