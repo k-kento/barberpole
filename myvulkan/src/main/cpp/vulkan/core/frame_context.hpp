@@ -9,6 +9,8 @@ class FrameContext {
 public:
     FrameContext(VulkanContext &vkContext);
 
+    virtual ~FrameContext() = default;
+
     [[nodiscard]] vk::Fence getInFlightFences() const {
         return mInFlightFences.get();
     }

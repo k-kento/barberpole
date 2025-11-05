@@ -1,7 +1,7 @@
 add_library(drawing STATIC
         src/drawing_renderer.cpp
         src/pipeline_config.cpp
-        ../../core/engine.cpp
+        src/drawing_engine.cpp
 )
 
 target_include_directories(drawing

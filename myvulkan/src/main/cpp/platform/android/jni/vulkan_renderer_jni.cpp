@@ -1,11 +1,12 @@
 #include <android/native_window_jni.h>
 #include <jni.h>
-#include "kaleidoscope_renderer.hpp"
 #include "surface.h"
 #include "swap_chain.hpp"
 #include "rotation_message.hpp"
 #include "update_texture_message.hpp"
 #include "engine.hpp"
+#include "view_bounds.hpp"
+#include "kaleidoscope_engine.hpp"
 
 extern "C" JNIEXPORT jlong JNICALL
 Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeInit(JNIEnv *env,
@@ -17,35 +18,17 @@ Java_com_gastornisapp_myvulkan_kaleidoscope_KaleidoscopeRenderer_nativeInit(JNIE
 
     ANativeWindow *window = ANativeWindow_fromSurface(env, androidSurface);
 
+    auto *vkContext = reinterpret_cast<VulkanContext *>(vulkanContextHandle);
+    auto surface = std::make_unique<Surface>(vkContext->getVkInstance(), window);
+
     const char *cStr = env->GetStringUTFChars(jFilePath, nullptr);
     std::string filePath(cStr);
     env->ReleaseStringUTFChars(jFilePath, cStr);
 
-    auto engine = new Engine();
-
-    engine->postTask([engine,
-                             vulkanContextHandle,
-                             window,
-                             deviceRotationDegree,
-                             filePath = std::move(filePath)]() {
-        auto *vkContext = reinterpret_cast<VulkanContext *>(vulkanContextHandle);
-        auto surface = std::make_unique<Surface>(vkContext->getVkInstance(), window);
-        auto surfaceContext = std::make_unique<SurfaceContext>(*vkContext, std::move(surface));
-
-        auto windowWidth = ANativeWindow_getWidth(window);
-        auto windowHeight = ANativeWindow_getHeight(window);
-
-        auto renderer = std::make_unique<KaleidoscopeRenderer>(*vkContext,
-                                                               windowWidth,
-                                                               windowHeight,
-                                                               deviceRotationDegree,
-                                                               filePath,
-                                                               std::move(surfaceContext));
-
-        engine->setRenderer(std::move(renderer));
-    });
-
-    return reinterpret_cast<jlong>(engine);
+    return reinterpret_cast<jlong>(new KaleidoscopeEngine(*vkContext,
+                                                          std::move(surface),
+                                                          deviceRotationDegree,
+                                                          filePath));
 }
 
 extern "C"

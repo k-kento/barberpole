@@ -10,7 +10,9 @@ class SurfaceContext {
 public:
     static constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
-    SurfaceContext(VulkanContext &vkContext, std::unique_ptr<Surface> surface);
+    using FrameContextFactory = std::function<std::unique_ptr<FrameContext>(VulkanContext&)>;
+
+    SurfaceContext(VulkanContext &vkContext, std::shared_ptr<Surface> surface, std::vector<std::unique_ptr<FrameContext>> frameContexts);
 
     ~SurfaceContext() = default;
 
@@ -21,6 +23,14 @@ public:
     RenderPass &getRenderPass() { return *mRenderPass; }
 
     FrameContext *getFrameContext();
+
+    FrameContext *getFrameContext(uint32_t index);
+
+    void beginCommandBuffer(vk::CommandBuffer cmdBuffer);
+
+    void endCommandBuffer(vk::CommandBuffer cmdBuffer);
+
+    void setFrameContexts(std::vector<std::unique_ptr<FrameContext>> frameContexts);
 
     void acquireNextImage();
     void recordCommandBuffers(std::function<void()> recordDraw);

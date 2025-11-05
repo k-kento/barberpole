@@ -68,6 +68,77 @@ public:
         return descriptorSet;
     }
 
+//    // =============================
+//    //  初回のみ DescriptorSet を確保
+//    // =============================
+//    vk::UniqueDescriptorSet allocate(vk::Buffer uboBuffer,
+//                                     vk::DeviceSize uboSize,
+//                                     vk::ImageView imageView,
+//                                     vk::Sampler sampler) {
+//        vk::DescriptorSetAllocateInfo allocInfo{};
+//        allocInfo.descriptorPool = *mDescriptorPool;
+//        allocInfo.descriptorSetCount = 1;
+//        allocInfo.pSetLayouts = &*mDescriptorSetLayout;
+//
+//        vk::UniqueDescriptorSet descriptorSet;
+//
+//        try {
+//            descriptorSet = std::move(mDevice.allocateDescriptorSetsUnique(allocInfo).front());
+//        } catch (const vk::SystemError &err) {
+//            throw std::runtime_error("Failed to allocate descriptor set: " + std::string(err.what()));
+//        }
+//
+//        // 初回割り当て時も update と同じ処理で中身設定
+//        update(*descriptorSet, uboBuffer, uboSize, imageView, sampler);
+//
+//        return descriptorSet;
+//    }
+
+    // ============================================
+    //  再利用時に DescriptorSet の中身を更新する
+    // ============================================
+    void update(vk::DescriptorSet descriptorSet,
+                vk::Buffer uboBuffer,
+                vk::DeviceSize uboSize,
+                vk::ImageView imageView,
+                vk::Sampler sampler) const {
+        vk::DescriptorBufferInfo bufferInfo{};
+        bufferInfo.buffer = uboBuffer;
+        bufferInfo.offset = 0;
+        bufferInfo.range = uboSize;
+
+        vk::DescriptorImageInfo imageInfo{};
+        imageInfo.imageView = imageView;
+        imageInfo.sampler = sampler;
+        imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+        std::array<vk::WriteDescriptorSet, 2> descriptorWrites{};
+
+        descriptorWrites[0] = vk::WriteDescriptorSet(
+                descriptorSet,
+                0,  // binding
+                0,  // array element
+                1,  // descriptor count
+                vk::DescriptorType::eUniformBuffer,
+                nullptr,
+                &bufferInfo,
+                nullptr
+        );
+
+        descriptorWrites[1] = vk::WriteDescriptorSet(
+                descriptorSet,
+                1,
+                0,
+                1,
+                vk::DescriptorType::eCombinedImageSampler,
+                &imageInfo,
+                nullptr,
+                nullptr
+        );
+
+        mDevice.updateDescriptorSets(descriptorWrites, nullptr);
+    }
+
     [[nodiscard]] vk::DescriptorSetLayout getLayout() const {
         return mDescriptorSetLayout.get();
     }

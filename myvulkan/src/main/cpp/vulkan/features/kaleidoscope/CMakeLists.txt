@@ -1,6 +1,7 @@
 add_library(kaleidoscope STATIC
         src/kaleidoscope_pipeline_config.cpp
         src/kaleidoscope_renderer.cpp
+        src/kaleidoscope_engine.cpp
 )
 
 target_include_directories(kaleidoscope

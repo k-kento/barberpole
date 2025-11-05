@@ -1,12 +1,11 @@
 #include <android/native_window_jni.h>
 #include <jni.h>
-#include "drawing_renderer.hpp"
 #include "surface.h"
 #include "swap_chain.hpp"
 #include "vulkan_utils.h"
 #include "touch_message.hpp"
 #include "suraface_changed_message.hpp"
-#include "engine.hpp"
+#include "drawing_engine.hpp"
 
 extern "C" JNIEXPORT jlong JNICALL
 Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeInit(JNIEnv *env,
@@ -15,19 +14,9 @@ Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeInit(JNIEnv *env,
                                                                   jlong vulkanContextHandle) {
 
     ANativeWindow *window = ANativeWindow_fromSurface(env, androidSurface);
-
-    auto engine = new Engine();
-
-    engine->postTask([engine, vulkanContextHandle, window]() {
-        auto *vkContext = reinterpret_cast<VulkanContext *>(vulkanContextHandle);
-        auto surface = std::make_unique<Surface>(vkContext->getVkInstance(), window);
-        auto surfaceContext = std::make_unique<SurfaceContext>(*vkContext, std::move(surface));
-
-        auto renderer = std::make_unique<DrawingRenderer>(*vkContext, std::move(surfaceContext));
-        engine->setRenderer(std::move(renderer));
-    });
-
-    return reinterpret_cast<jlong>(engine);
+    auto *vkContext = reinterpret_cast<VulkanContext *>(vulkanContextHandle);
+    auto surface = std::make_unique<Surface>(vkContext->getVkInstance(), window);
+    return reinterpret_cast<jlong>(new DrawingEngine(*vkContext, std::move(surface)));
 }
 
 extern "C"

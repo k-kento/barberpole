@@ -1,23 +1,23 @@
 #include "surface_context.hpp"
 
-SurfaceContext::SurfaceContext(VulkanContext &vkContext, std::unique_ptr<Surface> surface) :
+SurfaceContext::SurfaceContext(VulkanContext &vkContext,
+                               std::shared_ptr<Surface> surface,
+                               std::vector<std::unique_ptr<FrameContext>> frameContexts) :
         mVkContext(vkContext),
         mSurface(std::move(surface)) {
 
     mSwapChain = std::make_unique<SwapChain>(vkContext, mSurface->getSurface());
     mRenderPass = std::make_unique<RenderPass>(vkContext.getDevice(), mSwapChain->getFormat());
-
-    mFrameContexts.reserve(MAX_FRAMES_IN_FLIGHT);
-    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-        auto frame = std::make_unique<FrameContext>(mVkContext);
-        mFrameContexts.push_back(std::move(frame));
-    }
-
+    mFrameContexts = std::move(frameContexts);
     mFrameBuffers = createFrameBuffers();
 }
 
 FrameContext *SurfaceContext::getFrameContext() {
     return mFrameContexts[mCurrentFrameIndex].get();
+}
+
+FrameContext *SurfaceContext::getFrameContext(uint32_t index) {
+    return mFrameContexts[index].get();
 }
 
 void SurfaceContext::acquireNextImage() {
@@ -85,6 +85,36 @@ void SurfaceContext::recordCommandBuffers(std::function<void()> recordDraw) {
 
     recordDraw();
 
+    cmdBuffer.endRenderPass();
+    cmdBuffer.end();
+}
+
+void SurfaceContext::beginCommandBuffer(vk::CommandBuffer cmdBuffer) {
+    auto currentImageIndex = mSwapChain->getCurrentImageIndex();
+    auto extent = mSwapChain->getExtent();
+
+    vk::CommandBufferBeginInfo beginInfo{};
+    beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
+    cmdBuffer.begin(beginInfo);
+
+    vk::ClearValue clearColor = vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f});
+
+    vk::RenderPassBeginInfo rpBegin{};
+    rpBegin.renderPass = mRenderPass->getVkRenderPass();
+    rpBegin.framebuffer = mFrameBuffers[currentImageIndex].get();
+    rpBegin.renderArea.extent = extent;
+    rpBegin.clearValueCount = 1;
+    rpBegin.pClearValues = &clearColor;
+
+    cmdBuffer.beginRenderPass(rpBegin, vk::SubpassContents::eInline);
+
+    vk::Viewport viewport{0, 0, (float) extent.width, (float) extent.height, 0.0f, 1.0f};
+    vk::Rect2D scissor{{0, 0}, extent};
+    cmdBuffer.setViewport(0, viewport);
+    cmdBuffer.setScissor(0, scissor);
+}
+
+void SurfaceContext::endCommandBuffer(vk::CommandBuffer cmdBuffer) {
     cmdBuffer.endRenderPass();
     cmdBuffer.end();
 }
