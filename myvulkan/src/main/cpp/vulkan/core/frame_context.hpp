@@ -15,14 +15,6 @@ public:
         return mInFlightFences.get();
     }
 
-    [[nodiscard]] vk::Semaphore getImageAvailable() const {
-        return mImageAvailable.get();
-    }
-
-    [[nodiscard]] vk::Semaphore getRenderFinished() const {
-        return mRenderFinished.get();
-    }
-
     [[nodiscard]] vk::CommandBuffer getCommandBuffer() {
         return mCommandBuffer.get();
     }
@@ -32,8 +24,6 @@ private:
     VulkanContext &mVkContext;
 
     vk::UniqueFence mInFlightFences;
-    vk::UniqueSemaphore mImageAvailable;
-    vk::UniqueSemaphore mRenderFinished;
     vk::UniqueCommandBuffer mCommandBuffer;
 
     vk::UniqueCommandBuffer createCommandBuffer();

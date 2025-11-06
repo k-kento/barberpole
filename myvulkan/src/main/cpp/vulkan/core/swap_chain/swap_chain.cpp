@@ -73,26 +73,52 @@ SwapChain::SwapChain(VulkanContext &vkContext, vk::SurfaceKHR surface) : mVkCont
     } catch (const vk::SystemError &e) {
         throw std::runtime_error(std::string("Failed to create image views: ") + e.what());
     }
+
+    auto imageSize = mImages.size();
+    auto ImageAvailablePoolSize = imageSize + 2;
+
+    auto semaphoreInfo = vk::SemaphoreCreateInfo{};
+    mImageAvailable.resize(imageSize);
+
+    for (uint32_t i = 0; i < ImageAvailablePoolSize; i++) {
+        mImageAvailablePool.push(device.createSemaphoreUnique(semaphoreInfo));
+    }
+
+    mRenderFinished.resize(imageSize);
+    for (uint32_t i = 0; i < imageSize; i++) {
+        mRenderFinished[i] = device.createSemaphoreUnique(semaphoreInfo);
+    }
 }
 
-uint32_t SwapChain::acquireNextImage(vk::Semaphore imageAvailable) {
+uint32_t SwapChain::acquireNextImage() {
     auto device = mVkContext.getDevice();
     auto graphicsQueue = mVkContext.getGraphicsQueue();
 
+    auto imageAvailable = std::move(mImageAvailablePool.front());
+    mImageAvailablePool.pop();
+
     // 次に表示可能な画像のインデックスを取得する
-    auto acquireResult = device.acquireNextImageKHR(mSwapChain.get(), UINT64_MAX, imageAvailable, nullptr);
+    auto acquireResult = device.acquireNextImageKHR(mSwapChain.get(), UINT64_MAX, imageAvailable.get(), nullptr);
 
     if (acquireResult.result == vk::Result::eErrorOutOfDateKHR) {
         // TODO リサイズなど スワップチェーン作り直し
     }
-
     mCurrentImageIndex = acquireResult.value;
+
+    // 古いセマフォをプールに戻す
+    auto oldSemaphore = std::move(mImageAvailable[mCurrentImageIndex]);
+    if (oldSemaphore) {
+        mImageAvailablePool.push(std::move(oldSemaphore));
+    }
+
+    mImageAvailable[mCurrentImageIndex] = std::move(imageAvailable);
 
     return mCurrentImageIndex;
 }
 
-void SwapChain::present(vk::Semaphore renderFinished) {
+void SwapChain::present() {
     // GPU が描画完了したフレームを表示
+    vk::Semaphore renderFinished = getRenderFinished();
     vk::SwapchainKHR swapChains[] = {mSwapChain.get()};
     vk::PresentInfoKHR presentInfo{};
     presentInfo.setWaitSemaphores(renderFinished)

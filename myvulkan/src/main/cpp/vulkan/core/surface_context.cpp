@@ -26,17 +26,16 @@ void SurfaceContext::acquireNextImage() {
     auto fence = frameContext->getInFlightFences();
 
     device.waitForFences(1, &fence, VK_TRUE, UINT64_MAX);
-
-    mSwapChain->acquireNextImage(frameContext->getImageAvailable());
-
+    mSwapChain->acquireNextImage();
     device.resetFences(1, &fence);
 }
 
 void SurfaceContext::submit() {
     auto frameContext = mFrameContexts[mCurrentFrameIndex].get();
-    vk::Semaphore imageAvailable = frameContext->getImageAvailable();
-    vk::Semaphore renderFinished = frameContext->getRenderFinished();
-    vk::CommandBuffer commandBuffer = frameContext->getCommandBuffer();
+    auto currentImageIndex = mSwapChain->getCurrentImageIndex();
+    auto imageAvailable = mSwapChain->getImageAvailable();
+    auto renderFinished = mSwapChain->getRenderFinished();
+    auto commandBuffer = frameContext->getCommandBuffer();
 
     // 描画の最終段階で同期
     vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
@@ -52,8 +51,7 @@ void SurfaceContext::submit() {
 }
 
 void SurfaceContext::present() {
-    auto frameContext = mFrameContexts[mCurrentFrameIndex].get();
-    mSwapChain->present(frameContext->getRenderFinished());
+    mSwapChain->present();
     mCurrentFrameIndex = (mCurrentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 

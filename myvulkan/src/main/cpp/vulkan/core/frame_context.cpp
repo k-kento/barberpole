@@ -3,13 +3,10 @@
 FrameContext::FrameContext(VulkanContext &vkContext) : mVkContext(vkContext) {
     auto device = vkContext.getDevice();
 
-    vk::SemaphoreCreateInfo semaphoreInfo{};
     vk::FenceCreateInfo fenceInfo{};
     fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled; // フェンスの初期状態をシグナルにする
 
     mInFlightFences = device.createFenceUnique(fenceInfo);
-    mImageAvailable = device.createSemaphoreUnique(semaphoreInfo);
-    mRenderFinished = device.createSemaphoreUnique(semaphoreInfo);
     mCommandBuffer = createCommandBuffer();
 }
 

@@ -9,9 +9,9 @@ class SwapChain {
 public:
     SwapChain(VulkanContext &vkContext, vk::SurfaceKHR surface);
 
-    uint32_t acquireNextImage(vk::Semaphore imageAvailable);
+    uint32_t acquireNextImage();
 
-    void present(vk::Semaphore renderFinished);
+    void present();
 
     [[nodiscard]] vk::Format getFormat() const { return mFormat; }
 
@@ -30,7 +30,13 @@ public:
         return result;
     }
 
-    [[nodiscard]] vk::SwapchainKHR getSwapChain() const { return mSwapChain.get(); }
+    [[nodiscard]] vk::Semaphore getImageAvailable() const {
+        return mImageAvailable[mCurrentImageIndex].get();
+    }
+
+    [[nodiscard]] vk::Semaphore getRenderFinished() const {
+        return mRenderFinished[mCurrentImageIndex].get();
+    }
 
 private:
     VulkanContext &mVkContext;
@@ -40,6 +46,10 @@ private:
     std::vector<vk::UniqueImageView> mImageViews;
     vk::Format mFormat;
     vk::Extent2D mExtent;
+
+    std::queue<vk::UniqueSemaphore> mImageAvailablePool;
+    std::vector<vk::UniqueSemaphore> mImageAvailable;
+    std::vector<vk::UniqueSemaphore> mRenderFinished;
 
     static std::vector<vk::UniqueImageView>
     createImageViews(vk::Device device, const std::vector<vk::Image> &images, vk::Format format);
