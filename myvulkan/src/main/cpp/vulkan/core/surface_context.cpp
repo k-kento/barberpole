@@ -55,38 +55,6 @@ void SurfaceContext::present() {
     mCurrentFrameIndex = (mCurrentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void SurfaceContext::recordCommandBuffers(std::function<void()> recordDraw) {
-    auto frameContext = mFrameContexts[mCurrentFrameIndex].get();
-    auto cmdBuffer = frameContext->getCommandBuffer();
-    auto currentImageIndex = mSwapChain->getCurrentImageIndex();
-
-    auto extent = mSwapChain->getExtent();
-
-    vk::CommandBufferBeginInfo beginInfo{};
-    beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
-    cmdBuffer.begin(beginInfo);
-
-    vk::ClearValue clearColor = vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f});
-    vk::RenderPassBeginInfo rpBegin{};
-    rpBegin.renderPass = mRenderPass->getVkRenderPass();
-    rpBegin.framebuffer = mFrameBuffers[currentImageIndex].get();
-    rpBegin.renderArea.extent = mSwapChain->getExtent();
-    rpBegin.clearValueCount = 1;
-    rpBegin.pClearValues = &clearColor;
-
-    cmdBuffer.beginRenderPass(rpBegin, vk::SubpassContents::eInline);
-
-    vk::Viewport viewport{0, 0, (float) extent.width, (float) extent.height, 0.0f, 1.0f};
-    cmdBuffer.setViewport(0, viewport);
-    vk::Rect2D scissor{{0, 0}, extent};
-    cmdBuffer.setScissor(0, scissor);
-
-    recordDraw();
-
-    cmdBuffer.endRenderPass();
-    cmdBuffer.end();
-}
-
 void SurfaceContext::beginCommandBuffer(vk::CommandBuffer cmdBuffer) {
     auto currentImageIndex = mSwapChain->getCurrentImageIndex();
     auto extent = mSwapChain->getExtent();

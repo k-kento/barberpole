@@ -32,7 +32,9 @@ DrawingRenderer::~DrawingRenderer() = default;
 void DrawingRenderer::renderFrame(float deltaTimeMs) {
     mSurfaceContext->acquireNextImage();
 
+    auto *frameContext = mSurfaceContext->getFrameContext();
     auto currentFrameIndex = mSurfaceContext->getCurrentFrameIndex();
+    auto cmdBuffer = frameContext->getCommandBuffer();
 
     std::vector<InstanceData> instances;
     instances.reserve(mTouchPoints.size());
@@ -42,28 +44,25 @@ void DrawingRenderer::renderFrame(float deltaTimeMs) {
     mInstanceBuffer->updateInstances(currentFrameIndex, instances);
     mUbo->update({mProjection}, currentFrameIndex);
 
-    mSurfaceContext->recordCommandBuffers([this]() {
-        auto *frameContext = mSurfaceContext->getFrameContext();
-        auto cmdBuffer = frameContext->getCommandBuffer();
-        auto currentFrameIndex = mSurfaceContext->getCurrentFrameIndex();
+    mSurfaceContext->beginCommandBuffer(cmdBuffer);
 
-        cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics,
-                               mPipeline.get());
+    cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics,
+                           mPipeline.get());
 
-        cmdBuffer.bindDescriptorSets(
-                vk::PipelineBindPoint::eGraphics,
-                mPipelineLayout.get(),
-                0,
-                {mUbo->getDescriptorSet(currentFrameIndex)},
-                nullptr);
+    cmdBuffer.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,
+            mPipelineLayout.get(),
+            0,
+            {mUbo->getDescriptorSet(currentFrameIndex)},
+            nullptr);
 
-        vk::DeviceSize offsets[] = {0};
-        vk::Buffer instanceBuffers[] = {mInstanceBuffer->getDeviceBuffer(currentFrameIndex)};
-        cmdBuffer.bindVertexBuffers(1, 1, instanceBuffers, offsets);
+    vk::DeviceSize offsets[] = {0};
+    vk::Buffer instanceBuffers[] = {mInstanceBuffer->getDeviceBuffer(currentFrameIndex)};
+    cmdBuffer.bindVertexBuffers(1, 1, instanceBuffers, offsets);
 
-        mMesh->bind(cmdBuffer, 0);
-        mMesh->draw(cmdBuffer, mInstanceBuffer->getInstanceCount(currentFrameIndex));
-    });
+    mMesh->bind(cmdBuffer, 0);
+    mMesh->draw(cmdBuffer, mInstanceBuffer->getInstanceCount(currentFrameIndex));
+    mSurfaceContext->endCommandBuffer(cmdBuffer);
 
     mSurfaceContext->submit();
     mSurfaceContext->present();

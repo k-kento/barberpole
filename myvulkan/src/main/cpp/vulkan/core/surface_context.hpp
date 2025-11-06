@@ -33,7 +33,6 @@ public:
     void setFrameContexts(std::vector<std::unique_ptr<FrameContext>> frameContexts);
 
     void acquireNextImage();
-    void recordCommandBuffers(std::function<void()> recordDraw);
     void submit();
     void present();
 
