@@ -3,7 +3,6 @@
 #include "device_buffer.h"
 #include "ubo_buffer.hpp"
 #include "pipeline_config.hpp"
-#include "ubo.hpp"
 #include "instance_buffer.hpp"
 #include "touch_message.hpp"
 #include "mesh.hpp"
@@ -14,17 +13,24 @@ DrawingRenderer::DrawingRenderer(VulkanContext &vkContext, std::unique_ptr<Surfa
         mVkContext(vkContext), mSurfaceContext(std::move(surfaceContext)) {
     auto device = mVkContext.getDevice();
 
-    mUbo = std::make_unique<Ubo>(mVkContext, SurfaceContext::MAX_FRAMES_IN_FLIGHT);
-    mInstanceBuffer = std::make_unique<InstanceBuffer>(mVkContext);
+    mDescriptor = std::make_unique<Descriptor>(mVkContext.getDevice());
     mMesh = std::make_unique<Mesh>(vkContext);
 
-    auto layout = mUbo->getDescriptorSetLayout();
+    auto layout = mDescriptor->getLayout();
     vk::DescriptorSetLayout layouts[] = {layout};
     vk::PipelineLayoutCreateInfo layoutInfo{};
     layoutInfo.setLayoutCount = 1;
     layoutInfo.pSetLayouts = layouts;
     mPipelineLayout = device.createPipelineLayoutUnique(layoutInfo);
     mPipeline = PipelineConfig::createPipeline(mVkContext, mPipelineLayout.get(), mSurfaceContext->getRenderPass());
+
+    frameResources.resize(SurfaceContext::MAX_FRAMES_IN_FLIGHT);
+    for (int i = 0; i < SurfaceContext::MAX_FRAMES_IN_FLIGHT; i++) {
+        auto *frameResource = &frameResources[i];
+        frameResource->instanceBuffer = std::make_unique<InstanceBuffer>(mVkContext);
+        frameResource->uboBuffer = std::make_unique<UboBuffer<UboData>>(mVkContext);
+        frameResource->descriptorSet = mDescriptor->allocate(frameResource->uboBuffer->getBuffer(), sizeof(UboData));
+    }
 }
 
 DrawingRenderer::~DrawingRenderer() = default;
@@ -35,14 +41,17 @@ void DrawingRenderer::renderFrame(float deltaTimeMs) {
     auto *frameContext = mSurfaceContext->getFrameContext();
     auto currentFrameIndex = mSurfaceContext->getCurrentFrameIndex();
     auto cmdBuffer = frameContext->getCommandBuffer();
+    auto *frameResource = &frameResources[currentFrameIndex];
+    auto instanceBuffer = frameResource->instanceBuffer.get();
+    auto uboBuffer = frameResource->uboBuffer.get();
 
     std::vector<InstanceData> instances;
     instances.reserve(mTouchPoints.size());
     for (const auto &mat: mTouchPoints) {
         instances.push_back(InstanceData{mat});
     }
-    mInstanceBuffer->updateInstances(currentFrameIndex, instances);
-    mUbo->update({mProjection}, currentFrameIndex);
+    instanceBuffer->updateInstances(instances);
+    uboBuffer->update({mProjection});
 
     mSurfaceContext->beginCommandBuffer(cmdBuffer);
 
@@ -53,15 +62,15 @@ void DrawingRenderer::renderFrame(float deltaTimeMs) {
             vk::PipelineBindPoint::eGraphics,
             mPipelineLayout.get(),
             0,
-            {mUbo->getDescriptorSet(currentFrameIndex)},
+            {frameResource->descriptorSet.get()},
             nullptr);
 
     vk::DeviceSize offsets[] = {0};
-    vk::Buffer instanceBuffers[] = {mInstanceBuffer->getDeviceBuffer(currentFrameIndex)};
+    vk::Buffer instanceBuffers[] = {instanceBuffer->getDeviceBuffer()};
     cmdBuffer.bindVertexBuffers(1, 1, instanceBuffers, offsets);
 
     mMesh->bind(cmdBuffer, 0);
-    mMesh->draw(cmdBuffer, mInstanceBuffer->getInstanceCount(currentFrameIndex));
+    mMesh->draw(cmdBuffer, instanceBuffer->getInstanceCount());
     mSurfaceContext->endCommandBuffer(cmdBuffer);
 
     mSurfaceContext->submit();

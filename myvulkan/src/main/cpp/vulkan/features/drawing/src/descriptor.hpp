@@ -2,6 +2,7 @@
 
 #include "vulkan/vulkan.hpp"
 #include "log.h"
+#include "surface_context.hpp"
 
 class Descriptor {
 public:
