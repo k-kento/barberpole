@@ -2,6 +2,8 @@
 #include "log.h"
 #include "physical_device_helper.hpp"
 
+const bool enableValidationLayers = false;
+
 VulkanContext::VulkanContext(AAssetManager *assetManager) {
     mAssetManager = assetManager;
     mVkInstance = createVkInstance();
@@ -32,6 +34,11 @@ vk::UniqueInstance VulkanContext::createVkInstance() {
             VK_API_VERSION_1_1
     };
 
+    std::vector<const char*> validationLayers;
+    if (enableValidationLayers) {
+        validationLayers.push_back("VK_LAYER_KHRONOS_validation");
+    }
+
     std::vector<const char *> extensions = {
             VK_KHR_SURFACE_EXTENSION_NAME,
             VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
@@ -39,6 +46,8 @@ vk::UniqueInstance VulkanContext::createVkInstance() {
 
     vk::InstanceCreateInfo instInfo{};
     instInfo.pApplicationInfo = &appInfo;
+    instInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+    instInfo.ppEnabledLayerNames = validationLayers.data();
     instInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     instInfo.ppEnabledExtensionNames = extensions.data();
 
