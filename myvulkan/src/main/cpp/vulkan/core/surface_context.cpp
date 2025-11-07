@@ -1,41 +1,35 @@
 #include "surface_context.hpp"
 
 SurfaceContext::SurfaceContext(VulkanContext &vkContext,
-                               std::shared_ptr<Surface> surface,
-                               std::vector<std::unique_ptr<FrameContext>> frameContexts) :
+                               std::shared_ptr<Surface> surface) :
         mVkContext(vkContext),
         mSurface(std::move(surface)) {
 
     mSwapChain = std::make_unique<SwapChain>(vkContext, mSurface->getSurface());
     mRenderPass = std::make_unique<RenderPass>(vkContext.getDevice(), mSwapChain->getFormat());
-    mFrameContexts = std::move(frameContexts);
     mFrameBuffers = createFrameBuffers();
-}
 
-FrameContext *SurfaceContext::getFrameContext() {
-    return mFrameContexts[mCurrentFrameIndex].get();
-}
+    vk::FenceCreateInfo fenceInfo{ vk::FenceCreateFlagBits::eSignaled };
 
-FrameContext *SurfaceContext::getFrameContext(uint32_t index) {
-    return mFrameContexts[index].get();
+    mInFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        mInFlightFences[i] = mVkContext.getDevice().createFenceUnique(fenceInfo);
+    }
 }
 
 void SurfaceContext::acquireNextImage() {
     auto device = mVkContext.getDevice();
-    auto frameContext = mFrameContexts[mCurrentFrameIndex].get();
-    auto fence = frameContext->getInFlightFences();
+    auto inFlightFence = mInFlightFences[mCurrentFrameIndex].get();
 
-    device.waitForFences(1, &fence, VK_TRUE, UINT64_MAX);
+    device.waitForFences(1, &inFlightFence, VK_TRUE, UINT64_MAX);
     mSwapChain->acquireNextImage();
-    device.resetFences(1, &fence);
+    device.resetFences(1, &inFlightFence);
 }
 
-void SurfaceContext::submit() {
-    auto frameContext = mFrameContexts[mCurrentFrameIndex].get();
+void SurfaceContext::submit(vk::CommandBuffer commandBuffer) {
     auto currentImageIndex = mSwapChain->getCurrentImageIndex();
     auto imageAvailable = mSwapChain->getImageAvailable();
     auto renderFinished = mSwapChain->getRenderFinished();
-    auto commandBuffer = frameContext->getCommandBuffer();
 
     // 描画の最終段階で同期
     vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
@@ -47,7 +41,7 @@ void SurfaceContext::submit() {
             .setSignalSemaphores(renderFinished)
             .setCommandBuffers(commandBuffer);
 
-    mVkContext.getGraphicsQueue().submit(submitInfo, frameContext->getInFlightFences());
+    mVkContext.getGraphicsQueue().submit(submitInfo, mInFlightFences[mCurrentFrameIndex].get());
 }
 
 void SurfaceContext::present() {

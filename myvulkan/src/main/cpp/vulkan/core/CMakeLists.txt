@@ -10,7 +10,6 @@ add_library(core STATIC
         texture/texture.cpp
         utils/vulkan_utils.cpp
 
-        frame_context.cpp
         surface_context.cpp
 )
 

@@ -25,8 +25,6 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
     mProjectionMatrix = deviceRotation * viewBounds.toOrthoMatrix();
 
     auto polygon = RegularPolygon{3, 1.0f};
-    mMesh = std::make_unique<MeshBuffer<Vertex>>(vkContext, polygon.vertices, polygon.indices);
-    updateTexture(texturePath);
 
     vk::DescriptorSetLayout layouts[] = {mDescriptor->getLayout()};
     vk::PipelineLayoutCreateInfo layoutInfo{};
@@ -37,6 +35,14 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext &vkContext,
     mPipeline = KaleidoscopePipelineConfig{}.createPipeline(mVkContext,
                                                             mPipelineLayout.get(),
                                                             mSurfaceContext->getRenderPass());
+
+    mFrameContexts.reserve(SurfaceContext::MAX_FRAMES_IN_FLIGHT);
+    for (int i = 0; i < SurfaceContext::MAX_FRAMES_IN_FLIGHT; ++i) {
+        mFrameContexts.emplace_back(std::make_unique<KaleidoscopeFrameContext>(vkContext, viewBounds));
+    }
+
+    mMesh = std::make_unique<MeshBuffer<Vertex>>(vkContext, polygon.vertices, polygon.indices);
+    updateTexture(texturePath);
 }
 
 void KaleidoscopeRenderer::renderFrame(float deltaTimeMs) {
@@ -55,13 +61,14 @@ void KaleidoscopeRenderer::renderFrame(float deltaTimeMs) {
         mUvMatrix = translateBack * rotation * translateToCenter;
     }
 
-    auto *frameContext = static_cast<KaleidoscopeFrameContext *>(mSurfaceContext->getFrameContext());
+    auto currentFrameIndex = mSurfaceContext->getCurrentFrameIndex();
+    auto frameContext = mFrameContexts[currentFrameIndex].get();
 
     frameContext->getUniformBuffer().update({mProjectionMatrix, mUvMatrix});
 
-    auto currentFrameIndex = mSurfaceContext->getCurrentFrameIndex();
-    if (mIsTextureUpdated[currentFrameIndex]) {
-        mIsTextureUpdated[currentFrameIndex] = false;
+
+    if (frameContext->isTextureUpdated) {
+        frameContext->isTextureUpdated = false;
         if (frameContext->hasDescriptorSet()) {
             mDescriptor->update(
                     frameContext->getDescriptorSet(),
@@ -80,7 +87,7 @@ void KaleidoscopeRenderer::renderFrame(float deltaTimeMs) {
     }
     recordCommandBuffer(frameContext);
 
-    mSurfaceContext->submit();
+    mSurfaceContext->submit(frameContext->getCmdBuffer());
     mSurfaceContext->present();
 }
 
@@ -95,12 +102,12 @@ void KaleidoscopeRenderer::handleMessage(std::unique_ptr<RenderMessage> message)
 void KaleidoscopeRenderer::updateTexture(const std::string &path) {
     mTexture = std::make_unique<Texture>(mVkContext, path);
     for (uint32_t i = 0; i < SurfaceContext::MAX_FRAMES_IN_FLIGHT; ++i) {
-        mIsTextureUpdated[i] = true;
+        mFrameContexts[i]->isTextureUpdated = true;
     }
 }
 
 void KaleidoscopeRenderer::recordCommandBuffer(KaleidoscopeFrameContext* frameContext) {
-    auto cmdBuffer = frameContext->getCommandBuffer();
+    auto cmdBuffer = frameContext->getCmdBuffer();
     auto &uniformBuffer = frameContext->getUniformBuffer();
     auto &instanceBuffer = frameContext->getInstanceBuffer();
     mSurfaceContext->beginCommandBuffer(cmdBuffer);

@@ -38,10 +38,10 @@ private:
     VulkanContext &mVkContext;
 
     std::unique_ptr<SurfaceContext> mSurfaceContext;
+    std::vector<std::unique_ptr<KaleidoscopeFrameContext>> mFrameContexts;
     std::unique_ptr<MeshBuffer<Vertex>> mMesh;
 
     std::unique_ptr<Texture> mTexture;
-    std::array<bool, SurfaceContext::MAX_FRAMES_IN_FLIGHT> mIsTextureUpdated;
 
     vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;

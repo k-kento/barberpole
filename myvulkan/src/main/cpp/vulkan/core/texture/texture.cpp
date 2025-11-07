@@ -9,7 +9,7 @@
 #include <cstring>
 #include "device_buffer.h"
 #include "texture_utils.hpp"
-#include "command_utils.hpp"
+#include "command_buffer_helper.hpp"
 #include "vulkan_utils.h"
 #include "physical_device_helper.hpp"
 
@@ -52,7 +52,7 @@ void Texture::loadImageFromFile(const std::string &path) {
 
     stbi_image_free(pixels);
 
-    auto cmdBuffer = CommandUtils::beginSingleTimeCommands(mContext);
+    auto cmdBuffer = CommandBufferHelper::beginSingleTimeCommands(mContext);
     // 画像を転送できるようにする
     TextureUtils::transitionImageLayout(cmdBuffer.get(),
                                         *mImage,
@@ -64,7 +64,7 @@ void Texture::loadImageFromFile(const std::string &path) {
                                         *mImage,
                                         vk::ImageLayout::eTransferDstOptimal,
                                         vk::ImageLayout::eShaderReadOnlyOptimal);
-    CommandUtils::endSingleTimeCommands(mContext, std::move(cmdBuffer));
+    CommandBufferHelper::endSingleTimeCommands(mContext, std::move(cmdBuffer));
 }
 
 void Texture::createImage(uint32_t width, uint32_t height) {

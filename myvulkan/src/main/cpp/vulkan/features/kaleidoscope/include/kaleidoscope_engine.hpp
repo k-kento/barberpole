@@ -2,7 +2,6 @@
 
 #include "vulkan_context.h"
 #include "surface_context.hpp"
-#include "frame_context.hpp"
 #include "engine.hpp"
 #include "view_bounds.hpp"
 

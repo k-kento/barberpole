@@ -9,8 +9,8 @@
 #include "view_bounds.hpp"
 #include "surface_context.hpp"
 #include "renderer.hpp"
-#include "ubo_buffer.hpp"
 #include "descriptor.hpp"
+#include "frame_context.hpp"
 
 class InstanceBuffer;
 class Mesh;
@@ -29,20 +29,11 @@ public:
 
 private:
 
-    struct UboData {
-        glm::mat4 projection;
-    };
-
-    struct FrameResource {
-        std::unique_ptr<InstanceBuffer> instanceBuffer;
-        std::unique_ptr<UboBuffer<UboData>> uboBuffer;
-        vk::UniqueDescriptorSet descriptorSet;
-    };
 
     VulkanContext &mVkContext;
     std::unique_ptr<SurfaceContext> mSurfaceContext;
 
-    std::vector<FrameResource> frameResources;
+    std::vector<std::unique_ptr<FrameContext>> mFrameContexts;
 
     std::unique_ptr<Mesh> mMesh;
     vk::UniquePipeline mPipeline;
