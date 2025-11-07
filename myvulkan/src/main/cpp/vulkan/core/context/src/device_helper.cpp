@@ -1,6 +1,7 @@
 
 #include "device_helper.hpp"
 #include <stdexcept>
+#include "log.h"
 
 vk::UniqueDevice DeviceHelper::createDevice(PhysicalDeviceBundle bundle) {
     float queuePriority = 1.0f;
@@ -23,6 +24,18 @@ vk::UniqueDevice DeviceHelper::createDevice(PhysicalDeviceBundle bundle) {
     deviceInfo.pQueueCreateInfos = &queueInfo;
     deviceInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     deviceInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
+    vk::PhysicalDeviceFeatures deviceFeatures{};
+
+    vk::PhysicalDeviceFeatures features = physicalDevice.getFeatures();
+    if (features.geometryShader) {
+        deviceFeatures.geometryShader = VK_TRUE;
+        LOGD("Geometry Shader is supported.");
+    } else {
+        LOGD("Geometry Shader is NOT supported on this device.");
+    }
+
+    deviceInfo.pEnabledFeatures = &deviceFeatures;
 
     try {
         return physicalDevice.createDeviceUnique(deviceInfo);

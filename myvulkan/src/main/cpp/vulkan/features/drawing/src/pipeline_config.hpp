@@ -17,5 +17,5 @@ private:
     vk::PipelineVertexInputStateCreateInfo createVertexConfig();
 
     std::vector<vk::PipelineShaderStageCreateInfo>
-    createShaderStages(vk::ShaderModule &vertexModule, vk::ShaderModule &fragmentModule);
+    createShaderStages(vk::ShaderModule &vertexModule, vk::ShaderModule &geometryModule, vk::ShaderModule &fragmentModule);
 };

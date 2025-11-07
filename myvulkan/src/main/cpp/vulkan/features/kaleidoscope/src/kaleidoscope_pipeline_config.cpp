@@ -1,7 +1,7 @@
 
 #include "kaleidoscope_pipeline_config.hpp"
 #include "pipeline_builder.hpp"
-#include "vulkan_utils.h"
+#include "shader_helper.hpp"
 #include "vertex.hpp"
 #include "kaleidoscope_instance_buffer.hpp"
 
@@ -11,14 +11,10 @@ KaleidoscopePipelineConfig::createPipeline(VulkanContext &context,
                                            vk::PipelineLayout &pipelineLayout,
                                            RenderPass &renderPass) {
 
-    vk::Device device = context.getDevice();
-    AAssetManager *assetManager = context.getAssetManager();
+    const std::string directory = "shaders/kaleidoscope/";
 
-    std::vector<char> vertexShaderSrc = VulkanUtils::readTextFile(assetManager, "shaders/kaleidoscope.vert.spv");
-    std::vector<char> fragmentShaderSrc = VulkanUtils::readTextFile(assetManager, "shaders/kaleidoscope.frag.spv");
-
-    auto vertexShaderModule = VulkanUtils::createShaderModule(device, vertexShaderSrc);
-    auto fragmentShaderModule = VulkanUtils::createShaderModule(device, fragmentShaderSrc);
+    auto vertexShaderModule = ShaderHelper::createShaderModule(context, directory + "kaleidoscope.vert.spv");
+    auto fragmentShaderModule = ShaderHelper::createShaderModule(context, directory + "kaleidoscope.frag.spv");
 
     auto shaderStages = createShaderStages(vertexShaderModule.get(), fragmentShaderModule.get());
     auto vertexInputInfo = createVertexConfig();

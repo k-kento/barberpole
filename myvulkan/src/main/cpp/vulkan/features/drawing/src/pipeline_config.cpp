@@ -1,11 +1,10 @@
 
 #include "pipeline_config.hpp"
 #include "pipeline_builder.hpp"
-#include "vulkan_utils.h"
+#include "shader_helper.hpp"
 #include "vertex.hpp"
 #include "instance_buffer.hpp"
 
-// TODO 要見直し
 vk::UniquePipeline
 PipelineConfig::createPipeline(VulkanContext &context,
                                vk::PipelineLayout &pipelineLayout,
@@ -14,13 +13,13 @@ PipelineConfig::createPipeline(VulkanContext &context,
     vk::Device device = context.getDevice();
     AAssetManager *assetManager = context.getAssetManager();
 
-    std::vector<char> vertexShaderSrc = VulkanUtils::readTextFile(assetManager, "shaders/drawing.vert.spv");
-    std::vector<char> fragmentShaderSrc = VulkanUtils::readTextFile(assetManager, "shaders/drawing.frag.spv");
+    const std::string directory = "shaders/drawing/";
 
-    auto vertexShaderModule = VulkanUtils::createShaderModule(device, vertexShaderSrc);
-    auto fragmentShaderModule = VulkanUtils::createShaderModule(device, fragmentShaderSrc);
+    auto vertexShaderModule = ShaderHelper::createShaderModule(context, directory + "drawing.vert.spv");
+    auto geometryShaderModule = ShaderHelper::createShaderModule(context, directory + "drawing.geom.spv");
+    auto fragmentShaderModule = ShaderHelper::createShaderModule(context, directory + "drawing.frag.spv");
 
-    auto shaderStages = createShaderStages(vertexShaderModule.get(), fragmentShaderModule.get());
+    auto shaderStages = createShaderStages(vertexShaderModule.get(), geometryShaderModule.get(), fragmentShaderModule.get());
     auto vertexInputInfo = createVertexConfig();
     auto builder = PipelineBuilder(shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), pipelineLayout);
 
@@ -79,16 +78,21 @@ vk::PipelineVertexInputStateCreateInfo PipelineConfig::createVertexConfig() {
 }
 
 std::vector<vk::PipelineShaderStageCreateInfo>
-PipelineConfig::createShaderStages(vk::ShaderModule &vertexModule, vk::ShaderModule &fragmentModule) {
+PipelineConfig::createShaderStages(vk::ShaderModule &vertexModule, vk::ShaderModule &geometryModule, vk::ShaderModule &fragmentModule) {
     vk::PipelineShaderStageCreateInfo vertStage{};
     vertStage.stage = vk::ShaderStageFlagBits::eVertex;
     vertStage.module = vertexModule;
     vertStage.pName = "main";
+
+    vk::PipelineShaderStageCreateInfo geometryStage{};
+    geometryStage.stage = vk::ShaderStageFlagBits::eGeometry;
+    geometryStage.module = geometryModule;
+    geometryStage.pName = "main";
 
     vk::PipelineShaderStageCreateInfo fragStage{};
     fragStage.stage = vk::ShaderStageFlagBits::eFragment;
     fragStage.module = fragmentModule;
     fragStage.pName = "main";
 
-    return {vertStage, fragStage};
+    return {vertStage, geometryStage, fragStage};
 }

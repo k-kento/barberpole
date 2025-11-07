@@ -56,18 +56,6 @@ std::vector<unsigned char> VulkanUtils::readBinaryFile(AAssetManager *assetManag
     return buffer;
 }
 
-vk::UniqueShaderModule VulkanUtils::createShaderModule(vk::Device device, const std::vector<char> &code) {
-    if (code.size() % 4 != 0) {
-        throw std::runtime_error("SPIR-V code size must be a multiple of 4");
-    }
-
-    vk::ShaderModuleCreateInfo createInfo{};
-    createInfo.codeSize = code.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
-
-    return device.createShaderModuleUnique(createInfo);
-}
-
 std::vector<vk::UniqueFramebuffer>
 VulkanUtils::createFrameBuffers(vk::Device device, SwapChain *swapChain, vk::RenderPass renderPass) {
     std::vector<vk::UniqueFramebuffer> frameBuffers;
