@@ -7,12 +7,15 @@
 class PipelineConfig {
 
 public:
-    static vk::UniquePipeline
+    vk::UniquePipeline
     createPipeline(VulkanContext &context, vk::PipelineLayout &pipelineLayout, RenderPass &renderPass);
 
 private:
-    static vk::PipelineVertexInputStateCreateInfo createVertexConfig();
+    std::vector<vk::VertexInputBindingDescription> mBindings;
+    std::vector<vk::VertexInputAttributeDescription> mAttributes;
 
-    static std::vector<vk::PipelineShaderStageCreateInfo>
+    vk::PipelineVertexInputStateCreateInfo createVertexConfig();
+
+    std::vector<vk::PipelineShaderStageCreateInfo>
     createShaderStages(vk::ShaderModule &vertexModule, vk::ShaderModule &fragmentModule);
 };

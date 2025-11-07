@@ -48,9 +48,8 @@ vk::PipelineVertexInputStateCreateInfo PipelineConfig::createVertexConfig() {
     instanceBinding.stride = sizeof(InstanceData);
     instanceBinding.inputRate = vk::VertexInputRate::eInstance;
 
-    std::vector<vk::VertexInputBindingDescription> bindings = {vertexBinding, instanceBinding};
-
-    std::vector<vk::VertexInputAttributeDescription> attributes;
+    mBindings.push_back(vertexBinding);
+    mBindings.push_back(instanceBinding);
 
     // 位置属性
     vk::VertexInputAttributeDescription posAttr{};
@@ -58,7 +57,7 @@ vk::PipelineVertexInputStateCreateInfo PipelineConfig::createVertexConfig() {
     posAttr.binding = 0;
     posAttr.format = vk::Format::eR32G32Sfloat;
     posAttr.offset = offsetof(drawing::Vertex, position);
-    attributes.push_back(posAttr);
+    mAttributes.push_back(posAttr);
 
     // instance
     for (uint32_t i = 0; i < 4; ++i) {
@@ -67,14 +66,14 @@ vk::PipelineVertexInputStateCreateInfo PipelineConfig::createVertexConfig() {
         instAttr.binding = 1;
         instAttr.format = vk::Format::eR32G32B32A32Sfloat;
         instAttr.offset = offsetof(InstanceData, model) + sizeof(glm::vec4) * i;
-        attributes.push_back(instAttr);
+        mAttributes.push_back(instAttr);
     }
 
     vk::PipelineVertexInputStateCreateInfo vertexInput{};
-    vertexInput.vertexBindingDescriptionCount = static_cast<uint32_t>(bindings.size());
-    vertexInput.pVertexBindingDescriptions = bindings.data();
-    vertexInput.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributes.size());
-    vertexInput.pVertexAttributeDescriptions = attributes.data();
+    vertexInput.vertexBindingDescriptionCount = static_cast<uint32_t>(mBindings.size());
+    vertexInput.pVertexBindingDescriptions = mBindings.data();
+    vertexInput.vertexAttributeDescriptionCount = static_cast<uint32_t>(mAttributes.size());
+    vertexInput.pVertexAttributeDescriptions = mAttributes.data();
 
     return vertexInput;
 }

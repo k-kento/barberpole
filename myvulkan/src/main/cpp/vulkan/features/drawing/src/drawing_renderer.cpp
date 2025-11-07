@@ -23,7 +23,7 @@ DrawingRenderer::DrawingRenderer(VulkanContext &vkContext, std::unique_ptr<Surfa
     layoutInfo.setLayoutCount = 1;
     layoutInfo.pSetLayouts = layouts;
     mPipelineLayout = device.createPipelineLayoutUnique(layoutInfo);
-    mPipeline = PipelineConfig::createPipeline(mVkContext, mPipelineLayout.get(), mSurfaceContext->getRenderPass());
+    mPipeline = PipelineConfig{}.createPipeline(mVkContext, mPipelineLayout.get(), mSurfaceContext->getRenderPass());
 
     mFrameContexts.reserve(SurfaceContext::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < SurfaceContext::MAX_FRAMES_IN_FLIGHT; ++i) {
