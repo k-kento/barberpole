@@ -3,6 +3,7 @@
 #include "vulkan_context.h"
 #include "render_pass.h"
 #include <vector>
+#include <deque>
 #include "renderer.hpp"
 #include "render_message.hpp"
 #include "glm/glm.hpp"
@@ -36,6 +37,7 @@ private:
 
     std::unique_ptr<InputBuffer> mInputBuffer;
     std::deque<InputVertex> mTouchPoints;
+    std::vector<InputVertex> mInputVertices;
     glm::mat4 mProjection{1.0f};
     ViewBounds mViewBounds{0.0f, 0.0f, 0.0f, 0.0f};
 
@@ -45,4 +47,15 @@ private:
     std::unique_ptr<ComputeBuffer> mComputeBuffer;
     std::unique_ptr<ComputePipeline> mComputePipeline;
     std::unique_ptr<ComputeDescriptor> mComputeDescriptor;
+
+    FrameContext &getCurrentFrameContext();
+    void prepareFrame(FrameContext &frameContext, vk::CommandBuffer cmdBuffer);
+    void updateUniforms(FrameContext &frameContext);
+    void updateComputeDescriptor(FrameContext &frameContext);
+    uint32_t uploadInputVertices();
+    void recordComputePass(vk::CommandBuffer cmdBuffer, FrameContext &frameContext, uint32_t numPoints);
+    void insertComputeToGraphicsBarrier(vk::CommandBuffer cmdBuffer);
+    void recordGraphicsPass(vk::CommandBuffer cmdBuffer, FrameContext &frameContext, uint32_t numPoints);
+    uint32_t calculateDrawVertices(uint32_t numPoints) const;
+    void finalizeFrame(vk::CommandBuffer cmdBuffer, FrameContext &frameContext);
 };

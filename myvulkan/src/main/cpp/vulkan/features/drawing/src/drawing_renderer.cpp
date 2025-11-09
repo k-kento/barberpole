@@ -41,56 +41,81 @@ DrawingRenderer::~DrawingRenderer() = default;
 void DrawingRenderer::renderFrame(float deltaTimeMs) {
     mSurfaceContext->acquireNextImage();
 
+    auto &frameContext = getCurrentFrameContext();
+    auto cmdBuffer = frameContext.getCommandBuffer();
+
+    prepareFrame(frameContext, cmdBuffer);
+
+    const uint32_t numPoints = uploadInputVertices();
+    recordComputePass(cmdBuffer, frameContext, numPoints);
+    insertComputeToGraphicsBarrier(cmdBuffer);
+    recordGraphicsPass(cmdBuffer, frameContext, numPoints);
+
+    finalizeFrame(cmdBuffer, frameContext);
+}
+
+FrameContext &DrawingRenderer::getCurrentFrameContext() {
     auto currentFrameIndex = mSurfaceContext->getCurrentFrameIndex();
-    auto frameContext = mFrameContexts[currentFrameIndex].get();
-    auto cmdBuffer = frameContext->getCommandBuffer();
-    auto uboBuffer = frameContext->getUboBuffer();
-    auto isFirst = frameContext->isFirst;
+    return *mFrameContexts[currentFrameIndex];
+}
 
-    uboBuffer->update({mProjection});
+void DrawingRenderer::prepareFrame(FrameContext &frameContext, vk::CommandBuffer cmdBuffer) {
+    updateUniforms(frameContext);
 
-    if (isFirst) {
-        mComputeDescriptor->updateStorageBuffers(
-                frameContext->getComputeDescriptorSet(),
-                mInputBuffer->getBuffer(),
-                sizeof(InputVertex) * mTouchPoints.size(),
-                mComputeBuffer->getBuffer(),
-                sizeof(InputVertex) * 100
-        );
+    if (frameContext.isFirst) {
+        updateComputeDescriptor(frameContext);
     }
 
     mSurfaceContext->beginCommandBuffer(cmdBuffer);
+}
 
+void DrawingRenderer::updateUniforms(FrameContext &frameContext) {
+    auto uboBuffer = frameContext.getUboBuffer();
+    uboBuffer->update({mProjection});
+}
+
+void DrawingRenderer::updateComputeDescriptor(FrameContext &frameContext) {
+    mComputeDescriptor->updateStorageBuffers(
+            frameContext.getComputeDescriptorSet(),
+            mInputBuffer->getBuffer(),
+            sizeof(InputVertex) * mTouchPoints.size(),
+            mComputeBuffer->getBuffer(),
+            sizeof(InputVertex) * 100);
+}
+
+uint32_t DrawingRenderer::uploadInputVertices() {
+    mInputVertices.assign(mTouchPoints.begin(), mTouchPoints.end());
+    mInputBuffer->update({mInputVertices});
+    return static_cast<uint32_t>(mInputVertices.size());
+}
+
+void DrawingRenderer::recordComputePass(vk::CommandBuffer cmdBuffer,
+                                        FrameContext &frameContext,
+                                        uint32_t numPoints) {
     cmdBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mComputePipeline->getPipeline());
-
     cmdBuffer.bindDescriptorSets(
             vk::PipelineBindPoint::eCompute,
             mComputePipeline->getLayout(),
             0,
-            frameContext->getComputeDescriptorSet(),
-            {}
-    );
+            frameContext.getComputeDescriptorSet(),
+            {});
+
+    if (numPoints == 0) {
+        return;
+    }
 
     constexpr uint32_t WORKGROUP_SIZE = 64;
+    const uint32_t numGroups = (numPoints + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE;
 
-    std::vector<InputVertex> points;
-    points.reserve(mTouchPoints.size());
-    for (const auto &mat: mTouchPoints) {
-        points.push_back({mat});
-    }
-    mInputBuffer->update({points});
-    uint32_t numPoints = static_cast<uint32_t>(points.size());
-    uint32_t numGroups = (numPoints + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE;
-    if (numPoints > 0) {
-        cmdBuffer.pushConstants(mComputePipeline->getLayout(),
-                                vk::ShaderStageFlagBits::eCompute,
-                                0,
-                                sizeof(uint32_t),
-                                &numPoints);
-        cmdBuffer.dispatch(numGroups, 1, 1);
-    }
+    cmdBuffer.pushConstants(mComputePipeline->getLayout(),
+                            vk::ShaderStageFlagBits::eCompute,
+                            0,
+                            sizeof(uint32_t),
+                            &numPoints);
+    cmdBuffer.dispatch(numGroups, 1, 1);
+}
 
-    // ======== バリア (Compute → Graphics) ========
+void DrawingRenderer::insertComputeToGraphicsBarrier(vk::CommandBuffer cmdBuffer) {
     vk::BufferMemoryBarrier barrier{};
     barrier.srcAccessMask = vk::AccessFlagBits::eShaderWrite;
     barrier.dstAccessMask = vk::AccessFlagBits::eVertexAttributeRead;
@@ -104,38 +129,50 @@ void DrawingRenderer::renderFrame(float deltaTimeMs) {
             vk::PipelineStageFlagBits::eComputeShader,
             vk::PipelineStageFlagBits::eVertexInput,
             {},
-            nullptr,  // memory barriers
-            barrier,  // buffer barrier
-            nullptr   // image barriers
-    );
+            nullptr,
+            barrier,
+            nullptr);
+}
 
+void DrawingRenderer::recordGraphicsPass(vk::CommandBuffer cmdBuffer,
+                                         FrameContext &frameContext,
+                                         uint32_t numPoints) {
     mSurfaceContext->beginRenderPass(cmdBuffer);
 
     cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mGraphicPipeline->getPipeline());
-
     cmdBuffer.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
             mGraphicPipeline->getLayout(),
             0,
-            {frameContext->getGraphicDescriptorSet()},
+            {frameContext.getGraphicDescriptorSet()},
             nullptr);
 
     vk::DeviceSize offsets[] = {0};
     cmdBuffer.bindVertexBuffers(0, mComputeBuffer->getBuffer(), offsets);
 
-    const uint32_t segs = (numPoints > 0) ? (numPoints - 1) : 0; // TODO
-    const uint32_t drawVerts = segs * 6; // TODO
+    const uint32_t drawVerts = calculateDrawVertices(numPoints);
     if (drawVerts > 0) {
         cmdBuffer.draw(drawVerts, 1, 0, 0);
     }
 
     mSurfaceContext->endRenderPass(cmdBuffer);
-    mSurfaceContext->endCommandBuffer(cmdBuffer);
+}
 
+uint32_t DrawingRenderer::calculateDrawVertices(uint32_t numPoints) const {
+    if (numPoints < 2) {
+        return 0;
+    }
+
+    const uint32_t segments = numPoints - 1;
+    return segments * 6;
+}
+
+void DrawingRenderer::finalizeFrame(vk::CommandBuffer cmdBuffer, FrameContext &frameContext) {
+    mSurfaceContext->endCommandBuffer(cmdBuffer);
     mSurfaceContext->submit(cmdBuffer);
     mSurfaceContext->present();
 
-    frameContext->isFirst = false;
+    frameContext.isFirst = false;
 }
 
 void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
