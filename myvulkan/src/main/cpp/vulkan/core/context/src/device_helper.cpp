@@ -27,14 +27,6 @@ vk::UniqueDevice DeviceHelper::createDevice(PhysicalDeviceBundle bundle) {
 
     vk::PhysicalDeviceFeatures deviceFeatures{};
 
-    vk::PhysicalDeviceFeatures features = physicalDevice.getFeatures();
-    if (features.geometryShader) {
-        deviceFeatures.geometryShader = VK_TRUE;
-        LOGD("Geometry Shader is supported.");
-    } else {
-        LOGD("Geometry Shader is NOT supported on this device.");
-    }
-
     deviceInfo.pEnabledFeatures = &deviceFeatures;
 
     try {

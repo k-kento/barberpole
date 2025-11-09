@@ -3,44 +3,46 @@
 #include "memory"
 #include "vulkan/vulkan.hpp"
 #include "drawing_renderer.hpp"
-#include "instance_buffer.hpp"
 #include "ubo_buffer.hpp"
 #include "command_buffer_helper.hpp"
+#include "ubo_data.hpp"
+#include "compute_descriptor.hpp"
 
 class FrameContext {
 
 public:
-    struct UboData {
-        glm::mat4 projection;
-    };
-
-    FrameContext(VulkanContext &vkContext, Descriptor &descriptor) {
-        mInstanceBuffer = std::make_unique<InstanceBuffer>(vkContext);
+    FrameContext(VulkanContext &vkContext,
+                 GraphicDescriptor &graphicDescriptor,
+                 ComputeDescriptor &computeDescriptor) {
         mUboBuffer = std::make_unique<UboBuffer<UboData>>(vkContext);
-        mDescriptorSet = descriptor.allocate(mUboBuffer->getBuffer(), sizeof(UboData));
         mCmdBuffer = CommandBufferHelper::createCommandBuffer(vkContext);
-    }
-
-    InstanceBuffer *getInstanceBuffer() {
-        return mInstanceBuffer.get();
+        mDescriptorSet = graphicDescriptor.allocate(mUboBuffer->getBuffer(), sizeof(UboData));
+        mComputeDescriptorSet = computeDescriptor.allocateDescriptorSet();
     }
 
     UboBuffer<UboData> *getUboBuffer() {
         return mUboBuffer.get();
     }
 
-    vk::DescriptorSet getDescriptorSet() {
+    vk::DescriptorSet getGraphicDescriptorSet() {
         return mDescriptorSet.get();
+    }
+
+    vk::DescriptorSet getComputeDescriptorSet() {
+        return mComputeDescriptorSet.get();
     }
 
     vk::CommandBuffer getCommandBuffer() {
         return mCmdBuffer.get();
     }
 
+    bool isFirst = true;
+
 private:
 
-    std::unique_ptr<InstanceBuffer> mInstanceBuffer;
     std::unique_ptr<UboBuffer<UboData>> mUboBuffer;
     vk::UniqueDescriptorSet mDescriptorSet;
+    vk::UniqueDescriptorSet mComputeDescriptorSet;
     vk::UniqueCommandBuffer mCmdBuffer;
+
 };

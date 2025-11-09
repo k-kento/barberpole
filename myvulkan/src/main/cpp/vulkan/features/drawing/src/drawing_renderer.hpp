@@ -8,13 +8,12 @@
 #include "glm/glm.hpp"
 #include "view_bounds.hpp"
 #include "surface_context.hpp"
-#include "renderer.hpp"
-#include "descriptor.hpp"
+#include "graphic_descriptor.hpp"
 #include "frame_context.hpp"
-
-class InstanceBuffer;
-class Mesh;
-
+#include "input_buffer.hpp"
+#include "compute_pipeline.hpp"
+#include "compute_buffer.hpp"
+#include "graphic_pipeline.hpp"
 
 class DrawingRenderer : public Renderer {
 public:
@@ -35,11 +34,15 @@ private:
 
     std::vector<std::unique_ptr<FrameContext>> mFrameContexts;
 
-    std::unique_ptr<Mesh> mMesh;
-    vk::UniquePipeline mPipeline;
-    vk::UniquePipelineLayout mPipelineLayout;
-    std::unique_ptr<Descriptor> mDescriptor;
-    std::deque<glm::mat4> mTouchPoints;
+    std::unique_ptr<InputBuffer> mInputBuffer;
+    std::deque<InputVertex> mTouchPoints;
     glm::mat4 mProjection{1.0f};
     ViewBounds mViewBounds{0.0f, 0.0f, 0.0f, 0.0f};
+
+    std::unique_ptr<GraphicPipeline> mGraphicPipeline;
+    std::unique_ptr<GraphicDescriptor> mGraphicDescriptor;
+
+    std::unique_ptr<ComputeBuffer> mComputeBuffer;
+    std::unique_ptr<ComputePipeline> mComputePipeline;
+    std::unique_ptr<ComputeDescriptor> mComputeDescriptor;
 };

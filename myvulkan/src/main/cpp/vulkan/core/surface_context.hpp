@@ -20,7 +20,8 @@ public:
     RenderPass &getRenderPass() { return *mRenderPass; }
 
     void beginCommandBuffer(vk::CommandBuffer cmdBuffer);
-
+    void beginRenderPass(vk::CommandBuffer cmdBuffer);
+    void endRenderPass(vk::CommandBuffer cmdBuffer);
     void endCommandBuffer(vk::CommandBuffer cmdBuffer);
 
     void acquireNextImage();

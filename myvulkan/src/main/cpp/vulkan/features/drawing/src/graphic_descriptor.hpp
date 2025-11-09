@@ -4,16 +4,15 @@
 #include "log.h"
 #include "surface_context.hpp"
 
-class Descriptor {
+class GraphicDescriptor {
 public:
-    explicit Descriptor(vk::Device device) : mDevice(device) {
+    explicit GraphicDescriptor(vk::Device device) : mDevice(device) {
         createDescriptorSetLayout();
         createDescriptorPool();
     }
 
     vk::UniqueDescriptorSet allocate(vk::Buffer uboBuffer,
-                                     vk::DeviceSize uboSize
-    ) {
+                                     vk::DeviceSize uboSize) {
 
         vk::DescriptorSetAllocateInfo allocInfo{};
         allocInfo.descriptorPool = *mDescriptorPool;

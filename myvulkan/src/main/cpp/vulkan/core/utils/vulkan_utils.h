@@ -15,8 +15,6 @@ public:
 
     static std::vector<unsigned char> readBinaryFile(AAssetManager* manager, const std::string& filename);
 
-    static vk::UniqueShaderModule createShaderModule(vk::Device device, const std::vector<char> &code);
-
     static std::vector<vk::UniqueFramebuffer> createFrameBuffers(vk::Device device, SwapChain *swapChain, vk::RenderPass renderPass);
 
     static glm::mat4 generateProjectionMatrix(uint32_t deviceRotationDegree, ViewBounds& viewBounds);

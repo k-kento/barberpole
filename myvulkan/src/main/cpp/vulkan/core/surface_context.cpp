@@ -50,12 +50,14 @@ void SurfaceContext::present() {
 }
 
 void SurfaceContext::beginCommandBuffer(vk::CommandBuffer cmdBuffer) {
-    auto currentImageIndex = mSwapChain->getCurrentImageIndex();
-    auto extent = mSwapChain->getExtent();
-
     vk::CommandBufferBeginInfo beginInfo{};
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
     cmdBuffer.begin(beginInfo);
+}
+
+void SurfaceContext::beginRenderPass(vk::CommandBuffer cmdBuffer) {
+    auto currentImageIndex = mSwapChain->getCurrentImageIndex();
+    auto extent = mSwapChain->getExtent();
 
     vk::ClearValue clearColor = vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f});
 
@@ -74,8 +76,11 @@ void SurfaceContext::beginCommandBuffer(vk::CommandBuffer cmdBuffer) {
     cmdBuffer.setScissor(0, scissor);
 }
 
-void SurfaceContext::endCommandBuffer(vk::CommandBuffer cmdBuffer) {
+void SurfaceContext::endRenderPass(vk::CommandBuffer cmdBuffer) {
     cmdBuffer.endRenderPass();
+}
+
+void SurfaceContext::endCommandBuffer(vk::CommandBuffer cmdBuffer) {
     cmdBuffer.end();
 }
 

@@ -1,0 +1,44 @@
+#version 450
+layout(local_size_x = 64) in;
+
+// ---- 入力：タッチ点など ----
+layout(std430, binding = 0) readonly buffer InputPoints {
+    vec4 points[];
+};
+
+// ---- 出力：描画用頂点 ----
+layout(std430, binding = 1) buffer OutputVertices {
+    vec4 vertices[];
+};
+
+// ---- Push Constant ----
+layout(push_constant) uniform BrushInfo {
+    uint pointCount;
+} info;
+
+void main() {
+    uint i = gl_GlobalInvocationID.x;
+    if (i >= info.pointCount - 1) return;  // i+1を使うので -1
+
+    vec4 p0 = points[i];
+    vec4 p1 = points[i + 1];
+
+    // 線分の方向と法線を求める（xy成分のみ）
+    vec2 dir = normalize(p1.xy - p0.xy);
+    vec2 normal = vec2(-dir.y, dir.x) * 0.02;  // 太さ調整
+
+    // 四角形4頂点
+    vec2 v0 = p0.xy + normal;
+    vec2 v1 = p0.xy - normal;
+    vec2 v2 = p1.xy + normal;
+    vec2 v3 = p1.xy - normal;
+
+    // 6頂点出力（2枚の三角形）
+    uint base = i * 6;
+    vertices[base + 0] = vec4(v0, 0.0, 1.0);
+    vertices[base + 1] = vec4(v1, 0.0, 1.0);
+    vertices[base + 2] = vec4(v2, 0.0, 1.0);
+    vertices[base + 3] = vec4(v2, 0.0, 1.0);
+    vertices[base + 4] = vec4(v1, 0.0, 1.0);
+    vertices[base + 5] = vec4(v3, 0.0, 1.0);
+}
