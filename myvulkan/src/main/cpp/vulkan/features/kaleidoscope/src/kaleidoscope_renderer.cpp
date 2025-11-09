@@ -112,6 +112,7 @@ void KaleidoscopeRenderer::recordCommandBuffer(KaleidoscopeFrameContext* frameCo
     auto &instanceBuffer = frameContext->getInstanceBuffer();
     mSurfaceContext->beginCommandBuffer(cmdBuffer);
 
+    mSurfaceContext->beginRenderPass(cmdBuffer);
     cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
 
     cmdBuffer.bindDescriptorSets(
@@ -129,5 +130,6 @@ void KaleidoscopeRenderer::recordCommandBuffer(KaleidoscopeFrameContext* frameCo
     mMesh->bind(cmdBuffer, 0);
     mMesh->draw(cmdBuffer, instanceBuffer.getInstanceCount());
 
+    mSurfaceContext->endRenderPass(cmdBuffer);
     mSurfaceContext->endCommandBuffer(cmdBuffer);
 }
