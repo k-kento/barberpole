@@ -1,44 +1,43 @@
 #version 450
 layout(local_size_x = 64) in;
 
-// ---- 入力：タッチ点など ----
+// ---- 入力点列 ----
 layout(std430, binding = 0) readonly buffer InputPoints {
     vec4 points[];
 };
 
-// ---- 出力：描画用頂点 ----
+// ---- 出力（三角ストリップ用）----
 layout(std430, binding = 1) buffer OutputVertices {
     vec4 vertices[];
 };
 
 // ---- Push Constant ----
-layout(push_constant) uniform BrushInfo {
+layout(push_constant) uniform LineInfo {
+    uint startIndex;
     uint pointCount;
 } info;
 
 void main() {
-    uint i = gl_GlobalInvocationID.x;
-    if (i >= info.pointCount - 1) return;  // i+1を使うので -1
+    uint i = gl_GlobalInvocationID.x + info.startIndex;
+    if (i >= info.startIndex + info.pointCount) return;
 
-    vec4 p0 = points[i];
-    vec4 p1 = points[i + 1];
+    // 現在の点とその前後
+    vec2 pCurr = points[i].xy;
+    vec2 pPrev = (i > 0) ? points[i - 1].xy : pCurr;
+    vec2 pNext = (i < info.pointCount - 1) ? points[i + 1].xy : pCurr;
 
-    // 線分の方向と法線を求める（xy成分のみ）
-    vec2 dir = normalize(p1.xy - p0.xy);
-    vec2 normal = vec2(-dir.y, dir.x) * 0.02;  // 太さ調整
+    // 平均方向
+    vec2 dir = normalize(pNext - pPrev);
+    if (length(dir) < 1e-6) dir = vec2(1.0, 0.0);
 
-    // 四角形4頂点
-    vec2 v0 = p0.xy + normal;
-    vec2 v1 = p0.xy - normal;
-    vec2 v2 = p1.xy + normal;
-    vec2 v3 = p1.xy - normal;
+    // 法線
+    vec2 normal = vec2(-dir.y, dir.x) * 0.2;
 
-    // 6頂点出力（2枚の三角形）
-    uint base = i * 6;
-    vertices[base + 0] = vec4(v0, 0.0, 1.0);
-    vertices[base + 1] = vec4(v1, 0.0, 1.0);
-    vertices[base + 2] = vec4(v2, 0.0, 1.0);
-    vertices[base + 3] = vec4(v2, 0.0, 1.0);
-    vertices[base + 4] = vec4(v1, 0.0, 1.0);
-    vertices[base + 5] = vec4(v3, 0.0, 1.0);
+    // 左右の頂点
+    vec2 left  = pCurr + normal;
+    vec2 right = pCurr - normal;
+
+    uint base = i * 2;
+    vertices[base + 0] = vec4(left, 0.0, 1.0);
+    vertices[base + 1] = vec4(right, 0.0, 1.0);
 }
