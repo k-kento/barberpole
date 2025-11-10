@@ -9,13 +9,16 @@
 #include "frame_context.hpp"
 #include "input_vertex.hpp"
 #include "ubo_data.hpp"
+#include "renderer_constants.hpp"
+#include "compute_params.hpp"
 
 DrawingRenderer::DrawingRenderer(VulkanContext &vkContext, std::unique_ptr<SurfaceContext> surfaceContext) :
         mVkContext(vkContext),
         mSurfaceContext(std::move(surfaceContext)) {
     auto device = mVkContext.getDevice();
 
-    mInputBuffer = std::make_unique<InputBuffer>(vkContext);
+    // mInputBuffer = std::make_unique<InputBuffer>(vkContext);
+    mStroke = std::make_unique<Stroke>();
 
     mGraphicDescriptor = std::make_unique<GraphicDescriptor>(mVkContext.getDevice());
     mGraphicPipeline = std::make_unique<GraphicPipeline>(mVkContext,
@@ -44,14 +47,12 @@ void DrawingRenderer::renderFrame(float deltaTimeMs) {
     auto &frameContext = getCurrentFrameContext();
     auto cmdBuffer = frameContext.getCommandBuffer();
 
-    prepareFrame(frameContext, cmdBuffer);
+    beginFrame(frameContext, cmdBuffer);
 
-    const uint32_t numPoints = uploadInputVertices();
-    recordComputePass(cmdBuffer, frameContext, numPoints);
-    insertComputeToGraphicsBarrier(cmdBuffer);
-    recordGraphicsPass(cmdBuffer, frameContext, numPoints);
-
-    finalizeFrame(cmdBuffer, frameContext);
+//    recordComputePass(cmdBuffer, frameContext, numPoints);
+//    insertComputeToGraphicsBarrier(cmdBuffer);
+    recordGraphicsPass(cmdBuffer, frameContext, 0);
+    endFrame(cmdBuffer, frameContext);
 }
 
 FrameContext &DrawingRenderer::getCurrentFrameContext() {
@@ -59,11 +60,12 @@ FrameContext &DrawingRenderer::getCurrentFrameContext() {
     return *mFrameContexts[currentFrameIndex];
 }
 
-void DrawingRenderer::prepareFrame(FrameContext &frameContext, vk::CommandBuffer cmdBuffer) {
+void DrawingRenderer::beginFrame(FrameContext &frameContext, vk::CommandBuffer cmdBuffer) {
     updateUniforms(frameContext);
 
-    if (frameContext.isFirst) {
+    if (!frameContext.initialized) {
         updateComputeDescriptor(frameContext);
+        frameContext.initialized = true;
     }
 
     mSurfaceContext->beginCommandBuffer(cmdBuffer);
@@ -75,45 +77,63 @@ void DrawingRenderer::updateUniforms(FrameContext &frameContext) {
 }
 
 void DrawingRenderer::updateComputeDescriptor(FrameContext &frameContext) {
-    mComputeDescriptor->updateStorageBuffers(
-            frameContext.getComputeDescriptorSet(),
-            mInputBuffer->getBuffer(),
-            sizeof(InputVertex) * mTouchPoints.size(),
-            mComputeBuffer->getBuffer(),
-            sizeof(InputVertex) * 100);
+//    mComputeDescriptor->updateStorageBuffers(
+//            frameContext.getComputeDescriptorSet(),
+//            mInputBuffer->getBuffer(),
+//            sizeof(InputVertex) * MAX_INPUT_POINTS,
+//            mComputeBuffer->getBuffer(),
+//            sizeof(InputVertex) * MAX_COMPUTE_OUTPUT_VERTICES);
 }
 
-uint32_t DrawingRenderer::uploadInputVertices() {
-    mInputVertices.assign(mTouchPoints.begin(), mTouchPoints.end());
-    mInputBuffer->update({mInputVertices});
-    return static_cast<uint32_t>(mInputVertices.size());
-}
+//uint32_t DrawingRenderer::uploadInputVertices() {
+//    const uint32_t cpuCount = static_cast<uint32_t>(mTouchPoints.size());
+//    if (cpuCount == 0) return 0;
+//
+//    // 今回 GPU に必要な範囲を決定
+//    uint32_t start = (mPrevPointCount > 0) ? (mPrevPointCount - 1) : 0;
+//    if (start > cpuCount) start = 0; // 念のため
+//    uint32_t count = cpuCount - start;
+//    if (count == 0) return cpuCount;
+//
+//    // deque → 連続領域へ（該当範囲のみ）
+////    mInputVertices.clear();
+////    mInputVertices.reserve(count);
+////    auto itStart = mTouchPoints.begin() + start;
+////    mInputVertices.insert(mInputVertices.end(), itStart, mTouchPoints.end());
+//
+//    // GPU バッファを部分更新（dst は start から）
+//    // mInputBuffer->update(mInputVertices.data(), count, start);
+//
+//    return cpuCount; // 全体点数（描画・ディスパッチの基準）
+//}
 
-void DrawingRenderer::recordComputePass(vk::CommandBuffer cmdBuffer,
-                                        FrameContext &frameContext,
-                                        uint32_t numPoints) {
-    cmdBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mComputePipeline->getPipeline());
-    cmdBuffer.bindDescriptorSets(
-            vk::PipelineBindPoint::eCompute,
-            mComputePipeline->getLayout(),
-            0,
-            frameContext.getComputeDescriptorSet(),
-            {});
-
-    if (numPoints == 0) {
-        return;
-    }
-
-    constexpr uint32_t WORKGROUP_SIZE = 64;
-    const uint32_t numGroups = (numPoints + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE;
-
-    cmdBuffer.pushConstants(mComputePipeline->getLayout(),
-                            vk::ShaderStageFlagBits::eCompute,
-                            0,
-                            sizeof(uint32_t),
-                            &numPoints);
-    cmdBuffer.dispatch(numGroups, 1, 1);
-}
+//void DrawingRenderer::recordComputePass(vk::CommandBuffer cmdBuffer,
+//                                        FrameContext &frameContext,
+//                                        uint32_t numPoints) {
+//    if (numPoints <= 1 || numPoints <= mPrevPointCount) return;
+//
+//    cmdBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mComputePipeline->getPipeline());
+//    cmdBuffer.bindDescriptorSets(
+//            vk::PipelineBindPoint::eCompute,
+//            mComputePipeline->getLayout(),
+//            0,
+//            frameContext.getComputeDescriptorSet(),
+//            {});
+//
+//    uint32_t startIndex = mPrevPointCount > 0 ? mPrevPointCount - 1 : 0;
+//    uint32_t newCount = numPoints - startIndex;
+//
+//    const uint32_t numGroups = (newCount + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE;
+//    ComputeParams params{startIndex, newCount};
+//    cmdBuffer.pushConstants(mComputePipeline->getLayout(),
+//                            vk::ShaderStageFlagBits::eCompute,
+//                            0,
+//                            sizeof(ComputeParams),
+//                            &params);
+//    cmdBuffer.dispatch(numGroups, 1, 1);
+//
+//    mPrevPointCount = numPoints;
+//}
 
 void DrawingRenderer::insertComputeToGraphicsBarrier(vk::CommandBuffer cmdBuffer) {
     vk::BufferMemoryBarrier barrier{};
@@ -147,32 +167,33 @@ void DrawingRenderer::recordGraphicsPass(vk::CommandBuffer cmdBuffer,
             {frameContext.getGraphicDescriptorSet()},
             nullptr);
 
-    vk::DeviceSize offsets[] = {0};
-    cmdBuffer.bindVertexBuffers(0, mComputeBuffer->getBuffer(), offsets);
+    auto *vertexBuffer = frameContext.getVertexBuffer();
 
-    const uint32_t drawVerts = calculateDrawVertices(numPoints);
-    if (drawVerts > 0) {
-        cmdBuffer.draw(drawVerts, 1, 0, 0);
+    vk::DeviceSize offsets[] = {0};
+    cmdBuffer.bindVertexBuffers(0, vertexBuffer->getBuffer(), offsets);
+
+    // 差分更新
+    auto totalVertexCount = mStroke->getVertexCount();
+    auto writtenVertexCount = vertexBuffer->getWrittenVertexCount();
+    if (writtenVertexCount < totalVertexCount) {
+        uint32_t newCount = totalVertexCount - writtenVertexCount;
+        auto &vertices = mStroke->getVertices();
+        const InputVertex *newVertices = vertices.data() + writtenVertexCount;
+        vertexBuffer->update(newVertices, newCount, writtenVertexCount);
+        // cmdBuffer.draw(newCount, 1, writtenVertexCount, 0);
+    }
+
+    if (totalVertexCount > 0) {
+        cmdBuffer.draw(totalVertexCount, 1, 0, 0);
     }
 
     mSurfaceContext->endRenderPass(cmdBuffer);
 }
 
-uint32_t DrawingRenderer::calculateDrawVertices(uint32_t numPoints) const {
-    if (numPoints < 2) {
-        return 0;
-    }
-
-    const uint32_t segments = numPoints - 1;
-    return segments * 6;
-}
-
-void DrawingRenderer::finalizeFrame(vk::CommandBuffer cmdBuffer, FrameContext &frameContext) {
+void DrawingRenderer::endFrame(vk::CommandBuffer cmdBuffer, FrameContext &frameContext) {
     mSurfaceContext->endCommandBuffer(cmdBuffer);
     mSurfaceContext->submit(cmdBuffer);
     mSurfaceContext->present();
-
-    frameContext.isFirst = false;
 }
 
 void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
@@ -184,11 +205,11 @@ void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
             case TouchMessage::Move: {
                 auto normalizedX = touchMsg->x * mViewBounds.width() + mViewBounds.left;
                 auto normalizedY = touchMsg->y * mViewBounds.height() - mViewBounds.top;
-                mTouchPoints.push_back(InputVertex{glm::vec4{normalizedX, normalizedY, 0.0f, 0.0f}});
+                auto point = InputVertex{glm::vec4{normalizedX, normalizedY, 0.0f, 0.0f}};
+                mStroke->addPoint(point);
                 break;
             }
             case TouchMessage::UP:
-                mTouchPoints.clear();
                 break;
             default:
                 break;

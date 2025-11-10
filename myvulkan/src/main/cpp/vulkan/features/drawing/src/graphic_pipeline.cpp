@@ -38,6 +38,10 @@ GraphicPipeline::createPipeline(VulkanContext &context,RenderPass &renderPass) {
             .setDepthBiasEnable(VK_FALSE)
             .setLineWidth(1.0f);
 
+    builder.inputAssembly = vk::PipelineInputAssemblyStateCreateInfo{}
+            .setTopology(vk::PrimitiveTopology::eTriangleStrip)
+            .setPrimitiveRestartEnable(VK_FALSE);
+
     return builder.build(context.getDevice(), nullptr);
 }
 

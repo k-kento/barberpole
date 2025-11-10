@@ -3,13 +3,13 @@
 #include "device_buffer.h"
 #include "vulkan_context.h"
 #include "input_vertex.hpp"
+#include "renderer_constants.hpp"
 
 class InputBuffer {
 public:
-    InputBuffer(VulkanContext &context, size_t maxCount = 100)
-            : mContext(context), mMaxCount(maxCount) {
+    InputBuffer(VulkanContext &context) {
         auto device = context.getDevice();
-        mBufferSize = sizeof(InputVertex) * maxCount;
+        mBufferSize = sizeof(InputVertex) * MAX_INPUT_POINTS;
 
         mDeviceBuffer = std::make_unique<DeviceBuffer>(
                 context,
@@ -19,37 +19,21 @@ public:
         );
     }
 
-    void update(const std::vector<InputVertex>& data) {
-        if (data.empty()) return;
-        if (data.size() > mMaxCount) {
-            throw std::runtime_error("InputBuffer::update() overflow: data too large");
-        }
-        mDeviceBuffer->copyFrom(data.data(), sizeof(InputVertex) * data.size());
+    void update(const InputVertex* data, size_t count, size_t dstVertexOffset) {
+        if (count == 0) return;
+        LOGI("InputBuffer update: count = %zu", count);
+        const size_t byteSize = sizeof(InputVertex) * count;
+        const size_t dstBytes = sizeof(InputVertex) * dstVertexOffset;
+        if (dstVertexOffset + count > MAX_INPUT_POINTS)
+            throw std::runtime_error("InputBuffer::updateRange overflow");
+        mDeviceBuffer->copyFrom(data, byteSize, dstBytes);
     }
 
     [[nodiscard]] vk::Buffer getBuffer() const {
         return mDeviceBuffer->getBuffer();
     }
 
-    [[nodiscard]] size_t getMaxCount() const { return mMaxCount; }
-
-    void debugDump(VulkanContext &vkContext, uint32_t count) const {
-        auto device = vkContext.getDevice();
-        device.waitIdle();  // GPU完了待ち（重要）
-
-        void* mapped = device.mapMemory(mDeviceBuffer->getMemory(), 0, VK_WHOLE_SIZE);
-
-        const auto* vertices = reinterpret_cast<const InputVertex*>(mapped);
-        for (uint32_t i = 0; i < count; ++i) {
-            LOGD("input[%u] = (%f, %f)", i, vertices[i].position.x, vertices[i].position.y);
-        }
-
-        device.unmapMemory(mDeviceBuffer->getMemory());
-    }
-
 private:
-    VulkanContext &mContext;
     std::unique_ptr<DeviceBuffer> mDeviceBuffer;
     size_t mBufferSize{};
-    size_t mMaxCount{};
 };

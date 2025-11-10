@@ -7,6 +7,7 @@
 #include "command_buffer_helper.hpp"
 #include "ubo_data.hpp"
 #include "compute_descriptor.hpp"
+#include "vertex_buffer.hpp"
 
 class FrameContext {
 
@@ -18,6 +19,7 @@ public:
         mCmdBuffer = CommandBufferHelper::createCommandBuffer(vkContext);
         mDescriptorSet = graphicDescriptor.allocate(mUboBuffer->getBuffer(), sizeof(UboData));
         mComputeDescriptorSet = computeDescriptor.allocateDescriptorSet();
+        mVertexBuffer = std::make_unique<VertexBuffer>(vkContext);
     }
 
     UboBuffer<UboData> *getUboBuffer() {
@@ -36,7 +38,11 @@ public:
         return mCmdBuffer.get();
     }
 
-    bool isFirst = true;
+    VertexBuffer *getVertexBuffer() {
+        return mVertexBuffer.get();
+    }
+
+    bool initialized = false;
 
 private:
 
@@ -44,5 +50,6 @@ private:
     vk::UniqueDescriptorSet mDescriptorSet;
     vk::UniqueDescriptorSet mComputeDescriptorSet;
     vk::UniqueCommandBuffer mCmdBuffer;
+    std::unique_ptr<VertexBuffer> mVertexBuffer;
 
 };
