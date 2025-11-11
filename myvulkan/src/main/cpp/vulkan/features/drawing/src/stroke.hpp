@@ -42,10 +42,19 @@ private:
         glm::vec2 left1 = p1 + normal;
         glm::vec2 right1 = p1 - normal;
 
-        mVertices.push_back({glm::vec4(left0, 0.0f, 1.0f)});
-        mVertices.push_back({glm::vec4(right0, 0.0f, 1.0f)});
-        mVertices.push_back({glm::vec4(left1, 0.0f, 1.0f)});
-        mVertices.push_back({glm::vec4(right1, 0.0f, 1.0f)});
+        float u0 = mTotalLength;
+        mTotalLength += len;
+        float u1 = mTotalLength;
+
+        float hueOrigin = mBaseHue;
+        mBaseHue = fmod(mBaseHue + 0.01f, 1.0f);
+
+        glm::vec4 rgb = hsv2rgb(hueOrigin, 1.0f, 1.0f);
+
+        mVertices.push_back({glm::vec4(left0, 0.0f, 1.0f), rgb});
+        mVertices.push_back({glm::vec4(right0, 0.0f, 1.0f), rgb});
+        mVertices.push_back({glm::vec4(left1, 0.0f, 1.0f), rgb});
+        mVertices.push_back({glm::vec4(right1, 0.0f, 1.0f), rgb});
     }
 
 private:
@@ -53,4 +62,22 @@ private:
 
     std::vector<InputVertex> mPoints;
     std::vector<InputVertex> mVertices;
+
+    float mTotalLength = 0.0f; // u軸計算用に累積距離を保存
+    float mBaseHue = 0.0f;
+
+    glm::vec4 hsv2rgb(float h, float s, float v) {
+        h = glm::fract(h);
+        float c = v * s;
+        float x = c * (1 - fabs(fmod(h * 6.0f, 2.0f) - 1));
+        float m = v - c;
+        glm::vec3 rgb;
+        if (h < 1.0f/6.0f)      rgb = {c, x, 0};
+        else if (h < 2.0f/6.0f) rgb = {x, c, 0};
+        else if (h < 3.0f/6.0f) rgb = {0, c, x};
+        else if (h < 4.0f/6.0f) rgb = {0, x, c};
+        else if (h < 5.0f/6.0f) rgb = {x, 0, c};
+        else                    rgb = {c, 0, x};
+        return glm::vec4(rgb + glm::vec3(m), 1.0f);
+    }
 };

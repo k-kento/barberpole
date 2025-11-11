@@ -6,16 +6,26 @@
 #include "input_buffer.hpp"
 
 GraphicPipeline::GraphicPipeline(VulkanContext &context, RenderPass &renderPass, GraphicDescriptor &graphicDescriptor) {
+    mPipelineLayout = createPipelineLayout(context, graphicDescriptor);
+    mPipeline = createPipeline(context, renderPass);
+}
+
+vk::UniquePipelineLayout GraphicPipeline::createPipelineLayout(VulkanContext &context, GraphicDescriptor &graphicDescriptor) {
+    vk::PushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eFragment;
+    pushConstantRange.offset = 0;
+
     vk::DescriptorSetLayout layouts[] = {graphicDescriptor.getLayout()};
     vk::PipelineLayoutCreateInfo layoutInfo{};
     layoutInfo.setLayoutCount = 1;
     layoutInfo.pSetLayouts = layouts;
     mPipelineLayout = context.getDevice().createPipelineLayoutUnique(layoutInfo);
     mPipeline = createPipeline(context, renderPass);
+    return context.getDevice().createPipelineLayoutUnique(layoutInfo);
 }
 
 vk::UniquePipeline
-GraphicPipeline::createPipeline(VulkanContext &context,RenderPass &renderPass) {
+GraphicPipeline::createPipeline(VulkanContext &context, RenderPass &renderPass) {
 
     vk::Device device = context.getDevice();
     AAssetManager *assetManager = context.getAssetManager();
@@ -23,7 +33,7 @@ GraphicPipeline::createPipeline(VulkanContext &context,RenderPass &renderPass) {
     const std::string directory = "shaders/drawing/";
 
     auto vertexShaderModule = ShaderHelper::createShaderModule(context, directory + "drawing.vert.spv");
-    auto fragmentShaderModule = ShaderHelper::createShaderModule(context, directory + "drawing.frag.spv");
+    auto fragmentShaderModule = ShaderHelper::createShaderModule(context, directory + "rainbow.frag.spv");
 
     auto shaderStages = createShaderStages(vertexShaderModule.get(), fragmentShaderModule.get());
     auto vertexInputInfo = createVertexConfig();
@@ -54,13 +64,21 @@ vk::PipelineVertexInputStateCreateInfo GraphicPipeline::createVertexConfig() {
 
     mBindings.push_back(vertexBinding);
 
-    // 位置属性
+    // Position (location = 0)
     vk::VertexInputAttributeDescription posAttr{};
     posAttr.location = 0;
     posAttr.binding = 0;
     posAttr.format = vk::Format::eR32G32Sfloat;
     posAttr.offset = offsetof(InputVertex, position);
     mAttributes.push_back(posAttr);
+
+    // Color (location = 1)
+    vk::VertexInputAttributeDescription colorAttr{};
+    colorAttr.binding = 0;
+    colorAttr.location = 1;
+    colorAttr.format = vk::Format::eR32G32B32A32Sfloat;
+    colorAttr.offset = offsetof(InputVertex, color);
+    mAttributes.push_back(colorAttr);
 
     vk::PipelineVertexInputStateCreateInfo vertexInput{};
     vertexInput.vertexBindingDescriptionCount = static_cast<uint32_t>(mBindings.size());

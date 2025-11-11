@@ -22,6 +22,8 @@ private:
 
     vk::PipelineVertexInputStateCreateInfo createVertexConfig();
 
+    vk::UniquePipelineLayout createPipelineLayout(VulkanContext &context, GraphicDescriptor &graphicDescriptor);
+
     vk::UniquePipeline createPipeline(VulkanContext &context,RenderPass &renderPass);
 
     std::vector<vk::PipelineShaderStageCreateInfo>
