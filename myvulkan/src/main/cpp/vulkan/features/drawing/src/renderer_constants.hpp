@@ -13,3 +13,5 @@ constexpr uint32_t COMPUTE_SHADER_OUTPUT_VERTEX_NUM = 2;
 
 // 出力バッファに必要な最大頂点数
 constexpr uint32_t MAX_COMPUTE_OUTPUT_VERTICES = MAX_INPUT_POINTS * COMPUTE_SHADER_OUTPUT_VERTEX_NUM;
+
+static constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;

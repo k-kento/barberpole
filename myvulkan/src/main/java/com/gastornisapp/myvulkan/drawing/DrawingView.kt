@@ -68,14 +68,11 @@ class DrawingView(context: Context, val vulkanContext: VulkanContext) : SurfaceV
                 renderer?.notifyTouchUpEvent()
             }
         }
-
-        // タッチイベントを消費
         return true
     }
 
-
     companion object {
-        const val MIN_DISTANCE: Float = 100.0f
+        const val MIN_DISTANCE: Float = 50.0f
     }
 
 }

@@ -26,4 +26,32 @@ public:
 
         return vkContext.getDevice().createShaderModuleUnique(createInfo);
     }
+
+    inline static std::vector<vk::PipelineShaderStageCreateInfo>
+    makeGraphicsStages(vk::ShaderModule vert, vk::ShaderModule frag, const char *vertEntry = "main",
+                       const char *fragEntry = "main") {
+        return {
+                makeStage(vert, vk::ShaderStageFlagBits::eVertex, vertEntry),
+                makeStage(frag, vk::ShaderStageFlagBits::eFragment, fragEntry)
+        };
+    }
+
+    inline static std::vector<vk::PipelineShaderStageCreateInfo>
+    makeComputeStage(vk::ShaderModule comp, const char *entry = "main") {
+        return {makeStage(comp, vk::ShaderStageFlagBits::eCompute, entry)};
+    }
+
+private:
+
+    // 共通のヘルパー：ShaderModule から StageCreateInfo を作る
+    inline static vk::PipelineShaderStageCreateInfo makeStage(
+            vk::ShaderModule module,
+            vk::ShaderStageFlagBits stage,
+            const char *entry = "main") {
+        vk::PipelineShaderStageCreateInfo info{};
+        info.stage = stage;
+        info.module = module;
+        info.pName = entry;
+        return info;
+    }
 };

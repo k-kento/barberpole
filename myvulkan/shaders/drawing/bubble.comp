@@ -1,0 +1,58 @@
+#version 450
+layout(local_size_x = 16, local_size_y = 16) in;
+
+struct Bubble {
+    vec2 pos;
+    vec2 vel;
+    float life;
+    float radius;
+};
+
+layout(std430, binding = 0) readonly buffer InputPoints {
+    vec4 points[]; // (x, y, pressure, unused)
+};
+
+layout(std430, binding = 1) buffer OutputBubbles {
+    Bubble bubbles[];
+};
+
+layout(push_constant) uniform Params {
+    uint pointCount;
+    vec2 boundsMin;
+    vec2 boundsMax;
+    float radius;  // 泡の影響範囲
+} params;
+
+void main() {
+    // ピクセル座標または格子点
+    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+    vec2 pos = vec2(gid);
+
+    // 範囲外はスキップ（Dispatchを小さくできない場合に）
+    if (pos.x < params.boundsMin.x || pos.x > params.boundsMax.x ||
+    pos.y < params.boundsMin.y || pos.y > params.boundsMax.y) return;
+
+    float minDist = 1e9;
+
+    // すべての線分に対して最短距離を計算
+    for (uint i = 0u; i + 1u < params.pointCount; ++i) {
+        vec2 a = points[i].xy;
+        vec2 b = points[i + 1u].xy;
+
+        // 線分 ab に対する pos の最近点までの距離
+        vec2 ab = b - a;
+        float t = clamp(dot(pos - a, ab) / dot(ab, ab), 0.0, 1.0);
+        vec2 closest = a + t * ab;
+        float d = length(pos - closest);
+        minDist = min(minDist, d);
+    }
+
+    // 距離が radius 以内だけ泡を生成
+    if (minDist > params.radius)
+    return;
+
+    uint index = gid.y * uint(params.boundsMax.x - params.boundsMin.x) + gid.x;
+    bubbles[index].pos = pos;
+    bubbles[index].radius = 1.0 - minDist / params.radius;
+    bubbles[index].life = 1.0;
+}

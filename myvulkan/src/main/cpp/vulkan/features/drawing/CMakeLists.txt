@@ -1,6 +1,5 @@
 add_library(drawing STATIC
         src/drawing_renderer.cpp
-        src/graphic_pipeline.cpp
         src/drawing_engine.cpp
 )
 

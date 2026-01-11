@@ -47,7 +47,7 @@ private:
         float u1 = mTotalLength;
 
         float hueOrigin = mBaseHue;
-        mBaseHue = fmod(mBaseHue + 0.01f, 1.0f);
+        mBaseHue = fmod(mBaseHue + 0.005f, 1.0f);
 
         glm::vec4 rgb = hsv2rgb(hueOrigin, 1.0f, 1.0f);
 
