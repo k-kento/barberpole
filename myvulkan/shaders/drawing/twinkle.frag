@@ -1,14 +1,8 @@
-#version 100
+#version 450
 
-layout (std430, binding = 0) readonly buffer StarBuffer;
-struct Star {
-    vec2 pos;
-    float offset;
-    float seed;
-};
-
-Star stars[];
+layout(location = 0) in vec4 inColor;
+layout(location = 0) out vec4 outColor;
 
 void main() {
-
+    outColor = inColor;
 }

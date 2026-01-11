@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <android/asset_manager.h>
 #include <vulkan/vulkan.hpp>
