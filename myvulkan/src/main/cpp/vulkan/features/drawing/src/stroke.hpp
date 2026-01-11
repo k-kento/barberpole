@@ -51,10 +51,10 @@ private:
 
         glm::vec4 rgb = hsv2rgb(hueOrigin, 1.0f, 1.0f);
 
-        mVertices.push_back({glm::vec4(left0, 0.0f, 1.0f), rgb});
-        mVertices.push_back({glm::vec4(right0, 0.0f, 1.0f), rgb});
-        mVertices.push_back({glm::vec4(left1, 0.0f, 1.0f), rgb});
-        mVertices.push_back({glm::vec4(right1, 0.0f, 1.0f), rgb});
+        mVertices.push_back({left0, rgb});
+        mVertices.push_back({right0, rgb});
+        mVertices.push_back({left1, rgb});
+        mVertices.push_back({right1, rgb});
     }
 
 private:

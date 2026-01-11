@@ -47,11 +47,11 @@ public:
         }
     }
 
-    void applyStroke(const Stroke &stroke, uint32_t frameIndex) override {
+    void applyStroke(StrokeManager &strokeManager, uint32_t frameIndex) override {
         auto &frame = mFrames[frameIndex];
 
         // 差分更新
-        const auto &src = stroke.getVertices();
+        const auto &src = strokeManager.getVertices();
         auto strokeVertexCount = static_cast<uint32_t>(src.size());
 
         if (strokeVertexCount <= frame.writtenVertexCount) return;

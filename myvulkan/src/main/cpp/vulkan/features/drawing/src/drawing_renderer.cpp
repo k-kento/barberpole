@@ -14,7 +14,7 @@ DrawingRenderer::DrawingRenderer(VulkanContext &vkContext, std::unique_ptr<Surfa
         mSurfaceContext(std::move(surfaceContext)) {
     auto device = mVkContext.getDevice();
 
-    mStroke = std::make_unique<Stroke>();
+    mStrokeManager = std::make_unique<StrokeManager>();
     mPipelineManager = std::make_unique<PipelineManager>(mVkContext, mSurfaceContext->getRenderPass());
     mBrushManager = std::make_unique<BrushManager>(mVkContext, *mPipelineManager);
 
@@ -61,7 +61,7 @@ void DrawingRenderer::recordGraphicsPass(vk::CommandBuffer cmdBuffer,
     mSurfaceContext->beginRenderPass(cmdBuffer);
 
     Brush& brush = mBrushManager->current();
-    brush.applyStroke(*mStroke, frameIndex);
+    brush.applyStroke(*mStrokeManager, frameIndex);
     brush.record(cmdBuffer, frameIndex);
 
     mSurfaceContext->endRenderPass(cmdBuffer);
@@ -83,10 +83,11 @@ void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
                 auto normalizedX = touchMsg->x * mViewBounds.width() + mViewBounds.left;
                 auto normalizedY = touchMsg->y * mViewBounds.height() - mViewBounds.top;
                 auto point = InputVertex{glm::vec2{normalizedX, normalizedY}};
-                mStroke->addPoint(point);
+                mStrokeManager->addPoint(point);
                 break;
             }
             case TouchMessage::UP:
+                mStrokeManager->endStroke();
                 break;
             default:
                 break;

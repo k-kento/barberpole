@@ -11,7 +11,7 @@
 #include "surface_context.hpp"
 #include "graphic_descriptor.hpp"
 #include "frame_context.hpp"
-#include "stroke.hpp"
+#include "stroke_manager.hpp"
 #include "pipeline/pipeline_manager.hpp"
 #include "brush/brush_manager.hpp"
 
@@ -38,7 +38,7 @@ private:
     // ==============================
     // Input
     // ==============================
-    std::unique_ptr<Stroke> mStroke;
+    std::unique_ptr<StrokeManager> mStrokeManager;
     std::unique_ptr<PipelineManager> mPipelineManager;
     std::unique_ptr<BrushManager> mBrushManager;
 
