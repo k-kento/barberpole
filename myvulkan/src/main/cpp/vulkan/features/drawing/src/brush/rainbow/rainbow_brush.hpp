@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../brush.hpp"
-#include "../../pipeline/normal_pipeline.hpp"
+#include "../../pipeline/rainbow_pipeline.hpp"
 #include "../../ubo_data.hpp"
 #include "../../input_vertex.hpp"
 #include "generic_buffer.hpp"
@@ -9,7 +9,7 @@
 #include "glm/glm.hpp"
 #include "../../renderer_constants.hpp"
 
-class NormalBrush : public Brush {
+class RainbowBrush : public Brush {
 public:
 
     struct BrushFrameContext {
@@ -19,7 +19,7 @@ public:
         uint32_t writtenVertexCount = 0;
     };
 
-    explicit NormalBrush(VulkanContext &context, BasePipeline &pipeline) : Brush(pipeline), mDevice(context.getDevice()) {
+    explicit RainbowBrush(VulkanContext &context, BasePipeline &pipeline) : Brush(pipeline), mDevice(context.getDevice()) {
         createDescriptorPool();
 
         mFrames.reserve(MAX_FRAMES_IN_FLIGHT);
@@ -50,7 +50,6 @@ public:
     void applyStroke(const Stroke &stroke, uint32_t frameIndex) override {
         auto &frame = mFrames[frameIndex];
 
-        // 差分更新
         const auto &src = stroke.getVertices();
         auto strokeVertexCount = static_cast<uint32_t>(src.size());
 

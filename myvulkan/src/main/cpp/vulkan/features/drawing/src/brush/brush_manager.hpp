@@ -8,6 +8,7 @@
 #include "vulkan_context.h"
 #include "brush.hpp"
 #include "normal/normal_brush.hpp"
+#include "rainbow/rainbow_brush.hpp"
 #include "../pipeline/pipeline_manager.hpp"
 
 class BrushManager {
@@ -19,7 +20,8 @@ public:
 
     BrushManager(VulkanContext& vulkanContext, PipelineManager& pipelineManager) {
         registerBrush(Type::Normal, std::make_unique<NormalBrush>(vulkanContext, pipelineManager.get("normal")));
-        set(Type::Normal);
+        registerBrush(Type::Rainbow, std::make_unique<RainbowBrush>(vulkanContext, pipelineManager.get("rainbow")));
+        set(Type::Rainbow);
     }
 
     void set(Type type) {

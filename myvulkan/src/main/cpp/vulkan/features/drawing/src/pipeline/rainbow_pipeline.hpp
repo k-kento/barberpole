@@ -4,14 +4,14 @@
 #include "render_pass.h"
 #include "../graphic_descriptor.hpp"
 #include "base_pipeline.hpp"
-#include "../brush/normal/normal_brush.hpp"
+#include "../input_vertex.hpp"
 #include "shader_helper.hpp"
 #include "pipeline_builder.hpp"
 
-class NormalPipeline : public BasePipeline {
+class RainbowPipeline : public BasePipeline {
 public:
 
-    NormalPipeline(VulkanContext &context, RenderPass &renderPass) : BasePipeline() {
+    RainbowPipeline(VulkanContext &context, RenderPass &renderPass) : BasePipeline() {
         auto device = context.getDevice();
         mDescriptorSetLayout = createDescriptorSetLayout(device);
         mPipelineLayout = createPipelineLayout(device);
@@ -48,7 +48,7 @@ public:
         const std::string directory = "shaders/drawing/";
 
         auto vertexShaderModule = ShaderHelper::createShaderModule(context, directory + "drawing.vert.spv");
-        auto fragmentShaderModule = ShaderHelper::createShaderModule(context, directory + "normal.frag.spv");
+        auto fragmentShaderModule = ShaderHelper::createShaderModule(context, directory + "rainbow.frag.spv");
         auto shaderStages = ShaderHelper::makeGraphicsStages(*vertexShaderModule, *fragmentShaderModule);
 
         auto vertexInputInfo = createVertexConfig();
@@ -74,7 +74,6 @@ public:
     }
 
     vk::PipelineVertexInputStateCreateInfo createVertexConfig() {
-        // 頂点バッファ
         vk::VertexInputBindingDescription vertexBinding{};
         vertexBinding.binding = 0;
         vertexBinding.stride = sizeof(InputVertex);
@@ -82,7 +81,6 @@ public:
 
         mBindings.push_back(vertexBinding);
 
-        // Position (location = 0)
         vk::VertexInputAttributeDescription posAttr{};
         posAttr.location = 0;
         posAttr.binding = 0;
@@ -90,7 +88,6 @@ public:
         posAttr.offset = offsetof(InputVertex, position);
         mAttributes.push_back(posAttr);
 
-        // Color (location = 1)
         vk::VertexInputAttributeDescription colorAttr{};
         colorAttr.binding = 0;
         colorAttr.location = 1;

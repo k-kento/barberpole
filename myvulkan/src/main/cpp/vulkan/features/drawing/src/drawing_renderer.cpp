@@ -4,7 +4,7 @@
 #include "ubo_buffer.hpp"
 #include "touch_message.hpp"
 #include "log.h"
-#include "suraface_changed_message.hpp"
+#include "surface_changed_message.hpp"
 #include "frame_context.hpp"
 #include "input_vertex.hpp"
 #include "ubo_data.hpp"
@@ -35,9 +35,8 @@ void DrawingRenderer::renderFrame(float deltaTimeMs) {
     beginFrame(frameContext, cmdBuffer);
     auto now = std::chrono::steady_clock::now();
     mElapsedTime = std::chrono::duration<float>(now - mStartTime).count();
-    float vertexCountF = static_cast<float>(mStroke->getVertexCount());
 
-    recordGraphicsPass(cmdBuffer, frameContext, 0);
+    recordGraphicsPass(cmdBuffer, frameContext);
     endFrame(cmdBuffer, frameContext);
 }
 
@@ -56,8 +55,7 @@ void DrawingRenderer::updateUniforms(FrameContext &frameContext) {
 }
 
 void DrawingRenderer::recordGraphicsPass(vk::CommandBuffer cmdBuffer,
-                                         FrameContext &frameContext,
-                                         uint32_t numPoints) {
+                                         FrameContext &frameContext) {
     auto frameIndex = mSurfaceContext->getCurrentFrameIndex();
 
     mSurfaceContext->beginRenderPass(cmdBuffer);
@@ -84,7 +82,7 @@ void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
             case TouchMessage::Move: {
                 auto normalizedX = touchMsg->x * mViewBounds.width() + mViewBounds.left;
                 auto normalizedY = touchMsg->y * mViewBounds.height() - mViewBounds.top;
-                auto point = InputVertex{glm::vec4{normalizedX, normalizedY, 0.0f, 0.0f}};
+                auto point = InputVertex{glm::vec2{normalizedX, normalizedY}};
                 mStroke->addPoint(point);
                 break;
             }

@@ -10,7 +10,6 @@ public:
             : mDevice(device) {
         createDescriptorSetLayout();
         createDescriptorPool();
-        allocateDescriptorSet();
     }
 
     vk::UniqueDescriptorSet allocateDescriptorSet() {

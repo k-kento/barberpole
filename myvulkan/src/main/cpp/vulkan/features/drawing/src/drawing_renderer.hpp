@@ -49,11 +49,11 @@ private:
     glm::mat4 mProjection{1.0f};
     ViewBounds mViewBounds{0.0f, 0.0f, 0.0f, 0.0f};
     float mElapsedTime = 0.0f;
-    std::chrono::steady_clock::time_point mStartTime;
+    std::chrono::steady_clock::time_point mStartTime = std::chrono::steady_clock::now();
 
     FrameContext &getCurrentFrameContext();
     void beginFrame(FrameContext &frameContext, vk::CommandBuffer cmdBuffer);
     void updateUniforms(FrameContext &frameContext);
-    void recordGraphicsPass(vk::CommandBuffer cmdBuffer, FrameContext &frameContext, uint32_t numPoints);
+    void recordGraphicsPass(vk::CommandBuffer cmdBuffer, FrameContext &frameContext);
     void endFrame(vk::CommandBuffer cmdBuffer, FrameContext &frameContext);
 };

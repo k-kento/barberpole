@@ -7,6 +7,7 @@
 #include "vulkan_context.h"
 #include "base_pipeline.hpp"
 #include "normal_pipeline.hpp"
+#include "rainbow_pipeline.hpp"
 
 class PipelineManager {
 public:
@@ -14,6 +15,7 @@ public:
             : mContext(ctx), mRenderPass(rp) {
 
         mPipelines["normal"] = std::make_unique<NormalPipeline>(mContext, mRenderPass);
+        mPipelines["rainbow"] = std::make_unique<RainbowPipeline>(mContext, mRenderPass);
     }
 
     BasePipeline &get(const std::string &brushName) {

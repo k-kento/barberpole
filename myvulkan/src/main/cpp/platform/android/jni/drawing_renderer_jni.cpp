@@ -4,7 +4,7 @@
 #include "swap_chain.hpp"
 #include "vulkan_utils.h"
 #include "touch_message.hpp"
-#include "suraface_changed_message.hpp"
+#include "surface_changed_message.hpp"
 #include "drawing_engine.hpp"
 
 extern "C" JNIEXPORT jlong JNICALL

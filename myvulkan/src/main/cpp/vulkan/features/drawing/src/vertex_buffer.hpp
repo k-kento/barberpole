@@ -28,6 +28,7 @@ public:
 
         if (total > mBufferSize) {
             LOGE("Buffer overflow prevented: total %zu > buffer %llu", (size_t) total, mBufferSize);
+            return;
         }
 
         mDeviceBuffer->copyFrom(data, size, offset);
