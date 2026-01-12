@@ -16,7 +16,7 @@
  * @note h が1.0f以上の場合は glm::fract() により0.0〜1.0に正規化されます。
  * @note 彩度が0の場合はグレースケール、Valueが0の場合は黒になります。
  */
-glm::vec4 hsv2rgb(float h, float s, float v) {
+inline glm::vec4 hsv2rgb(float h, float s, float v) {
     h = glm::fract(h);
     float c = v * s;
     float x = c * (1 - fabs(fmod(h * 6.0f, 2.0f) - 1));

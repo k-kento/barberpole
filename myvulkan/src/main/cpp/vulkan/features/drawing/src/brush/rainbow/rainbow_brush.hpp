@@ -2,6 +2,7 @@
 
 #include "../brush.hpp"
 #include <cmath>
+#include "color_utils.hpp"
 
 /**
  * RainbowBrush - 虹色ブラシ
@@ -53,19 +54,4 @@ public:
 private:
     static constexpr float HALF_WIDTH = 0.02f;
     float mBaseHue = 0.0f;
-
-    static glm::vec4 hsv2rgb(float h, float s, float v) {
-        h = glm::fract(h);
-        float c = v * s;
-        float x = c * (1.0f - std::fabs(std::fmod(h * 6.0f, 2.0f) - 1.0f));
-        float m = v - c;
-        glm::vec3 rgb;
-        if (h < 1.0f / 6.0f)      rgb = {c, x, 0};
-        else if (h < 2.0f / 6.0f) rgb = {x, c, 0};
-        else if (h < 3.0f / 6.0f) rgb = {0, c, x};
-        else if (h < 4.0f / 6.0f) rgb = {0, x, c};
-        else if (h < 5.0f / 6.0f) rgb = {x, 0, c};
-        else                      rgb = {c, 0, x};
-        return glm::vec4(rgb + glm::vec3(m), 1.0f);
-    }
 };
