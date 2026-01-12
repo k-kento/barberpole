@@ -41,6 +41,10 @@ class DrawingView(context: Context, val vulkanContext: VulkanContext) : SurfaceV
         renderer?.destroy()
     }
 
+    fun setBrushType(brushType: BrushType) {
+        renderer?.setBrushType(brushType)
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val x = event.x
         val y = event.y

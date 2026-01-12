@@ -3,6 +3,7 @@
 #include "device_buffer.h"
 #include "ubo_buffer.hpp"
 #include "touch_message.hpp"
+#include "brush_change_message.hpp"
 #include "log.h"
 #include "surface_changed_message.hpp"
 #include "frame_context.hpp"
@@ -92,5 +93,7 @@ void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
             default:
                 break;
         }
+    } else if (auto brushChangeMsg = dynamic_cast<const BrushChangeMessage *>(message.get())) {
+        mBrushManager->set(brushChangeMsg->brushType);
     }
 }

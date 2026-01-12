@@ -3,6 +3,11 @@ package com.gastornisapp.myvulkan.drawing
 import android.view.Surface
 import com.gastornisapp.myvulkan.VulkanContext
 
+enum class BrushType(val value: Int) {
+    Normal(0),
+    Rainbow(1)
+}
+
 class DrawingRenderer {
 
     private var nativeHandle: Long = 0L
@@ -50,6 +55,12 @@ class DrawingRenderer {
         }
     }
 
+    fun setBrushType(brushType: BrushType) {
+        if (nativeHandle != 0L) {
+            nativeSetBrushType(nativeHandle, brushType.value)
+        }
+    }
+
     private external fun nativeInit(surface: Surface, contextHandle: Long): Long
     private external fun nativeOnSurfaceChanged(nativeHandle: Long, surface: Surface, deviceRotationDegree: Int)
     private external fun nativeStart(nativeHandle: Long)
@@ -57,4 +68,5 @@ class DrawingRenderer {
     private external fun nativeDestroy(nativeHandle: Long)
     private external fun nativeNotifyTouchMoveEvent(nativeHandle: Long, x: Float, y: Float)
     private external fun nativeNotifyTouchUpEvent(nativeHandle: Long)
+    private external fun nativeSetBrushType(nativeHandle: Long, brushType: Int)
 }

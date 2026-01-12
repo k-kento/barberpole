@@ -4,6 +4,7 @@
 #include "swap_chain.hpp"
 #include "vulkan_utils.h"
 #include "touch_message.hpp"
+#include "brush_change_message.hpp"
 #include "surface_changed_message.hpp"
 #include "drawing_engine.hpp"
 
@@ -87,5 +88,17 @@ Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeNotifyTouchUpEvent(
                                                                                 jlong nativeHandle) {
     auto *engine = reinterpret_cast<Engine *>(nativeHandle);
     auto message = std::make_unique<TouchMessage>(TouchMessage::TouchType::UP);
+    engine->postMessage(std::move(message));
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_gastornisapp_myvulkan_drawing_DrawingRenderer_nativeSetBrushType(JNIEnv *env,
+                                                                          jobject thiz,
+                                                                          jlong nativeHandle,
+                                                                          jint brushType) {
+    auto *engine = reinterpret_cast<Engine *>(nativeHandle);
+    auto type = static_cast<BrushManager::Type>(brushType);
+    auto message = std::make_unique<BrushChangeMessage>(type);
     engine->postMessage(std::move(message));
 }
