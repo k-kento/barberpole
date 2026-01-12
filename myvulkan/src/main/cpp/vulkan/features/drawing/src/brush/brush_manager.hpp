@@ -11,6 +11,11 @@
 #include "rainbow/rainbow_brush.hpp"
 #include "../pipeline/pipeline_manager.hpp"
 
+/**
+ * BrushManager - ブラシの管理クラス
+ *
+ * 複数のブラシを管理し、現在のブラシを切り替える
+ */
 class BrushManager {
 public:
     enum class Type {
@@ -35,8 +40,16 @@ public:
         return *mBrushes.at(mCurrent);
     }
 
+    Brush* currentPtr() {
+        return mBrushes.at(mCurrent).get();
+    }
+
     const Brush& current() const {
         return *mBrushes.at(mCurrent);
+    }
+
+    Type getCurrentType() const {
+        return mCurrent;
     }
 
 private:

@@ -13,11 +13,13 @@
 DrawingRenderer::DrawingRenderer(VulkanContext &vkContext, std::unique_ptr<SurfaceContext> surfaceContext) :
         mVkContext(vkContext),
         mSurfaceContext(std::move(surfaceContext)) {
-    auto device = mVkContext.getDevice();
 
-    mStrokeManager = std::make_unique<StrokeManager>();
     mPipelineManager = std::make_unique<PipelineManager>(mVkContext, mSurfaceContext->getRenderPass());
     mBrushManager = std::make_unique<BrushManager>(mVkContext, *mPipelineManager);
+    mStrokeManager = std::make_unique<StrokeManager>();
+
+    // 初期ブラシを設定
+    mStrokeManager->setCurrentBrush(mBrushManager->currentPtr());
 
     mFrameContexts.reserve(SurfaceContext::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < SurfaceContext::MAX_FRAMES_IN_FLIGHT; ++i) {
@@ -52,7 +54,7 @@ void DrawingRenderer::beginFrame(FrameContext &frameContext, vk::CommandBuffer c
 }
 
 void DrawingRenderer::updateUniforms(FrameContext &frameContext) {
-    mBrushManager->current().setProjection(mProjection);
+    mStrokeManager->setProjection(mProjection);
 }
 
 void DrawingRenderer::recordGraphicsPass(vk::CommandBuffer cmdBuffer,
@@ -61,9 +63,8 @@ void DrawingRenderer::recordGraphicsPass(vk::CommandBuffer cmdBuffer,
 
     mSurfaceContext->beginRenderPass(cmdBuffer);
 
-    Brush& brush = mBrushManager->current();
-    brush.applyStroke(*mStrokeManager, frameIndex);
-    brush.record(cmdBuffer, frameIndex);
+    // StrokeManager に描画を委譲
+    mStrokeManager->onDraw(frameIndex, cmdBuffer);
 
     mSurfaceContext->endRenderPass(cmdBuffer);
 }
@@ -83,8 +84,7 @@ void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
             case TouchMessage::Move: {
                 auto normalizedX = touchMsg->x * mViewBounds.width() + mViewBounds.left;
                 auto normalizedY = touchMsg->y * mViewBounds.height() - mViewBounds.top;
-                auto point = InputVertex{glm::vec2{normalizedX, normalizedY}};
-                mStrokeManager->addPoint(point);
+                mStrokeManager->onTouchMove(glm::vec2{normalizedX, normalizedY});
                 break;
             }
             case TouchMessage::UP:
@@ -95,5 +95,6 @@ void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
         }
     } else if (auto brushChangeMsg = dynamic_cast<const BrushChangeMessage *>(message.get())) {
         mBrushManager->set(brushChangeMsg->brushType);
+        mStrokeManager->setCurrentBrush(mBrushManager->currentPtr());
     }
 }

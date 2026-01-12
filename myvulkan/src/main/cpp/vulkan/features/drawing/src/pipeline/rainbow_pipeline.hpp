@@ -2,7 +2,6 @@
 
 #include "vulkan_context.h"
 #include "render_pass.h"
-#include "../graphic_descriptor.hpp"
 #include "base_pipeline.hpp"
 #include "../input_vertex.hpp"
 #include "shader_helper.hpp"

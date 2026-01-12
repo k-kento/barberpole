@@ -1,127 +1,53 @@
 #pragma once
 
 #include "../brush.hpp"
-#include "../../pipeline/normal_pipeline.hpp"
-#include "../../ubo_data.hpp"
-#include "../../input_vertex.hpp"
-#include "generic_buffer.hpp"
-#include "ubo_buffer.hpp"
-#include "glm/glm.hpp"
-#include "../../renderer_constants.hpp"
 
+/**
+ * NormalBrush - 単色ブラシ
+ *
+ * 白色の単色で描画する基本的なブラシ
+ */
 class NormalBrush : public Brush {
 public:
+    NormalBrush(VulkanContext& context, BasePipeline& pipeline)
+        : Brush(context, pipeline) {}
 
-    struct BrushFrameContext {
-        std::unique_ptr<GenericBuffer<InputVertex>> vertexBuffer;
-        std::unique_ptr<UboBuffer<UboData>> uboBuffer;
-        vk::UniqueDescriptorSet descriptorSet;
-        uint32_t writtenVertexCount = 0;
-    };
+    void generateVertices(const std::vector<glm::vec2>& points,
+                          std::vector<InputVertex>& outVertices) override {
+        const auto total = static_cast<uint32_t>(points.size());
+        if (total < 2) return;
 
-    explicit NormalBrush(VulkanContext &context, BasePipeline &pipeline) : Brush(pipeline), mDevice(context.getDevice()) {
-        createDescriptorPool();
+        // 既存の頂点数から、新しく追加すべき区間を計算
+        uint32_t existingSegments = outVertices.empty() ? 0 : (outVertices.size() / 4);
+        uint32_t startIndex = existingSegments;
 
-        mFrames.reserve(MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-            BrushFrameContext frameContext{};
+        for (uint32_t i = startIndex; i < total - 1; ++i) {
+            glm::vec2 p0 = points[i];
+            glm::vec2 p1 = points[i + 1];
 
-            frameContext.vertexBuffer = std::make_unique<GenericBuffer<InputVertex>>(
-                    context,
-                    sizeof(InputVertex) * MAX_VERTEX_COUNT,
-                    vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-                    vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
-            );
+            glm::vec2 dir = p1 - p0;
+            float len = glm::length(dir);
+            if (len < 1e-6f) continue;
+            dir /= len;
 
-            frameContext.uboBuffer = std::make_unique<UboBuffer<UboData>>(context);
-            frameContext.descriptorSet = allocateDescriptorSet(frameContext.uboBuffer->getBuffer(),
-                                                                frameContext.uboBuffer->getSize());
+            glm::vec2 normal(-dir.y, dir.x);
+            normal *= HALF_WIDTH;
 
-            mFrames.emplace_back(std::move(frameContext));
+            glm::vec2 left0 = p0 + normal;
+            glm::vec2 right0 = p0 - normal;
+            glm::vec2 left1 = p1 + normal;
+            glm::vec2 right1 = p1 - normal;
+
+            // 白色
+            glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
+
+            outVertices.push_back({left0, color});
+            outVertices.push_back({right0, color});
+            outVertices.push_back({left1, color});
+            outVertices.push_back({right1, color});
         }
-    }
-
-    void setProjection(const glm::mat4 &projection) override {
-        for (auto &frame : mFrames) {
-            frame.uboBuffer->update({projection});
-        }
-    }
-
-    void applyStroke(StrokeManager &strokeManager, uint32_t frameIndex) override {
-        auto &frame = mFrames[frameIndex];
-
-        // 差分更新
-        const auto &src = strokeManager.getVertices();
-        auto strokeVertexCount = static_cast<uint32_t>(src.size());
-
-        if (strokeVertexCount <= frame.writtenVertexCount) return;
-
-        uint32_t newCount = strokeVertexCount - frame.writtenVertexCount;
-        const InputVertex *srcPtr = src.data() + frame.writtenVertexCount;
-
-        frame.vertexBuffer->update(srcPtr, newCount, frame.writtenVertexCount);
-
-        frame.writtenVertexCount = strokeVertexCount;
-    }
-
-    void record(vk::CommandBuffer cmd, uint32_t frameIndex) override {
-        auto &frame = mFrames[frameIndex];
-        cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.getPipeline());
-        cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                               mPipeline.getLayout(),
-                               0, {frame.descriptorSet.get()}, {});
-
-        vk::DeviceSize offsets[] = {0};
-        cmd.bindVertexBuffers(0, frame.vertexBuffer->getBuffer(), offsets);
-
-        cmd.draw(frame.writtenVertexCount, 1, 0, 0);
     }
 
 private:
-    vk::Device mDevice;
-    vk::UniqueDescriptorPool mDescriptorPool;
-    std::vector<BrushFrameContext> mFrames;
-    static constexpr size_t MAX_VERTEX_COUNT = 4096;
-
-    void createDescriptorPool() {
-        vk::DescriptorPoolSize poolSize{};
-        poolSize.type = vk::DescriptorType::eUniformBuffer;
-        poolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
-
-        vk::DescriptorPoolCreateInfo poolInfo{};
-        poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT;
-        poolInfo.poolSizeCount = 1;
-        poolInfo.pPoolSizes = &poolSize;
-
-        mDescriptorPool = mDevice.createDescriptorPoolUnique(poolInfo);
-    }
-
-    vk::UniqueDescriptorSet allocateDescriptorSet(vk::Buffer uboBuffer, vk::DeviceSize uboSize) {
-        vk::DescriptorSetLayout layout = mPipeline.getDescriptorSetLayout();
-
-        vk::DescriptorSetAllocateInfo allocInfo{};
-        allocInfo.descriptorPool = mDescriptorPool.get();
-        allocInfo.descriptorSetCount = 1;
-        allocInfo.pSetLayouts = &layout;
-
-        auto sets = mDevice.allocateDescriptorSetsUnique(allocInfo);
-        auto descriptorSet = std::move(sets.front());
-
-        vk::DescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = uboBuffer;
-        bufferInfo.offset = 0;
-        bufferInfo.range = uboSize;
-
-        vk::WriteDescriptorSet descriptorWrite{};
-        descriptorWrite.dstSet = descriptorSet.get();
-        descriptorWrite.dstBinding = 0;
-        descriptorWrite.dstArrayElement = 0;
-        descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
-        descriptorWrite.descriptorCount = 1;
-        descriptorWrite.pBufferInfo = &bufferInfo;
-
-        mDevice.updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
-
-        return descriptorSet;
-    }
+    static constexpr float HALF_WIDTH = 0.02f;
 };

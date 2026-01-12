@@ -9,9 +9,8 @@
 #include "glm/glm.hpp"
 #include "view_bounds.hpp"
 #include "surface_context.hpp"
-#include "graphic_descriptor.hpp"
 #include "frame_context.hpp"
-#include "stroke_manager.hpp"
+#include "stroke/stroke_manager.hpp"
 #include "pipeline/pipeline_manager.hpp"
 #include "brush/brush_manager.hpp"
 
