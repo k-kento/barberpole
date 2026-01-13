@@ -9,7 +9,9 @@
 #include "brush.hpp"
 #include "normal/normal_brush.hpp"
 #include "rainbow/rainbow_brush.hpp"
+#include "glow/glow_brush.hpp"
 #include "../pipeline/pipeline_manager.hpp"
+#include "log.h"
 
 /**
  * BrushManager - ブラシの管理クラス
@@ -20,13 +22,17 @@ class BrushManager {
 public:
     enum class Type {
         Normal,
-        Rainbow
+        Rainbow,
+        Glow
     };
 
     BrushManager(VulkanContext& vulkanContext, PipelineManager& pipelineManager) {
+        LOGD("BrushManager: registering brushes...");
         registerBrush(Type::Normal, std::make_unique<NormalBrush>(vulkanContext, pipelineManager.get("normal")));
         registerBrush(Type::Rainbow, std::make_unique<RainbowBrush>(vulkanContext, pipelineManager.get("rainbow")));
-        set(Type::Rainbow);
+        registerBrush(Type::Glow, std::make_unique<GlowBrush>(vulkanContext, pipelineManager.get("glow")));
+        LOGD("BrushManager: setting default to Glow");
+        set(Type::Glow);  // デフォルトを Glow に変更
     }
 
     void set(Type type) {
@@ -34,6 +40,7 @@ public:
             throw std::runtime_error("Brush type not registered.");
         }
         mCurrent = type;
+        LOGD("BrushManager: current brush set to %d", static_cast<int>(type));
     }
 
     Brush& current() {

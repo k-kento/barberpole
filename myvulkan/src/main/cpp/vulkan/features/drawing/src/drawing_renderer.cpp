@@ -54,7 +54,9 @@ void DrawingRenderer::beginFrame(FrameContext &frameContext, vk::CommandBuffer c
 }
 
 void DrawingRenderer::updateUniforms(FrameContext &frameContext) {
+    auto frameIndex = mSurfaceContext->getCurrentFrameIndex();
     mStrokeManager->setProjection(mProjection);
+    mStrokeManager->updateTime(frameIndex, mElapsedTime);
 }
 
 void DrawingRenderer::recordGraphicsPass(vk::CommandBuffer cmdBuffer,

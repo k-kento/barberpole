@@ -10,6 +10,7 @@
 #include "generic_buffer.hpp"
 #include "ubo_buffer.hpp"
 #include "../ubo_data.hpp"
+#include "log.h"
 
 /**
  * Brush クラス
@@ -37,9 +38,30 @@ public:
     virtual ~Brush() = default;
 
     void setProjection(const glm::mat4& projection) {
+        mProjection = projection;
         for (auto& frame : mFrames) {
-            frame.uboBuffer->update({projection});
+            UboData ubo{};
+            ubo.projection = projection;
+            ubo.time = 0.0f;
+            ubo.glowIntensity = 0.0f;
+            ubo.glowRadius = 0.0f;
+            ubo.pulsePeriod = 1.0f;
+            frame.uboBuffer->update(ubo);
         }
+    }
+
+    /**
+     * UBO を更新（time を含む）
+     * GlowBrush でオーバーライドしてグローパラメータも更新
+     */
+    virtual void updateUboWithTime(uint32_t frameIndex, float time) {
+        UboData ubo{};
+        ubo.projection = mProjection;
+        ubo.time = time;
+        ubo.glowIntensity = 0.0f;
+        ubo.glowRadius = 0.0f;
+        ubo.pulsePeriod = 1.0f;
+        mFrames[frameIndex].uboBuffer->update(ubo);
     }
 
     /**
@@ -78,6 +100,7 @@ public:
      */
     void record(vk::CommandBuffer cmd, uint32_t frameIndex) {
         auto& frame = mFrames[frameIndex];
+        LOGD("Brush::record frameIndex=%d writtenVertexCount=%d", frameIndex, frame.writtenVertexCount);
         if (frame.writtenVertexCount == 0) return;
 
         cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.getPipeline());
@@ -104,6 +127,7 @@ protected:
     BasePipeline& mPipeline;
     vk::UniqueDescriptorPool mDescriptorPool;
     std::vector<FrameContext> mFrames;
+    glm::mat4 mProjection{1.0f};
 
     static constexpr size_t MAX_VERTEX_COUNT = 8192;
 

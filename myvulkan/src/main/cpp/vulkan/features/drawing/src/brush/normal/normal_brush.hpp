@@ -40,11 +40,12 @@ public:
 
             // 白色
             glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
+            glm::vec2 uv(0.0f, 0.0f);  // 非グローブラシは UV 未使用
 
-            outVertices.push_back({left0, color});
-            outVertices.push_back({right0, color});
-            outVertices.push_back({left1, color});
-            outVertices.push_back({right1, color});
+            outVertices.push_back({left0, color, uv});
+            outVertices.push_back({right0, color, uv});
+            outVertices.push_back({left1, color, uv});
+            outVertices.push_back({right1, color, uv});
         }
     }
 

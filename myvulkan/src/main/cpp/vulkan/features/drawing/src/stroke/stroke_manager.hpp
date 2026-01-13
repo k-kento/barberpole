@@ -71,6 +71,15 @@ public:
         }
     }
 
+    /**
+     * UBO を更新（time を含む）
+     */
+    void updateTime(uint32_t frameIndex, float time) {
+        if (mCurrentBrush) {
+            mCurrentBrush->updateUboWithTime(frameIndex, time);
+        }
+    }
+
     [[nodiscard]] const std::vector<InputVertex>& getCombinedVertices() {
         rebuildVerticesIfNeeded();
         return mCombinedVertices;
