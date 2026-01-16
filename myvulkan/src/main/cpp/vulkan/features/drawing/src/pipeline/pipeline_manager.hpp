@@ -9,6 +9,8 @@
 #include "normal_pipeline.hpp"
 #include "rainbow_pipeline.hpp"
 #include "glow_pipeline.hpp"
+#include "star_pipeline.hpp"
+#include "circle_pipeline.hpp"
 
 class PipelineManager {
 public:
@@ -18,6 +20,8 @@ public:
         mPipelines["normal"] = std::make_unique<NormalPipeline>(mContext, mRenderPass);
         mPipelines["rainbow"] = std::make_unique<RainbowPipeline>(mContext, mRenderPass);
         mPipelines["glow"] = std::make_unique<GlowPipeline>(mContext, mRenderPass);
+        mPipelines["star"] = std::make_unique<StarPipeline>(mContext, mRenderPass);
+        mPipelines["circle"] = std::make_unique<CirclePipeline>(mContext, mRenderPass);
     }
 
     BasePipeline &get(const std::string &brushName) {

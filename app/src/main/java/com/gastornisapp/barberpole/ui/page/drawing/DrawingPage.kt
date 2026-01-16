@@ -1,21 +1,34 @@
 package com.gastornisapp.barberpole.ui.page.drawing
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Brush
+import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Flare
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,7 +52,7 @@ import com.gastornisapp.myvulkan.drawing.DrawingView
 fun DrawingPage(viewModel: DrawingViewModel = hiltViewModel()) {
     val context = LocalContext.current
     var showBrushDialog by remember { mutableStateOf(false) }
-    var currentBrushType by remember { mutableStateOf(BrushType.Rainbow) }
+    var currentBrushType by remember { mutableStateOf(BrushType.Star) }
     var drawingView by remember { mutableStateOf<DrawingView?>(null) }
 
     if (showBrushDialog) {
@@ -105,24 +118,17 @@ fun BrushSelectionDialog(
         onDismissRequest = onDismiss,
         title = { Text("Select Brush") },
         text = {
-            Column {
-                BrushType.entries.forEach { brushType ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onBrushSelected(brushType) }
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = brushType == currentBrushType,
-                            onClick = { onBrushSelected(brushType) }
-                        )
-                        Text(
-                            text = brushType.name,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(BrushType.entries) { brushType ->
+                    BrushGridItem(
+                        brushType = brushType,
+                        isSelected = brushType == currentBrushType,
+                        onClick = { onBrushSelected(brushType) }
+                    )
                 }
             }
         },
@@ -132,4 +138,65 @@ fun BrushSelectionDialog(
             }
         }
     )
+}
+
+@Composable
+fun BrushGridItem(
+    brushType: BrushType,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val icon = when (brushType) {
+        BrushType.Normal -> Icons.Default.Brush
+        BrushType.Rainbow -> Icons.Default.Palette
+        BrushType.Glow -> Icons.Default.Flare
+        BrushType.Star -> Icons.Default.Star
+        BrushType.Circle -> Icons.Default.Circle
+    }
+
+    Card(
+        modifier = Modifier
+            .aspectRatio(1f)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected)
+                MaterialTheme.colorScheme.primaryContainer
+            else
+                MaterialTheme.colorScheme.surface
+        ),
+        border = if (isSelected)
+            BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        else
+            BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = brushType.name,
+                    modifier = Modifier.size(32.dp),
+                    tint = if (isSelected)
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = brushType.name,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.padding(top = 4.dp),
+                    color = if (isSelected)
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
 }
