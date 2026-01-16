@@ -10,7 +10,6 @@
 #include "normal/normal_brush.hpp"
 #include "rainbow/rainbow_brush.hpp"
 #include "glow/glow_brush.hpp"
-#include "star/star_brush.hpp"
 #include "circle/circle_brush.hpp"
 #include "../pipeline/pipeline_manager.hpp"
 #include "log.h"
@@ -26,7 +25,6 @@ public:
         Normal,
         Rainbow,
         Glow,
-        Star,
         Circle
     };
 
@@ -35,10 +33,9 @@ public:
         registerBrush(Type::Normal, std::make_unique<NormalBrush>(vulkanContext, pipelineManager.get("normal")));
         registerBrush(Type::Rainbow, std::make_unique<RainbowBrush>(vulkanContext, pipelineManager.get("rainbow")));
         registerBrush(Type::Glow, std::make_unique<GlowBrush>(vulkanContext, pipelineManager.get("glow")));
-        registerBrush(Type::Star, std::make_unique<StarBrush>(vulkanContext, pipelineManager.get("star")));
         registerBrush(Type::Circle, std::make_unique<CircleBrush>(vulkanContext, pipelineManager.get("circle")));
-        LOGD("BrushManager: setting default to Star");
-        set(Type::Star);  // デフォルトを Star に変更
+        LOGD("BrushManager: setting default to Circle");
+        set(Type::Circle);
     }
 
     void set(Type type) {

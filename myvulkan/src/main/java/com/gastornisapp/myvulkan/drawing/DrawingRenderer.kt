@@ -7,8 +7,7 @@ enum class BrushType(val value: Int) {
     Normal(0),
     Rainbow(1),
     Glow(2),
-    Star(3),
-    Circle(4)
+    Circle(3)
 }
 
 class DrawingRenderer {

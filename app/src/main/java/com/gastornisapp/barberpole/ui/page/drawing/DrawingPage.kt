@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Flare
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
@@ -52,7 +51,7 @@ import com.gastornisapp.myvulkan.drawing.DrawingView
 fun DrawingPage(viewModel: DrawingViewModel = hiltViewModel()) {
     val context = LocalContext.current
     var showBrushDialog by remember { mutableStateOf(false) }
-    var currentBrushType by remember { mutableStateOf(BrushType.Star) }
+    var currentBrushType by remember { mutableStateOf(BrushType.Circle) }
     var drawingView by remember { mutableStateOf<DrawingView?>(null) }
 
     if (showBrushDialog) {
@@ -150,7 +149,6 @@ fun BrushGridItem(
         BrushType.Normal -> Icons.Default.Brush
         BrushType.Rainbow -> Icons.Default.Palette
         BrushType.Glow -> Icons.Default.Flare
-        BrushType.Star -> Icons.Default.Star
         BrushType.Circle -> Icons.Default.Circle
     }
 
