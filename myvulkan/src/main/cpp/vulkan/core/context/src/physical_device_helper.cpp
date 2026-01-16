@@ -20,7 +20,7 @@ PhysicalDeviceBundle PhysicalDeviceHelper::pickPhysicalDevice(const vk::Instance
 }
 
 // 指定したプロパティを満たすメモリタイプのインデックスを返す
-uint32_t PhysicalDeviceHelper::findMemoryType(vk::PhysicalDevice &physicalDevice,
+uint32_t PhysicalDeviceHelper::findMemoryType(const vk::PhysicalDevice &physicalDevice,
                                               uint32_t typeFilter,
                                               vk::MemoryPropertyFlags properties) {
     vk::PhysicalDeviceMemoryProperties memProperties = physicalDevice.getMemoryProperties();

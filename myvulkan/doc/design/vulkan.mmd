@@ -1,0 +1,26 @@
+classDiagram
+
+%% Kotlin Layer
+class VulkanContext_Kotlin {
+    <<JNI Bridge>>
+    ネイティブハンドル管理
+}
+
+%% C++ Layer
+class VulkanContext {
+    <<Core>>
+    Vulkan リソース統括管理
+    Instance
+    Device
+    Queue
+    CommandPool
+}
+
+class PhysicalDeviceBundle {
+    <<Data>>
+    物理デバイス情報保持
+}
+
+%% Relationships
+VulkanContext_Kotlin ..> VulkanContext : JNI
+VulkanContext *-- PhysicalDeviceBundle : owns

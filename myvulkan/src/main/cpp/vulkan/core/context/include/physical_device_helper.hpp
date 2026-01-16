@@ -15,7 +15,7 @@ public:
 
     static PhysicalDeviceBundle pickPhysicalDevice(const vk::Instance &instance);
 
-    static uint32_t findMemoryType(vk::PhysicalDevice &physicalDevice,
+    static uint32_t findMemoryType(const vk::PhysicalDevice &physicalDevice,
                                    uint32_t typeFilter,
                                    vk::MemoryPropertyFlags properties);
 };

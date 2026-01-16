@@ -16,3 +16,7 @@
 .cxx
 local.properties
 Project.xml
+
+# Docs
+doc/**/*.png
+**/doc/**/*.png

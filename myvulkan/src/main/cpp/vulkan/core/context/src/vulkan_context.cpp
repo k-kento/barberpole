@@ -2,7 +2,11 @@
 #include "log.h"
 #include "physical_device_helper.hpp"
 
-const bool enableValidationLayers = true;
+#ifdef NDEBUG
+constexpr bool enableValidationLayers = false;
+#else
+constexpr bool enableValidationLayers = true;
+#endif
 
 VulkanContext::VulkanContext(AAssetManager *assetManager) {
     mAssetManager = assetManager;
