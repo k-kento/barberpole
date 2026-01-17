@@ -1,7 +1,7 @@
 add_library(core STATIC
         memory/device_buffer.cpp
         pipeline/pipeline_builder.cpp
-        pipeline/render_pass.cpp
+        renderpass/render_pass.cpp
 
         engine.cpp
 

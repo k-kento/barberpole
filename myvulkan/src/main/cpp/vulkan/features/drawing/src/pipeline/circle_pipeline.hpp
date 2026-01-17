@@ -4,7 +4,7 @@
 #include "base_pipeline.hpp"
 #include "colorblend/color_blend_opaque.hpp"
 #include "pipeline_builder.hpp"
-#include "render_pass.h"
+#include "renderpass/render_pass.hpp"
 #include "shader_helper.hpp"
 #include "vulkan_context.h"
 

@@ -24,13 +24,11 @@ class BrushManager {
     enum class Type { Normal, Rainbow, Glow, Circle };
 
     BrushManager(VulkanContext& vulkanContext, PipelineManager& pipelineManager) {
-        LOGD("BrushManager: registering brushes...");
         registerBrush(Type::Normal, std::make_unique<NormalBrush>(vulkanContext, pipelineManager.get("normal")));
         registerBrush(Type::Rainbow, std::make_unique<RainbowBrush>(vulkanContext, pipelineManager.get("rainbow")));
         registerBrush(Type::Glow, std::make_unique<GlowBrush>(vulkanContext, pipelineManager.get("glow")));
         registerBrush(Type::Circle, std::make_unique<CircleBrush>(vulkanContext, pipelineManager.get("circle")));
-        LOGD("BrushManager: setting default to Circle");
-        set(Type::Circle);
+        set(Type::Normal);
     }
 
     void set(Type type) {
@@ -38,16 +36,15 @@ class BrushManager {
             throw std::runtime_error("Brush type not registered.");
         }
         mCurrent = type;
-        LOGD("BrushManager: current brush set to %d", static_cast<int>(type));
     }
 
     Brush& current() { return *mBrushes.at(mCurrent); }
 
     Brush* currentPtr() { return mBrushes.at(mCurrent).get(); }
 
-    const Brush& current() const { return *mBrushes.at(mCurrent); }
+    [[nodiscard]] const Brush& current() const { return *mBrushes.at(mCurrent); }
 
-    Type getCurrentType() const { return mCurrent; }
+    [[nodiscard]] Type getCurrentType() const { return mCurrent; }
 
    private:
     struct TypeHash {
