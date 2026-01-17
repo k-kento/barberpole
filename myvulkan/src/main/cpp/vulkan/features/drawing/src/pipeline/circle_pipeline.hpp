@@ -3,6 +3,7 @@
 #include "../input_vertex.hpp"
 #include "base_pipeline.hpp"
 #include "colorblend/color_blend_opaque.hpp"
+#include "rasterizer/rasterizer.hpp"
 #include "pipeline_builder.hpp"
 #include "renderpass/render_pass.hpp"
 #include "shader_helper.hpp"
@@ -63,16 +64,10 @@ class CirclePipeline : public BasePipeline {
         auto vertexInput = createVertexConfig();
 
         ColorBlendOpaque blendOpaque;
+        Rasterizer rasterizer;
 
         auto builder =
-            PipelineBuilder(stages, vertexInput, renderPass.getVkRenderPass(), mPipelineLayout.get(), blendOpaque);
-
-        /* Raster */
-        builder.rasterizer = vk::PipelineRasterizationStateCreateInfo{}
-                                 .setPolygonMode(vk::PolygonMode::eFill)
-                                 .setCullMode(vk::CullModeFlagBits::eNone)
-                                 .setFrontFace(vk::FrontFace::eCounterClockwise)
-                                 .setLineWidth(1.0f);
+            PipelineBuilder(stages, vertexInput, renderPass.getVkRenderPass(), mPipelineLayout.get(), blendOpaque, rasterizer);
 
         /* ★ POINTS */
         builder.inputAssembly = vk::PipelineInputAssemblyStateCreateInfo{}

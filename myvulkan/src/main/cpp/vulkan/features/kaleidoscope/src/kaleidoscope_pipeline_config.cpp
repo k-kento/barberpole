@@ -20,16 +20,10 @@ vk::UniquePipeline KaleidoscopePipelineConfig::createPipeline(VulkanContext& con
     auto vertexInputInfo = createVertexConfig();
 
     ColorBlendOpaque blendOpaque;
-    auto builder =
-        PipelineBuilder(shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), pipelineLayout, blendOpaque);
+    Rasterizer rasterizer;
 
-    builder.rasterizer = vk::PipelineRasterizationStateCreateInfo{}
-                             .setDepthClampEnable(VK_FALSE)
-                             .setRasterizerDiscardEnable(VK_FALSE)
-                             .setPolygonMode(vk::PolygonMode::eFill)
-                             .setCullMode(vk::CullModeFlagBits::eNone)  // TODO 古い環境だと eNone が定義されていない
-                             .setDepthBiasEnable(VK_FALSE)
-                             .setLineWidth(1.0f);
+    auto builder =
+        PipelineBuilder(shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), pipelineLayout, blendOpaque, rasterizer);
 
     return builder.build(context.getDevice(), nullptr);
 }

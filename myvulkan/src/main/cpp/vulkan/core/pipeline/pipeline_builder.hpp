@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "colorblend/color_blend.hpp"
+#include "rasterizer/rasterizer.hpp"
 
 class PipelineBuilder {
    public:
@@ -11,13 +12,13 @@ class PipelineBuilder {
                     const vk::PipelineVertexInputStateCreateInfo& vertexInputInfo,
                     const vk::RenderPass renderPass,
                     const vk::PipelineLayout pipelineLayout,
-                    ColorBlend& colorBlend);
+                    ColorBlend& colorBlend,
+                    Rasterizer& rasterizer);
 
     std::vector<vk::PipelineShaderStageCreateInfo> shaderStages;
     vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
     vk::PipelineInputAssemblyStateCreateInfo inputAssembly{};
     vk::PipelineViewportStateCreateInfo viewportState{};
-    vk::PipelineRasterizationStateCreateInfo rasterizer{};
     vk::PipelineMultisampleStateCreateInfo multisampling{};
     vk::PipelineDepthStencilStateCreateInfo depthStencil{};
     vk::PipelineDynamicStateCreateInfo dynamicState{};
@@ -32,4 +33,5 @@ class PipelineBuilder {
     vk::PipelineLayout layout;
     vk::RenderPass mRenderPass;
     ColorBlend& colorBlend;
+    Rasterizer& rasterizer;
 };

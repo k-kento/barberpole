@@ -6,6 +6,7 @@
 #include "renderpass/render_pass.hpp"
 #include "shader_helper.hpp"
 #include "vulkan_context.h"
+#include "rainbow_vertex.hpp"
 
 class RainbowPipeline : public BasePipeline {
    public:
@@ -51,18 +52,10 @@ class RainbowPipeline : public BasePipeline {
         auto vertexInputInfo = createVertexConfig();
 
         ColorBlendOpaque blendOpaque;
+        Rasterizer rasterizer;
 
         auto builder = PipelineBuilder(
-            shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), mPipelineLayout.get(), blendOpaque);
-
-        builder.rasterizer = vk::PipelineRasterizationStateCreateInfo{}
-                                 .setDepthClampEnable(VK_FALSE)
-                                 .setRasterizerDiscardEnable(VK_FALSE)
-                                 .setPolygonMode(vk::PolygonMode::eFill)
-                                 .setCullMode(vk::CullModeFlagBits::eNone)
-                                 .setFrontFace(vk::FrontFace::eCounterClockwise)
-                                 .setDepthBiasEnable(VK_FALSE)
-                                 .setLineWidth(1.0f);
+            shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), mPipelineLayout.get(), blendOpaque, rasterizer);
 
         builder.inputAssembly = vk::PipelineInputAssemblyStateCreateInfo{}
                                     .setTopology(vk::PrimitiveTopology::eTriangleStrip)
@@ -74,7 +67,7 @@ class RainbowPipeline : public BasePipeline {
     vk::PipelineVertexInputStateCreateInfo createVertexConfig() {
         vk::VertexInputBindingDescription vertexBinding{};
         vertexBinding.binding = 0;
-        vertexBinding.stride = sizeof(InputVertex);
+        vertexBinding.stride = sizeof(RainbowVertex);
         vertexBinding.inputRate = vk::VertexInputRate::eVertex;
 
         mBindings.push_back(vertexBinding);
@@ -83,14 +76,14 @@ class RainbowPipeline : public BasePipeline {
         posAttr.location = 0;
         posAttr.binding = 0;
         posAttr.format = vk::Format::eR32G32Sfloat;
-        posAttr.offset = offsetof(InputVertex, position);
+        posAttr.offset = offsetof(RainbowVertex, position);
         mAttributes.push_back(posAttr);
 
         vk::VertexInputAttributeDescription colorAttr{};
         colorAttr.binding = 0;
         colorAttr.location = 1;
         colorAttr.format = vk::Format::eR32G32B32A32Sfloat;
-        colorAttr.offset = offsetof(InputVertex, color);
+        colorAttr.offset = offsetof(RainbowVertex, color);
         mAttributes.push_back(colorAttr);
 
         vk::PipelineVertexInputStateCreateInfo vertexInput{};

@@ -51,18 +51,10 @@ class NormalPipeline : public BasePipeline {
         auto vertexInputInfo = createVertexConfig();
 
         ColorBlendOpaque blendOpaque;
+        Rasterizer rasterizer;
 
         auto builder = PipelineBuilder(
-            shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), mPipelineLayout.get(), blendOpaque);
-
-        builder.rasterizer = vk::PipelineRasterizationStateCreateInfo{}
-                                 .setDepthClampEnable(VK_FALSE)
-                                 .setRasterizerDiscardEnable(VK_FALSE)
-                                 .setPolygonMode(vk::PolygonMode::eFill)
-                                 .setCullMode(vk::CullModeFlagBits::eNone)
-                                 .setFrontFace(vk::FrontFace::eCounterClockwise)
-                                 .setDepthBiasEnable(VK_FALSE)
-                                 .setLineWidth(1.0f);
+            shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), mPipelineLayout.get(), blendOpaque, rasterizer);
 
         builder.inputAssembly = vk::PipelineInputAssemblyStateCreateInfo{}
                                     .setTopology(vk::PrimitiveTopology::eTriangleStrip)

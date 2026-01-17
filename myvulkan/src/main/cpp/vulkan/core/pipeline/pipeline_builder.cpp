@@ -8,26 +8,19 @@ PipelineBuilder::PipelineBuilder(const std::vector<vk::PipelineShaderStageCreate
                                  const vk::PipelineVertexInputStateCreateInfo& vertexInputInfo,
                                  const vk::RenderPass renderPass,
                                  const vk::PipelineLayout pipelineLayout,
-                                 ColorBlend& colorBlend)
+                                 ColorBlend& colorBlend,
+                                 Rasterizer& rasterizer)
     : shaderStages(shaderStages),
       vertexInputInfo(vertexInputInfo),
       mRenderPass(renderPass),
       layout(pipelineLayout),
-      colorBlend(colorBlend) {
+      colorBlend(colorBlend),
+      rasterizer(rasterizer) {
     inputAssembly = vk::PipelineInputAssemblyStateCreateInfo{}
                         .setTopology(vk::PrimitiveTopology::eTriangleList)
                         .setPrimitiveRestartEnable(VK_FALSE);
 
     viewportState = vk::PipelineViewportStateCreateInfo{}.setViewportCount(1).setScissorCount(1);
-
-    rasterizer = vk::PipelineRasterizationStateCreateInfo{}
-                     .setDepthClampEnable(VK_FALSE)
-                     .setRasterizerDiscardEnable(VK_FALSE)
-                     .setPolygonMode(vk::PolygonMode::eFill)
-                     .setCullMode(vk::CullModeFlagBits::eBack)
-                     .setFrontFace(vk::FrontFace::eClockwise)
-                     .setDepthBiasEnable(VK_FALSE)
-                     .setLineWidth(1.0f);
 
     multisampling = vk::PipelineMultisampleStateCreateInfo{};
 
@@ -48,13 +41,14 @@ vk::UniquePipeline PipelineBuilder::build(vk::Device device, vk::PipelineCache c
     if (!mRenderPass) throw std::runtime_error("PipelineBuilder: renderPass not set");
 
     auto colorBlending = colorBlend.getBlendState();
+    auto rasterizerConfig = rasterizer.get();
 
     vk::GraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.setStages(shaderStages)
         .setPVertexInputState(&vertexInputInfo)
         .setPInputAssemblyState(&inputAssembly)
         .setPViewportState(&viewportState)
-        .setPRasterizationState(&rasterizer)
+        .setPRasterizationState(&rasterizerConfig)
         .setPMultisampleState(&multisampling)
         .setPDepthStencilState(&depthStencil)
         .setPColorBlendState(&colorBlending)
