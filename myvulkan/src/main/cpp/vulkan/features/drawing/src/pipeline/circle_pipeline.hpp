@@ -2,6 +2,7 @@
 
 #include "../input_vertex.hpp"
 #include "base_pipeline.hpp"
+#include "colorblend/color_blend_opaque.hpp"
 #include "pipeline_builder.hpp"
 #include "render_pass.h"
 #include "shader_helper.hpp"
@@ -61,7 +62,10 @@ class CirclePipeline : public BasePipeline {
 
         auto vertexInput = createVertexConfig();
 
-        auto builder = PipelineBuilder(stages, vertexInput, renderPass.getVkRenderPass(), mPipelineLayout.get());
+        ColorBlendOpaque blendOpaque;
+
+        auto builder =
+            PipelineBuilder(stages, vertexInput, renderPass.getVkRenderPass(), mPipelineLayout.get(), blendOpaque);
 
         /* Raster */
         builder.rasterizer = vk::PipelineRasterizationStateCreateInfo{}
@@ -74,19 +78,6 @@ class CirclePipeline : public BasePipeline {
         builder.inputAssembly = vk::PipelineInputAssemblyStateCreateInfo{}
                                     .setTopology(vk::PrimitiveTopology::ePointList)
                                     .setPrimitiveRestartEnable(VK_FALSE);
-
-        /* Blend */
-        builder.colorBlendAttachment =
-            vk::PipelineColorBlendAttachmentState{}
-                .setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
-                                   vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA)
-                .setBlendEnable(VK_TRUE)
-                .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
-                .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
-                .setColorBlendOp(vk::BlendOp::eAdd)
-                .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
-                .setDstAlphaBlendFactor(vk::BlendFactor::eZero)
-                .setAlphaBlendOp(vk::BlendOp::eAdd);
 
         return builder.build(device, nullptr);
     }

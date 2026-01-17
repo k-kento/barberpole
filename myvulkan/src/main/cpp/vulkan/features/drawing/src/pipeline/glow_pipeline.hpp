@@ -56,9 +56,11 @@ class GlowPipeline : public BasePipeline {
         auto fragmentShaderModule = ShaderHelper::createShaderModule(context, directory + "glow.frag.spv");
         auto shaderStages = ShaderHelper::makeGraphicsStages(*vertexShaderModule, *fragmentShaderModule);
 
+        ColorBlendOpaque blendOpaque;
+
         auto vertexInputInfo = createVertexConfig();
-        auto builder =
-            PipelineBuilder(shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), mPipelineLayout.get());
+        auto builder = PipelineBuilder(
+            shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), mPipelineLayout.get(), blendOpaque);
 
         builder.rasterizer = vk::PipelineRasterizationStateCreateInfo{}
                                  .setDepthClampEnable(VK_FALSE)
@@ -72,19 +74,6 @@ class GlowPipeline : public BasePipeline {
         builder.inputAssembly = vk::PipelineInputAssemblyStateCreateInfo{}
                                     .setTopology(vk::PrimitiveTopology::eTriangleStrip)
                                     .setPrimitiveRestartEnable(VK_FALSE);
-
-        // Alpha Blending 有効化（グロー表現用）
-        builder.colorBlendAttachment =
-            vk::PipelineColorBlendAttachmentState{}
-                .setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
-                                   vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA)
-                .setBlendEnable(VK_TRUE)
-                .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
-                .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
-                .setColorBlendOp(vk::BlendOp::eAdd)
-                .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
-                .setDstAlphaBlendFactor(vk::BlendFactor::eZero)
-                .setAlphaBlendOp(vk::BlendOp::eAdd);
 
         return builder.build(context.getDevice(), nullptr);
     }

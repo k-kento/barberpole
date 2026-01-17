@@ -3,12 +3,15 @@
 #include <vector>
 #include <vulkan/vulkan.hpp>
 
+#include "colorblend/color_blend.hpp"
+
 class PipelineBuilder {
    public:
     PipelineBuilder(const std::vector<vk::PipelineShaderStageCreateInfo>& shaderStages,
                     const vk::PipelineVertexInputStateCreateInfo& vertexInputInfo,
                     const vk::RenderPass renderPass,
-                    const vk::PipelineLayout pipelineLayout);
+                    const vk::PipelineLayout pipelineLayout,
+                    ColorBlend& colorBlend);
 
     std::vector<vk::PipelineShaderStageCreateInfo> shaderStages;
     vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -17,8 +20,6 @@ class PipelineBuilder {
     vk::PipelineRasterizationStateCreateInfo rasterizer{};
     vk::PipelineMultisampleStateCreateInfo multisampling{};
     vk::PipelineDepthStencilStateCreateInfo depthStencil{};
-    vk::PipelineColorBlendAttachmentState colorBlendAttachment{};
-    vk::PipelineColorBlendStateCreateInfo colorBlending{};
     vk::PipelineDynamicStateCreateInfo dynamicState{};
     std::vector<vk::DynamicState> dynamicStates;
 
@@ -30,4 +31,5 @@ class PipelineBuilder {
    private:
     vk::PipelineLayout layout;
     vk::RenderPass mRenderPass;
+    ColorBlend& colorBlend;
 };

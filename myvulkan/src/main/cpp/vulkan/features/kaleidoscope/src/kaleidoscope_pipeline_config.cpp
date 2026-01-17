@@ -1,6 +1,7 @@
 
 #include "kaleidoscope_pipeline_config.hpp"
 
+#include "colorblend/color_blend_opaque.hpp"
 #include "kaleidoscope_instance_buffer.hpp"
 #include "pipeline_builder.hpp"
 #include "shader_helper.hpp"
@@ -17,7 +18,10 @@ vk::UniquePipeline KaleidoscopePipelineConfig::createPipeline(VulkanContext& con
 
     auto shaderStages = createShaderStages(vertexShaderModule.get(), fragmentShaderModule.get());
     auto vertexInputInfo = createVertexConfig();
-    auto builder = PipelineBuilder(shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), pipelineLayout);
+
+    ColorBlendOpaque blendOpaque;
+    auto builder =
+        PipelineBuilder(shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), pipelineLayout, blendOpaque);
 
     builder.rasterizer = vk::PipelineRasterizationStateCreateInfo{}
                              .setDepthClampEnable(VK_FALSE)

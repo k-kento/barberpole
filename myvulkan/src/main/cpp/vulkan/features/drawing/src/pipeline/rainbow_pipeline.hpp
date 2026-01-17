@@ -49,8 +49,11 @@ class RainbowPipeline : public BasePipeline {
         auto shaderStages = ShaderHelper::makeGraphicsStages(*vertexShaderModule, *fragmentShaderModule);
 
         auto vertexInputInfo = createVertexConfig();
-        auto builder =
-            PipelineBuilder(shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), mPipelineLayout.get());
+
+        ColorBlendOpaque blendOpaque;
+
+        auto builder = PipelineBuilder(
+            shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), mPipelineLayout.get(), blendOpaque);
 
         builder.rasterizer = vk::PipelineRasterizationStateCreateInfo{}
                                  .setDepthClampEnable(VK_FALSE)

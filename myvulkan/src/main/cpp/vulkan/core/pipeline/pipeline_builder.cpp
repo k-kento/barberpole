@@ -7,8 +7,13 @@
 PipelineBuilder::PipelineBuilder(const std::vector<vk::PipelineShaderStageCreateInfo>& shaderStages,
                                  const vk::PipelineVertexInputStateCreateInfo& vertexInputInfo,
                                  const vk::RenderPass renderPass,
-                                 const vk::PipelineLayout pipelineLayout)
-    : shaderStages(shaderStages), vertexInputInfo(vertexInputInfo), mRenderPass(renderPass), layout(pipelineLayout) {
+                                 const vk::PipelineLayout pipelineLayout,
+                                 ColorBlend& colorBlend)
+    : shaderStages(shaderStages),
+      vertexInputInfo(vertexInputInfo),
+      mRenderPass(renderPass),
+      layout(pipelineLayout),
+      colorBlend(colorBlend) {
     inputAssembly = vk::PipelineInputAssemblyStateCreateInfo{}
                         .setTopology(vk::PrimitiveTopology::eTriangleList)
                         .setPrimitiveRestartEnable(VK_FALSE);
@@ -26,26 +31,11 @@ PipelineBuilder::PipelineBuilder(const std::vector<vk::PipelineShaderStageCreate
 
     multisampling = vk::PipelineMultisampleStateCreateInfo{};
 
-    colorBlendAttachment = vk::PipelineColorBlendAttachmentState{};
-
-    auto _colorBlending = vk::PipelineColorBlendStateCreateInfo{};
-    _colorBlending.attachmentCount = 1;
-    _colorBlending.pAttachments = &colorBlendAttachment;
-    colorBlending = _colorBlending;
-
     depthStencil = vk::PipelineDepthStencilStateCreateInfo{}
                        .setDepthTestEnable(VK_TRUE)
                        .setDepthWriteEnable(VK_TRUE)
                        .setDepthCompareOp(vk::CompareOp::eLess)
                        .setStencilTestEnable(VK_FALSE);
-
-    colorBlendAttachment = vk::PipelineColorBlendAttachmentState{}
-                               .setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
-                                                  vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA)
-                               .setBlendEnable(VK_FALSE);
-
-    colorBlending =
-        vk::PipelineColorBlendStateCreateInfo{}.setLogicOpEnable(VK_FALSE).setAttachments(colorBlendAttachment);
 
     dynamicStates = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
 
@@ -56,6 +46,8 @@ vk::UniquePipeline PipelineBuilder::build(vk::Device device, vk::PipelineCache c
     if (shaderStages.empty()) throw std::runtime_error("PipelineBuilder: shaderStages not set");
     if (!layout) throw std::runtime_error("PipelineBuilder: layout not set");
     if (!mRenderPass) throw std::runtime_error("PipelineBuilder: renderPass not set");
+
+    auto colorBlending = colorBlend.getBlendState();
 
     vk::GraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.setStages(shaderStages)
