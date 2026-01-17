@@ -1,12 +1,12 @@
 #pragma once
 
-#include "render_looper.hpp"
-#include "renderer.hpp"
 #include <memory>
 
-class Engine {
+#include "render_looper.hpp"
+#include "renderer.hpp"
 
-public:
+class Engine {
+   public:
     Engine();
 
     void start();
@@ -19,8 +19,7 @@ public:
 
     void postMessage(std::unique_ptr<RenderMessage> message);
 
-private:
-
+   private:
     std::unique_ptr<Renderer> mRenderer;
     std::unique_ptr<RenderLooper> mRenderLooper;
     std::chrono::high_resolution_clock::time_point mLastFrameTime;
@@ -28,5 +27,4 @@ private:
     void onRenderFrame();
 
     void onRenderMessage(std::unique_ptr<RenderMessage> message);
-
 };

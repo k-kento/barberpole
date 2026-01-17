@@ -4,10 +4,8 @@
 #include "vulkan_context.h"
 
 class CommandBufferHelper {
-
-public:
-
-    static vk::UniqueCommandBuffer createCommandBuffer(VulkanContext &context) {
+   public:
+    static vk::UniqueCommandBuffer createCommandBuffer(VulkanContext& context) {
         vk::CommandBufferAllocateInfo allocInfo{};
         allocInfo.commandPool = context.getGraphicsCommandPool();
         allocInfo.level = vk::CommandBufferLevel::ePrimary;
@@ -17,12 +15,12 @@ public:
         try {
             std::vector<vk::UniqueCommandBuffer> cmdBuffers = device.allocateCommandBuffersUnique(allocInfo);
             return std::move(cmdBuffers[0]);
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             throw std::runtime_error(std::string("Failed to allocate command buffers: ") + e.what());
         }
     }
 
-    static vk::UniqueCommandBuffer beginSingleTimeCommands(VulkanContext &context) {
+    static vk::UniqueCommandBuffer beginSingleTimeCommands(VulkanContext& context) {
         vk::CommandBufferAllocateInfo allocInfo{};
         allocInfo.level = vk::CommandBufferLevel::ePrimary;
         allocInfo.commandPool = context.getTransientCommandPool();
@@ -36,7 +34,7 @@ public:
         return commandBuffer;
     }
 
-    static void endSingleTimeCommands(VulkanContext &context, vk::UniqueCommandBuffer commandBuffer) {
+    static void endSingleTimeCommands(VulkanContext& context, vk::UniqueCommandBuffer commandBuffer) {
         commandBuffer->end();
 
         vk::SubmitInfo submitInfo{};
@@ -49,5 +47,4 @@ public:
         graphicsQueue.submit(submitInfo, nullptr);
         graphicsQueue.waitIdle();
     }
-
 };

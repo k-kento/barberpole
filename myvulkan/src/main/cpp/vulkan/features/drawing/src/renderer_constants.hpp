@@ -6,7 +6,7 @@
 constexpr uint32_t WORKGROUP_SIZE = 64;
 
 // 入力可能な最大点数
-constexpr uint32_t MAX_INPUT_POINTS = 1000; // TODO 超えた場合の対応
+constexpr uint32_t MAX_INPUT_POINTS = 1000;  // TODO 超えた場合の対応
 
 // ComputeShader 1線分あたりの出力頂点数
 constexpr uint32_t COMPUTE_SHADER_OUTPUT_VERTEX_NUM = 2;

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "vulkan_context.h"
-#include "render_pass.h"
-#include "base_pipeline.hpp"
 #include "../input_vertex.hpp"
-#include "shader_helper.hpp"
+#include "base_pipeline.hpp"
 #include "pipeline_builder.hpp"
+#include "render_pass.h"
+#include "shader_helper.hpp"
+#include "vulkan_context.h"
 
 /**
  * GlowPipeline - グローエフェクト用パイプライン
@@ -16,9 +16,8 @@
  * - Alpha Blending 有効化
  */
 class GlowPipeline : public BasePipeline {
-public:
-
-    GlowPipeline(VulkanContext &context, RenderPass &renderPass) : BasePipeline() {
+   public:
+    GlowPipeline(VulkanContext& context, RenderPass& renderPass) : BasePipeline() {
         auto device = context.getDevice();
         mDescriptorSetLayout = createDescriptorSetLayout(device);
         mPipelineLayout = createPipelineLayout(device);
@@ -31,8 +30,7 @@ public:
         uboBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
         uboBinding.descriptorCount = 1;
         // Vertex + Fragment 両方からアクセス可能
-        uboBinding.stageFlags = vk::ShaderStageFlagBits::eVertex |
-                                vk::ShaderStageFlagBits::eFragment;
+        uboBinding.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
 
         vk::DescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.bindingCount = 1;
@@ -49,8 +47,7 @@ public:
         return device.createPipelineLayoutUnique(layoutInfo);
     }
 
-    vk::UniquePipeline
-    createPipeline(VulkanContext &context, RenderPass &renderPass) {
+    vk::UniquePipeline createPipeline(VulkanContext& context, RenderPass& renderPass) {
         vk::Device device = context.getDevice();
 
         const std::string directory = "shaders/drawing/";
@@ -60,30 +57,27 @@ public:
         auto shaderStages = ShaderHelper::makeGraphicsStages(*vertexShaderModule, *fragmentShaderModule);
 
         auto vertexInputInfo = createVertexConfig();
-        auto builder = PipelineBuilder(shaderStages,
-                                       vertexInputInfo,
-                                       renderPass.getVkRenderPass(),
-                                       mPipelineLayout.get());
+        auto builder =
+            PipelineBuilder(shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), mPipelineLayout.get());
 
         builder.rasterizer = vk::PipelineRasterizationStateCreateInfo{}
-                .setDepthClampEnable(VK_FALSE)
-                .setRasterizerDiscardEnable(VK_FALSE)
-                .setPolygonMode(vk::PolygonMode::eFill)
-                .setCullMode(vk::CullModeFlagBits::eNone)
-                .setFrontFace(vk::FrontFace::eCounterClockwise)
-                .setDepthBiasEnable(VK_FALSE)
-                .setLineWidth(1.0f);
+                                 .setDepthClampEnable(VK_FALSE)
+                                 .setRasterizerDiscardEnable(VK_FALSE)
+                                 .setPolygonMode(vk::PolygonMode::eFill)
+                                 .setCullMode(vk::CullModeFlagBits::eNone)
+                                 .setFrontFace(vk::FrontFace::eCounterClockwise)
+                                 .setDepthBiasEnable(VK_FALSE)
+                                 .setLineWidth(1.0f);
 
         builder.inputAssembly = vk::PipelineInputAssemblyStateCreateInfo{}
-                .setTopology(vk::PrimitiveTopology::eTriangleStrip)
-                .setPrimitiveRestartEnable(VK_FALSE);
+                                    .setTopology(vk::PrimitiveTopology::eTriangleStrip)
+                                    .setPrimitiveRestartEnable(VK_FALSE);
 
         // Alpha Blending 有効化（グロー表現用）
-        builder.colorBlendAttachment = vk::PipelineColorBlendAttachmentState{}
-                .setColorWriteMask(vk::ColorComponentFlagBits::eR |
-                                   vk::ColorComponentFlagBits::eG |
-                                   vk::ColorComponentFlagBits::eB |
-                                   vk::ColorComponentFlagBits::eA)
+        builder.colorBlendAttachment =
+            vk::PipelineColorBlendAttachmentState{}
+                .setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+                                   vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA)
                 .setBlendEnable(VK_TRUE)
                 .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
                 .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)

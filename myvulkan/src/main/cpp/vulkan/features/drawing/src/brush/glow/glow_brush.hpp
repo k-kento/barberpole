@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../brush.hpp"
 #include <cmath>
+
+#include "../brush.hpp"
 #include "color_utils.hpp"
 #include "log.h"
 
@@ -14,19 +15,17 @@
  * - 可変線幅
  */
 class GlowBrush : public Brush {
-public:
+   public:
     struct Params {
-        float lineWidth = 0.015f;      // コア線の半幅 (normalized)
-        float glowRadius = 0.05f;      // グロー半径 (normalized) - 大きく
-        float glowIntensity = 1.0f;    // グロー強度 (0.0~1.0) - 最大
-        float pulsePeriod = 1.0f;      // パルス周期 (秒)
+        float lineWidth = 0.015f;    // コア線の半幅 (normalized)
+        float glowRadius = 0.05f;    // グロー半径 (normalized) - 大きく
+        float glowIntensity = 1.0f;  // グロー強度 (0.0~1.0) - 最大
+        float pulsePeriod = 1.0f;    // パルス周期 (秒)
     };
 
-    GlowBrush(VulkanContext& context, BasePipeline& pipeline)
-        : Brush(context, pipeline) {}
+    GlowBrush(VulkanContext& context, BasePipeline& pipeline) : Brush(context, pipeline) {}
 
-    void generateVertices(const std::vector<glm::vec2>& points,
-                          std::vector<InputVertex>& outVertices) override {
+    void generateVertices(const std::vector<glm::vec2>& points, std::vector<InputVertex>& outVertices) override {
         const auto total = static_cast<uint32_t>(points.size());
         LOGD("GlowBrush::generateVertices points=%d", total);
         if (total < 2) return;
@@ -89,7 +88,7 @@ public:
         mFrames[frameIndex].uboBuffer->update(ubo);
     }
 
-private:
+   private:
     Params mParams;
     float mBaseHue = 0.0f;
 };

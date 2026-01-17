@@ -2,16 +2,14 @@
 
 #include <functional>
 #include <thread>
-#include "render_message.hpp"
+
 #include "log.h"
+#include "render_message.hpp"
 
 class RenderLooper {
-public:
-    RenderLooper(std::function<void()> frameCallback,
-                 std::function<void(std::unique_ptr<RenderMessage>)> handleMessage)
-            : mFrameCallback(frameCallback),
-              mHandleMessage(handleMessage) {
-    }
+   public:
+    RenderLooper(std::function<void()> frameCallback, std::function<void(std::unique_ptr<RenderMessage>)> handleMessage)
+        : mFrameCallback(frameCallback), mHandleMessage(handleMessage) {}
 
     void start() {
         if (mRunning.load()) return;
@@ -38,11 +36,10 @@ public:
         mMessageQueue.push(std::move(message));
     }
 
-private:
+   private:
     void loop() {
         while (mRunning.load()) {
             mFrameCallback();
-
 
             // ----------------------------
             // タスク処理
@@ -56,7 +53,6 @@ private:
                 }
             }
             if (task) task();
-
 
             // ----------------------------
             // メッセージ処理
@@ -75,7 +71,7 @@ private:
                 mHandleMessage(std::move(message));
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(16)); // 60FPS
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));  // 60FPS
         }
     }
 

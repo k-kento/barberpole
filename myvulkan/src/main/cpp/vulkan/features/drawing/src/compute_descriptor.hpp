@@ -1,13 +1,13 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
 #include <memory>
+#include <vulkan/vulkan.hpp>
+
 #include "surface_context.hpp"
 
 class ComputeDescriptor {
-public:
-    ComputeDescriptor(vk::Device device)
-            : mDevice(device) {
+   public:
+    ComputeDescriptor(vk::Device device) : mDevice(device) {
         createDescriptorSetLayout();
         createDescriptorPool();
     }
@@ -25,12 +25,11 @@ public:
     vk::DescriptorSetLayout getLayout() const { return mDescriptorSetLayout.get(); }
 
     // Descriptor 更新（StorageBuffer専用）
-    void updateStorageBuffers(
-            vk::DescriptorSet descriptorSet,
-            const vk::Buffer &inputBuffer,
-            vk::DeviceSize inputSize,
-            const vk::Buffer &outputBuffer,
-            vk::DeviceSize outputSize) {
+    void updateStorageBuffers(vk::DescriptorSet descriptorSet,
+                              const vk::Buffer& inputBuffer,
+                              vk::DeviceSize inputSize,
+                              const vk::Buffer& outputBuffer,
+                              vk::DeviceSize outputSize) {
         std::array<vk::WriteDescriptorSet, 2> writes{};
 
         vk::DescriptorBufferInfo inputInfo{};
@@ -58,7 +57,7 @@ public:
         mDevice.updateDescriptorSets(writes, nullptr);
     }
 
-private:
+   private:
     vk::Device mDevice;
     vk::UniqueDescriptorSetLayout mDescriptorSetLayout;
     vk::UniqueDescriptorPool mDescriptorPool;
@@ -88,10 +87,10 @@ private:
     }
 
     void createDescriptorPool() {
-        constexpr uint32_t BINDINGS_PER_SET = 2; // input/output buffer
+        constexpr uint32_t BINDINGS_PER_SET = 2;  // input/output buffer
         std::array<vk::DescriptorPoolSize, 1> poolSizes{};
         poolSizes[0].type = vk::DescriptorType::eStorageBuffer;
-        poolSizes[0].descriptorCount = BINDINGS_PER_SET * SurfaceContext::MAX_FRAMES_IN_FLIGHT; // input + output
+        poolSizes[0].descriptorCount = BINDINGS_PER_SET * SurfaceContext::MAX_FRAMES_IN_FLIGHT;  // input + output
 
         vk::DescriptorPoolCreateInfo poolInfo{};
         poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());

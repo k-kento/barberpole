@@ -1,15 +1,12 @@
 #include "surface_context.hpp"
 
-SurfaceContext::SurfaceContext(VulkanContext &vkContext,
-                               std::shared_ptr<Surface> surface) :
-        mVkContext(vkContext),
-        mSurface(std::move(surface)) {
-
+SurfaceContext::SurfaceContext(VulkanContext& vkContext, std::shared_ptr<Surface> surface)
+    : mVkContext(vkContext), mSurface(std::move(surface)) {
     mSwapChain = std::make_unique<SwapChain>(vkContext, mSurface->getSurface());
     mRenderPass = std::make_unique<RenderPass>(vkContext.getDevice(), mSwapChain->getFormat());
     mFrameBuffers = createFrameBuffers();
 
-    vk::FenceCreateInfo fenceInfo{ vk::FenceCreateFlagBits::eSignaled };
+    vk::FenceCreateInfo fenceInfo{vk::FenceCreateFlagBits::eSignaled};
 
     mInFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -37,9 +34,9 @@ void SurfaceContext::submit(vk::CommandBuffer commandBuffer) {
     // コマンドバッファを GPU キューに送信
     vk::SubmitInfo submitInfo{};
     submitInfo.setWaitSemaphores(imageAvailable)
-            .setWaitDstStageMask(waitStages)
-            .setSignalSemaphores(renderFinished)
-            .setCommandBuffers(commandBuffer);
+        .setWaitDstStageMask(waitStages)
+        .setSignalSemaphores(renderFinished)
+        .setCommandBuffers(commandBuffer);
 
     mVkContext.getGraphicsQueue().submit(submitInfo, mInFlightFences[mCurrentFrameIndex].get());
 }
@@ -70,7 +67,7 @@ void SurfaceContext::beginRenderPass(vk::CommandBuffer cmdBuffer) {
 
     cmdBuffer.beginRenderPass(rpBegin, vk::SubpassContents::eInline);
 
-    vk::Viewport viewport{0, 0, (float) extent.width, (float) extent.height, 0.0f, 1.0f};
+    vk::Viewport viewport{0, 0, (float)extent.width, (float)extent.height, 0.0f, 1.0f};
     vk::Rect2D scissor{{0, 0}, extent};
     cmdBuffer.setViewport(0, viewport);
     cmdBuffer.setScissor(0, scissor);
@@ -90,20 +87,18 @@ std::vector<vk::UniqueFramebuffer> SurfaceContext::createFrameBuffers() {
     auto imageViews = mSwapChain->getImageViews();
     frameBuffers.reserve(imageViews.size());
 
-    for (auto &imageView: imageViews) {
-        vk::FramebufferCreateInfo fbInfo(
-                {},
-                mRenderPass->getVkRenderPass(),
-                1,
-                &imageView,
-                mSwapChain->getExtent().width,
-                mSwapChain->getExtent().height,
-                1
-        );
+    for (auto& imageView : imageViews) {
+        vk::FramebufferCreateInfo fbInfo({},
+                                         mRenderPass->getVkRenderPass(),
+                                         1,
+                                         &imageView,
+                                         mSwapChain->getExtent().width,
+                                         mSwapChain->getExtent().height,
+                                         1);
 
         try {
             frameBuffers.push_back(mVkContext.getDevice().createFramebufferUnique(fbInfo));
-        } catch (const vk::SystemError &e) {
+        } catch (const vk::SystemError& e) {
             throw std::runtime_error(std::string("Failed to create framebuffer: ") + e.what());
         }
     }

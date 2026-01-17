@@ -1,10 +1,10 @@
 #pragma once
 
-#include "render_message.hpp"
 #include "../src/brush/brush_manager.hpp"
+#include "render_message.hpp"
 
 class BrushChangeMessage : public RenderMessage {
-public:
+   public:
     explicit BrushChangeMessage(BrushManager::Type brushType) : brushType{brushType} {}
 
     BrushManager::Type brushType;

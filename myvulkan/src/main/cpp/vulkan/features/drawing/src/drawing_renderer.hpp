@@ -1,23 +1,23 @@
 #pragma once
 
-#include "vulkan_context.h"
-#include "render_pass.h"
-#include <vector>
 #include <deque>
-#include "renderer.hpp"
-#include "render_message.hpp"
-#include "glm/glm.hpp"
-#include "view_bounds.hpp"
-#include "surface_context.hpp"
-#include "frame_context.hpp"
-#include "stroke/stroke_manager.hpp"
-#include "pipeline/pipeline_manager.hpp"
+#include <vector>
+
 #include "brush/brush_manager.hpp"
+#include "frame_context.hpp"
+#include "glm/glm.hpp"
+#include "pipeline/pipeline_manager.hpp"
+#include "render_message.hpp"
+#include "render_pass.h"
+#include "renderer.hpp"
+#include "stroke/stroke_manager.hpp"
+#include "surface_context.hpp"
+#include "view_bounds.hpp"
+#include "vulkan_context.h"
 
 class DrawingRenderer : public Renderer {
-public:
-
-    DrawingRenderer(VulkanContext &vkContext, std::unique_ptr<SurfaceContext> surface);
+   public:
+    DrawingRenderer(VulkanContext& vkContext, std::unique_ptr<SurfaceContext> surface);
 
     ~DrawingRenderer();
 
@@ -25,12 +25,11 @@ public:
 
     void handleMessage(std::unique_ptr<RenderMessage> message) override;
 
-private:
-
+   private:
     // ==============================
     // Contexts
     // ==============================
-    VulkanContext &mVkContext;
+    VulkanContext& mVkContext;
     std::unique_ptr<SurfaceContext> mSurfaceContext;
     std::vector<std::unique_ptr<FrameContext>> mFrameContexts;
 
@@ -41,7 +40,6 @@ private:
     std::unique_ptr<PipelineManager> mPipelineManager;
     std::unique_ptr<BrushManager> mBrushManager;
 
-
     // ==============================
     // Render State
     // ==============================
@@ -50,9 +48,9 @@ private:
     float mElapsedTime = 0.0f;
     std::chrono::steady_clock::time_point mStartTime = std::chrono::steady_clock::now();
 
-    FrameContext &getCurrentFrameContext();
-    void beginFrame(FrameContext &frameContext, vk::CommandBuffer cmdBuffer);
-    void updateUniforms(FrameContext &frameContext);
-    void recordGraphicsPass(vk::CommandBuffer cmdBuffer, FrameContext &frameContext);
-    void endFrame(vk::CommandBuffer cmdBuffer, FrameContext &frameContext);
+    FrameContext& getCurrentFrameContext();
+    void beginFrame(FrameContext& frameContext, vk::CommandBuffer cmdBuffer);
+    void updateUniforms(FrameContext& frameContext);
+    void recordGraphicsPass(vk::CommandBuffer cmdBuffer, FrameContext& frameContext);
+    void endFrame(vk::CommandBuffer cmdBuffer, FrameContext& frameContext);
 };

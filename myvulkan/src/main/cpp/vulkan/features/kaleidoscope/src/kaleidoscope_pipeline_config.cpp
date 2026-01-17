@@ -1,16 +1,15 @@
 
 #include "kaleidoscope_pipeline_config.hpp"
+
+#include "kaleidoscope_instance_buffer.hpp"
 #include "pipeline_builder.hpp"
 #include "shader_helper.hpp"
 #include "vertex.hpp"
-#include "kaleidoscope_instance_buffer.hpp"
 
 // TODO 要見直し
-vk::UniquePipeline
-KaleidoscopePipelineConfig::createPipeline(VulkanContext &context,
-                                           vk::PipelineLayout &pipelineLayout,
-                                           RenderPass &renderPass) {
-
+vk::UniquePipeline KaleidoscopePipelineConfig::createPipeline(VulkanContext& context,
+                                                              vk::PipelineLayout& pipelineLayout,
+                                                              RenderPass& renderPass) {
     const std::string directory = "shaders/kaleidoscope/";
 
     auto vertexShaderModule = ShaderHelper::createShaderModule(context, directory + "kaleidoscope.vert.spv");
@@ -21,12 +20,12 @@ KaleidoscopePipelineConfig::createPipeline(VulkanContext &context,
     auto builder = PipelineBuilder(shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), pipelineLayout);
 
     builder.rasterizer = vk::PipelineRasterizationStateCreateInfo{}
-            .setDepthClampEnable(VK_FALSE)
-            .setRasterizerDiscardEnable(VK_FALSE)
-            .setPolygonMode(vk::PolygonMode::eFill)
-            .setCullMode(vk::CullModeFlagBits::eNone) // TODO 古い環境だと eNone が定義されていない
-            .setDepthBiasEnable(VK_FALSE)
-            .setLineWidth(1.0f);
+                             .setDepthClampEnable(VK_FALSE)
+                             .setRasterizerDiscardEnable(VK_FALSE)
+                             .setPolygonMode(vk::PolygonMode::eFill)
+                             .setCullMode(vk::CullModeFlagBits::eNone)  // TODO 古い環境だと eNone が定義されていない
+                             .setDepthBiasEnable(VK_FALSE)
+                             .setLineWidth(1.0f);
 
     return builder.build(context.getDevice(), nullptr);
 }
@@ -81,8 +80,8 @@ vk::PipelineVertexInputStateCreateInfo KaleidoscopePipelineConfig::createVertexC
     return vertexInput;
 }
 
-std::vector<vk::PipelineShaderStageCreateInfo>
-KaleidoscopePipelineConfig::createShaderStages(vk::ShaderModule &vertexModule, vk::ShaderModule &fragmentModule) {
+std::vector<vk::PipelineShaderStageCreateInfo> KaleidoscopePipelineConfig::createShaderStages(
+    vk::ShaderModule& vertexModule, vk::ShaderModule& fragmentModule) {
     vk::PipelineShaderStageCreateInfo vertStage{};
     vertStage.stage = vk::ShaderStageFlagBits::eVertex;
     vertStage.module = vertexModule;

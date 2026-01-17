@@ -1,15 +1,12 @@
 #include "engine.hpp"
 
 Engine::Engine() {
-    mRenderLooper = std::make_unique<RenderLooper>(
-            [this]() {
-                onRenderFrame();
-            },
-            [this](std::unique_ptr<RenderMessage> msg) {
-                if (mRenderer) {
-                    mRenderer->handleMessage(std::move(msg));
-                }
-            });
+    mRenderLooper = std::make_unique<RenderLooper>([this]() { onRenderFrame(); },
+                                                   [this](std::unique_ptr<RenderMessage> msg) {
+                                                       if (mRenderer) {
+                                                           mRenderer->handleMessage(std::move(msg));
+                                                       }
+                                                   });
 }
 
 void Engine::start() {

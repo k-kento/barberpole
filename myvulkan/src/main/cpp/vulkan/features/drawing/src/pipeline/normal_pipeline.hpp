@@ -1,16 +1,15 @@
 #pragma once
 
-#include "vulkan_context.h"
-#include "render_pass.h"
-#include "base_pipeline.hpp"
 #include "../input_vertex.hpp"
-#include "shader_helper.hpp"
+#include "base_pipeline.hpp"
 #include "pipeline_builder.hpp"
+#include "render_pass.h"
+#include "shader_helper.hpp"
+#include "vulkan_context.h"
 
 class NormalPipeline : public BasePipeline {
-public:
-
-    NormalPipeline(VulkanContext &context, RenderPass &renderPass) : BasePipeline() {
+   public:
+    NormalPipeline(VulkanContext& context, RenderPass& renderPass) : BasePipeline() {
         auto device = context.getDevice();
         mDescriptorSetLayout = createDescriptorSetLayout(device);
         mPipelineLayout = createPipelineLayout(device);
@@ -39,10 +38,9 @@ public:
         return device.createPipelineLayoutUnique(layoutInfo);
     }
 
-    vk::UniquePipeline
-    createPipeline(VulkanContext &context, RenderPass &renderPass) {
+    vk::UniquePipeline createPipeline(VulkanContext& context, RenderPass& renderPass) {
         vk::Device device = context.getDevice();
-        AAssetManager *assetManager = context.getAssetManager();
+        AAssetManager* assetManager = context.getAssetManager();
 
         const std::string directory = "shaders/drawing/";
 
@@ -51,23 +49,21 @@ public:
         auto shaderStages = ShaderHelper::makeGraphicsStages(*vertexShaderModule, *fragmentShaderModule);
 
         auto vertexInputInfo = createVertexConfig();
-        auto builder = PipelineBuilder(shaderStages,
-                                       vertexInputInfo,
-                                       renderPass.getVkRenderPass(),
-                                       mPipelineLayout.get());
+        auto builder =
+            PipelineBuilder(shaderStages, vertexInputInfo, renderPass.getVkRenderPass(), mPipelineLayout.get());
 
         builder.rasterizer = vk::PipelineRasterizationStateCreateInfo{}
-                .setDepthClampEnable(VK_FALSE)
-                .setRasterizerDiscardEnable(VK_FALSE)
-                .setPolygonMode(vk::PolygonMode::eFill)
-                .setCullMode(vk::CullModeFlagBits::eNone)
-                .setFrontFace(vk::FrontFace::eCounterClockwise)
-                .setDepthBiasEnable(VK_FALSE)
-                .setLineWidth(1.0f);
+                                 .setDepthClampEnable(VK_FALSE)
+                                 .setRasterizerDiscardEnable(VK_FALSE)
+                                 .setPolygonMode(vk::PolygonMode::eFill)
+                                 .setCullMode(vk::CullModeFlagBits::eNone)
+                                 .setFrontFace(vk::FrontFace::eCounterClockwise)
+                                 .setDepthBiasEnable(VK_FALSE)
+                                 .setLineWidth(1.0f);
 
         builder.inputAssembly = vk::PipelineInputAssemblyStateCreateInfo{}
-                .setTopology(vk::PrimitiveTopology::eTriangleStrip)
-                .setPrimitiveRestartEnable(VK_FALSE);
+                                    .setTopology(vk::PrimitiveTopology::eTriangleStrip)
+                                    .setPrimitiveRestartEnable(VK_FALSE);
 
         return builder.build(context.getDevice(), nullptr);
     }

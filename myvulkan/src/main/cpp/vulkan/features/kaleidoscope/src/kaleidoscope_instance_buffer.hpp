@@ -9,11 +9,8 @@ struct InstanceData {
 };
 
 class KaleidoscopeInstanceBuffer {
-
-public:
-
-    KaleidoscopeInstanceBuffer(VulkanContext &context, const ViewBounds &viewBounds) {
-
+   public:
+    KaleidoscopeInstanceBuffer(VulkanContext& context, const ViewBounds& viewBounds) {
         auto device = context.getDevice();
 
         auto slices = MirrorTileGrid::createTileGrid(viewBounds);
@@ -21,33 +18,26 @@ public:
 
         std::vector<InstanceData> instances;
         instances.reserve(mInstanceCount);
-        for (const auto &slice: slices) {
+        for (const auto& slice : slices) {
             instances.push_back({slice});
         }
 
         VkDeviceSize instanceBufferSize = sizeof(InstanceData) * mInstanceCount;
 
         mDeviceBuffer = std::make_unique<DeviceBuffer>(
-                context,
-                instanceBufferSize,
-                vk::BufferUsageFlagBits::eVertexBuffer,
-                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
-        );
+            context,
+            instanceBufferSize,
+            vk::BufferUsageFlagBits::eVertexBuffer,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
         mDeviceBuffer->copyFrom(instances.data(), instanceBufferSize);
     }
 
-    [[nodiscard]] uint32_t getInstanceCount() const {
-        return mInstanceCount;
-    }
+    [[nodiscard]] uint32_t getInstanceCount() const { return mInstanceCount; }
 
-    [[nodiscard]] vk::Buffer getDeviceBuffer() const {
-        return mDeviceBuffer->getBuffer();
-    }
+    [[nodiscard]] vk::Buffer getDeviceBuffer() const { return mDeviceBuffer->getBuffer(); }
 
-private:
-
+   private:
     uint32_t mInstanceCount;
     std::unique_ptr<DeviceBuffer> mDeviceBuffer;
-
 };

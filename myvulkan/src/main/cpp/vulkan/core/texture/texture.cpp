@@ -1,20 +1,19 @@
 #define STB_IMAGE_IMPLEMENTATION
 
+#include "texture.hpp"
+
+#include <cstring>
+#include <stdexcept>
+
+#include "command_buffer_helper.hpp"
+#include "device_buffer.h"
+#include "physical_device_helper.hpp"
 #include "stb_image.h"
 #include "texture.hpp"
-#include <stdexcept>
-
-#include "texture.hpp"
-#include <stdexcept>
-#include <cstring>
-#include "device_buffer.h"
 #include "texture_utils.hpp"
-#include "command_buffer_helper.hpp"
 #include "vulkan_utils.h"
-#include "physical_device_helper.hpp"
 
-Texture::Texture(VulkanContext &context, const std::string &path)
-        : mContext(context) {
+Texture::Texture(VulkanContext& context, const std::string& path) : mContext(context) {
     loadImageFromFile(path);
     createImageView();
     createSampler();
@@ -22,48 +21,43 @@ Texture::Texture(VulkanContext &context, const std::string &path)
 
 Texture::~Texture() = default;
 
-vk::ImageView Texture::getImageView() const { return *mImageView; }
+vk::ImageView Texture::getImageView() const {
+    return *mImageView;
+}
 
-vk::Sampler Texture::getSampler() const { return *mSampler; }
+vk::Sampler Texture::getSampler() const {
+    return *mSampler;
+}
 
-void Texture::loadImageFromFile(const std::string &path) {
+void Texture::loadImageFromFile(const std::string& path) {
     auto imageData = VulkanUtils::readBinaryFile(mContext.getAssetManager(), path);
     int texWidth, texHeight, texChannels;
     size_t size = imageData.size();
-    stbi_uc *pixels = stbi_load_from_memory(imageData.data(),
-                                            static_cast<int>(size),
-                                            &texWidth,
-                                            &texHeight,
-                                            &texChannels,
-                                            STBI_rgb_alpha);
-    if (!pixels)
-        throw std::runtime_error("failed to load texture image: " + path);
+    stbi_uc* pixels = stbi_load_from_memory(
+        imageData.data(), static_cast<int>(size), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    if (!pixels) throw std::runtime_error("failed to load texture image: " + path);
 
     vk::DeviceSize imageSize = texWidth * texHeight * 4;
 
     createImage(texWidth, texHeight);
 
-    auto stagingBuffer = DeviceBuffer(mContext,
-                                      imageSize,
-                                      vk::BufferUsageFlagBits::eTransferSrc,
-                                      vk::MemoryPropertyFlagBits::eHostVisible |
-                                      vk::MemoryPropertyFlagBits::eHostCoherent);
+    auto stagingBuffer =
+        DeviceBuffer(mContext,
+                     imageSize,
+                     vk::BufferUsageFlagBits::eTransferSrc,
+                     vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     stagingBuffer.copyFrom(pixels, imageSize, 0);
 
     stbi_image_free(pixels);
 
     auto cmdBuffer = CommandBufferHelper::beginSingleTimeCommands(mContext);
     // 画像を転送できるようにする
-    TextureUtils::transitionImageLayout(cmdBuffer.get(),
-                                        *mImage,
-                                        vk::ImageLayout::eUndefined,
-                                        vk::ImageLayout::eTransferDstOptimal);
+    TextureUtils::transitionImageLayout(
+        cmdBuffer.get(), *mImage, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
     TextureUtils::copyBufferToImage(cmdBuffer.get(), stagingBuffer.getBuffer(), *mImage, texWidth, texHeight);
     // 転送済みの画像をシェーダーようにする
-    TextureUtils::transitionImageLayout(cmdBuffer.get(),
-                                        *mImage,
-                                        vk::ImageLayout::eTransferDstOptimal,
-                                        vk::ImageLayout::eShaderReadOnlyOptimal);
+    TextureUtils::transitionImageLayout(
+        cmdBuffer.get(), *mImage, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
     CommandBufferHelper::endSingleTimeCommands(mContext, std::move(cmdBuffer));
 }
 
@@ -86,7 +80,8 @@ void Texture::createImage(uint32_t width, uint32_t height) {
     mImage = device.createImageUnique(imageInfo);
 
     vk::MemoryRequirements memReq = device.getImageMemoryRequirements(*mImage);
-    auto memoryType = PhysicalDeviceHelper::findMemoryType(physicalDevice, memReq.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    auto memoryType = PhysicalDeviceHelper::findMemoryType(
+        physicalDevice, memReq.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal);
     vk::MemoryAllocateInfo allocInfo(memReq.size, memoryType);
 
     mMemory = device.allocateMemoryUnique(allocInfo);
@@ -112,7 +107,7 @@ void Texture::createSampler() {
     samplerInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
     samplerInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
     samplerInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
-    samplerInfo.anisotropyEnable = VK_FALSE; // 異方性フィルタリング
+    samplerInfo.anisotropyEnable = VK_FALSE;  // 異方性フィルタリング
     samplerInfo.maxAnisotropy = 8.0f;
     samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;

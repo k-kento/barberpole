@@ -2,13 +2,12 @@
 
 #include <vector>
 
-#include "vulkan_context.h"
-#include "render_pass.h"
 #include "../graphic_descriptor.hpp"
+#include "render_pass.h"
+#include "vulkan_context.h"
 
 class BasePipeline {
-
-public:
+   public:
     BasePipeline() = default;
 
     ~BasePipeline() = default;
@@ -19,7 +18,7 @@ public:
 
     [[nodiscard]] vk::DescriptorSetLayout getDescriptorSetLayout() const { return mDescriptorSetLayout.get(); }
 
-protected:
+   protected:
     std::vector<vk::VertexInputBindingDescription> mBindings;
     std::vector<vk::VertexInputAttributeDescription> mAttributes;
     vk::UniqueDescriptorSetLayout mDescriptorSetLayout;

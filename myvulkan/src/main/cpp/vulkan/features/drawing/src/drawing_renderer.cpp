@@ -1,19 +1,18 @@
 #include "drawing_renderer.hpp"
-#include "view_bounds.hpp"
-#include "device_buffer.h"
-#include "ubo_buffer.hpp"
-#include "touch_message.hpp"
+
 #include "brush_change_message.hpp"
-#include "log.h"
-#include "surface_changed_message.hpp"
+#include "device_buffer.h"
 #include "frame_context.hpp"
 #include "input_vertex.hpp"
+#include "log.h"
+#include "surface_changed_message.hpp"
+#include "touch_message.hpp"
+#include "ubo_buffer.hpp"
 #include "ubo_data.hpp"
+#include "view_bounds.hpp"
 
-DrawingRenderer::DrawingRenderer(VulkanContext &vkContext, std::unique_ptr<SurfaceContext> surfaceContext) :
-        mVkContext(vkContext),
-        mSurfaceContext(std::move(surfaceContext)) {
-
+DrawingRenderer::DrawingRenderer(VulkanContext& vkContext, std::unique_ptr<SurfaceContext> surfaceContext)
+    : mVkContext(vkContext), mSurfaceContext(std::move(surfaceContext)) {
     mPipelineManager = std::make_unique<PipelineManager>(mVkContext, mSurfaceContext->getRenderPass());
     mBrushManager = std::make_unique<BrushManager>(mVkContext, *mPipelineManager);
     mStrokeManager = std::make_unique<StrokeManager>();
@@ -32,7 +31,7 @@ DrawingRenderer::~DrawingRenderer() = default;
 void DrawingRenderer::renderFrame(float deltaTimeMs) {
     mSurfaceContext->acquireNextImage();
 
-    auto &frameContext = getCurrentFrameContext();
+    auto& frameContext = getCurrentFrameContext();
     auto cmdBuffer = frameContext.getCommandBuffer();
 
     beginFrame(frameContext, cmdBuffer);
@@ -43,24 +42,23 @@ void DrawingRenderer::renderFrame(float deltaTimeMs) {
     endFrame(cmdBuffer, frameContext);
 }
 
-FrameContext &DrawingRenderer::getCurrentFrameContext() {
+FrameContext& DrawingRenderer::getCurrentFrameContext() {
     auto currentFrameIndex = mSurfaceContext->getCurrentFrameIndex();
     return *mFrameContexts[currentFrameIndex];
 }
 
-void DrawingRenderer::beginFrame(FrameContext &frameContext, vk::CommandBuffer cmdBuffer) {
+void DrawingRenderer::beginFrame(FrameContext& frameContext, vk::CommandBuffer cmdBuffer) {
     updateUniforms(frameContext);
     mSurfaceContext->beginCommandBuffer(cmdBuffer);
 }
 
-void DrawingRenderer::updateUniforms(FrameContext &frameContext) {
+void DrawingRenderer::updateUniforms(FrameContext& frameContext) {
     auto frameIndex = mSurfaceContext->getCurrentFrameIndex();
     mStrokeManager->setProjection(mProjection);
     mStrokeManager->updateTime(frameIndex, mElapsedTime);
 }
 
-void DrawingRenderer::recordGraphicsPass(vk::CommandBuffer cmdBuffer,
-                                         FrameContext &frameContext) {
+void DrawingRenderer::recordGraphicsPass(vk::CommandBuffer cmdBuffer, FrameContext& frameContext) {
     auto frameIndex = mSurfaceContext->getCurrentFrameIndex();
 
     mSurfaceContext->beginRenderPass(cmdBuffer);
@@ -71,17 +69,17 @@ void DrawingRenderer::recordGraphicsPass(vk::CommandBuffer cmdBuffer,
     mSurfaceContext->endRenderPass(cmdBuffer);
 }
 
-void DrawingRenderer::endFrame(vk::CommandBuffer cmdBuffer, FrameContext &frameContext) {
+void DrawingRenderer::endFrame(vk::CommandBuffer cmdBuffer, FrameContext& frameContext) {
     mSurfaceContext->endCommandBuffer(cmdBuffer);
     mSurfaceContext->submit(cmdBuffer);
     mSurfaceContext->present();
 }
 
 void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
-    if (auto *surfaceChangedMsg = dynamic_cast<const SurfaceChangedMessage *>(message.get())) {
+    if (auto* surfaceChangedMsg = dynamic_cast<const SurfaceChangedMessage*>(message.get())) {
         mViewBounds = surfaceChangedMsg->viewBounds;
         mProjection = surfaceChangedMsg->projection;
-    } else if (auto touchMsg = dynamic_cast<const TouchMessage *>(message.get())) {
+    } else if (auto touchMsg = dynamic_cast<const TouchMessage*>(message.get())) {
         switch (touchMsg->touchType) {
             case TouchMessage::Move: {
                 auto normalizedX = touchMsg->x * mViewBounds.width() + mViewBounds.left;
@@ -95,7 +93,7 @@ void DrawingRenderer::handleMessage(std::unique_ptr<RenderMessage> message) {
             default:
                 break;
         }
-    } else if (auto brushChangeMsg = dynamic_cast<const BrushChangeMessage *>(message.get())) {
+    } else if (auto brushChangeMsg = dynamic_cast<const BrushChangeMessage*>(message.get())) {
         mBrushManager->set(brushChangeMsg->brushType);
         mStrokeManager->setCurrentBrush(mBrushManager->currentPtr());
     }

@@ -1,6 +1,6 @@
 #include "swap_chain.hpp"
 
-SwapChain::SwapChain(VulkanContext &vkContext, vk::SurfaceKHR surface) : mVkContext(vkContext) {
+SwapChain::SwapChain(VulkanContext& vkContext, vk::SurfaceKHR surface) : mVkContext(vkContext) {
     auto physicalDevice = vkContext.getPhysicalDevice();
     auto device = vkContext.getDevice();
 
@@ -14,9 +14,8 @@ SwapChain::SwapChain(VulkanContext &vkContext, vk::SurfaceKHR surface) : mVkCont
 
     // 最適なフォーマットを選択
     vk::SurfaceFormatKHR surfaceFormat = formats[0];
-    for (const auto &f: formats) {
-        if (f.format == vk::Format::eB8G8R8A8Unorm &&
-            f.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
+    for (const auto& f : formats) {
+        if (f.format == vk::Format::eB8G8R8A8Unorm && f.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
             surfaceFormat = f;
             break;
         }
@@ -34,9 +33,9 @@ SwapChain::SwapChain(VulkanContext &vkContext, vk::SurfaceKHR surface) : mVkCont
     }
     mExtent = extent;
 
-    uint32_t imageCount = std::min(surfaceCapabilities.minImageCount + 1,
-                                   surfaceCapabilities.maxImageCount > 0 ?
-                                   surfaceCapabilities.maxImageCount : UINT32_MAX);
+    uint32_t imageCount =
+        std::min(surfaceCapabilities.minImageCount + 1,
+                 surfaceCapabilities.maxImageCount > 0 ? surfaceCapabilities.maxImageCount : UINT32_MAX);
 
     vk::CompositeAlphaFlagBitsKHR compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
 
@@ -70,7 +69,7 @@ SwapChain::SwapChain(VulkanContext &vkContext, vk::SurfaceKHR surface) : mVkCont
         if (mImageViews.empty()) {
             LOGE("images views size == 0");
         }
-    } catch (const vk::SystemError &e) {
+    } catch (const vk::SystemError& e) {
         throw std::runtime_error(std::string("Failed to create image views: ") + e.what());
     }
 
@@ -121,30 +120,27 @@ void SwapChain::present() {
     vk::Semaphore renderFinished = getRenderFinished();
     vk::SwapchainKHR swapChains[] = {mSwapChain.get()};
     vk::PresentInfoKHR presentInfo{};
-    presentInfo.setWaitSemaphores(renderFinished)
-            .setSwapchains(swapChains)
-            .setImageIndices(mCurrentImageIndex);
+    presentInfo.setWaitSemaphores(renderFinished).setSwapchains(swapChains).setImageIndices(mCurrentImageIndex);
 
     mVkContext.getGraphicsQueue().presentKHR(presentInfo);
 }
 
-std::vector<vk::UniqueImageView>
-SwapChain::createImageViews(vk::Device device, const std::vector<vk::Image> &images, vk::Format format) {
+std::vector<vk::UniqueImageView> SwapChain::createImageViews(vk::Device device,
+                                                             const std::vector<vk::Image>& images,
+                                                             vk::Format format) {
     std::vector<vk::UniqueImageView> imageViews;
 
     imageViews.reserve(images.size());
 
-    for (auto image: images) {
+    for (auto image : images) {
         vk::ImageViewCreateInfo ivInfo{};
         ivInfo.image = image;
         ivInfo.viewType = vk::ImageViewType::e2D;
         ivInfo.format = format;
-        ivInfo.components = {
-                vk::ComponentSwizzle::eIdentity,
-                vk::ComponentSwizzle::eIdentity,
-                vk::ComponentSwizzle::eIdentity,
-                vk::ComponentSwizzle::eIdentity
-        };
+        ivInfo.components = {vk::ComponentSwizzle::eIdentity,
+                             vk::ComponentSwizzle::eIdentity,
+                             vk::ComponentSwizzle::eIdentity,
+                             vk::ComponentSwizzle::eIdentity};
         ivInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
         ivInfo.subresourceRange.baseMipLevel = 0;
         ivInfo.subresourceRange.levelCount = 1;
@@ -160,9 +156,8 @@ SwapChain::createImageViews(vk::Device device, const std::vector<vk::Image> &ima
 vk::PresentModeKHR SwapChain::selectPresentMode(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface) {
     auto modes = physicalDevice.getSurfacePresentModesKHR(surface);
 
-    for (auto mode: modes) {
-        if (mode == vk::PresentModeKHR::eMailbox)
-            return mode;
+    for (auto mode : modes) {
+        if (mode == vk::PresentModeKHR::eMailbox) return mode;
     }
 
     return vk::PresentModeKHR::eFifo;

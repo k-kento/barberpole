@@ -1,6 +1,8 @@
 
 #include "device_helper.hpp"
+
 #include <stdexcept>
+
 #include "log.h"
 
 vk::UniqueDevice DeviceHelper::createDevice(PhysicalDeviceBundle bundle) {
@@ -16,7 +18,7 @@ vk::UniqueDevice DeviceHelper::createDevice(PhysicalDeviceBundle bundle) {
     queueInfo.pQueuePriorities = &queuePriority;
 
     // デバイス拡張
-    std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     // 論理デバイス作成情報
     vk::DeviceCreateInfo deviceInfo{};
@@ -31,7 +33,7 @@ vk::UniqueDevice DeviceHelper::createDevice(PhysicalDeviceBundle bundle) {
 
     try {
         return physicalDevice.createDeviceUnique(deviceInfo);
-    } catch (vk::SystemError &err) {
+    } catch (vk::SystemError& err) {
         throw std::runtime_error("Failed to create logical device");
     }
 }

@@ -1,17 +1,16 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
-#include <vector>
 #include <memory>
+#include <vector>
+#include <vulkan/vulkan.hpp>
+
 #include "compute_descriptor.hpp"
 #include "shader_helper.hpp"
 #include "vulkan_context.h"
 
 class ComputePipeline {
-public:
-    ComputePipeline(VulkanContext &vkContext,
-                    ComputeDescriptor &descriptor) {
-
+   public:
+    ComputePipeline(VulkanContext& vkContext, ComputeDescriptor& descriptor) {
         vk::PushConstantRange pushRange{};
         pushRange.stageFlags = vk::ShaderStageFlagBits::eCompute;
         pushRange.offset = 0;
@@ -48,7 +47,7 @@ public:
 
     vk::Pipeline getPipeline() const { return mPipeline.get(); }
 
-private:
+   private:
     vk::UniquePipelineLayout mPipelineLayout;
     vk::UniquePipeline mPipeline;
 };

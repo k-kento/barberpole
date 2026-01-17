@@ -1,9 +1,10 @@
 #pragma once
 
-#include <vector>
 #include <memory>
-#include "stroke.hpp"
+#include <vector>
+
 #include "../brush/brush.hpp"
+#include "stroke.hpp"
 
 /**
  * StrokeManager クラス
@@ -14,14 +15,10 @@
  * - 描画ループから frameIndex を受け取り、GPU へのデータ転送と描画命令の記録を依頼
  */
 class StrokeManager {
-public:
-    StrokeManager() {
-        startNewStroke();
-    }
+   public:
+    StrokeManager() { startNewStroke(); }
 
-    void setCurrentBrush(Brush* brush) {
-        mCurrentBrush = brush;
-    }
+    void setCurrentBrush(Brush* brush) { mCurrentBrush = brush; }
 
     /**
      * マウス/タッチ移動イベント処理
@@ -30,10 +27,7 @@ public:
         if (!mCurrentStroke || !mCurrentBrush) return;
 
         mCurrentStroke->addPoint(pos);
-        mCurrentBrush->generateVertices(
-            mCurrentStroke->getPoints(),
-            mCurrentStroke->getVerticesMutable()
-        );
+        mCurrentBrush->generateVertices(mCurrentStroke->getPoints(), mCurrentStroke->getVerticesMutable());
         mNeedsRebuild = true;
     }
 
@@ -97,7 +91,7 @@ public:
         mNeedsRebuild = true;
     }
 
-private:
+   private:
     void startNewStroke() {
         mCurrentStroke = std::make_unique<Stroke>();
         mNeedsRebuild = true;

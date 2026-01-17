@@ -3,14 +3,13 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 class ViewBounds {
-public:
+   public:
     float left;
     float right;
     float bottom;
     float top;
 
-    ViewBounds(float l, float r, float b, float t)
-            : left(l), right(r), bottom(b), top(t) {}
+    ViewBounds(float l, float r, float b, float t) : left(l), right(r), bottom(b), top(t) {}
 
     // NDC上の幅と高さを取得
     [[nodiscard]] float width() const { return right - left; }

@@ -1,13 +1,12 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
 #include <vector>
+#include <vulkan/vulkan.hpp>
 
 class PipelineBuilder {
-public:
-
-    PipelineBuilder(const std::vector<vk::PipelineShaderStageCreateInfo> &shaderStages,
-                    const vk::PipelineVertexInputStateCreateInfo &vertexInputInfo,
+   public:
+    PipelineBuilder(const std::vector<vk::PipelineShaderStageCreateInfo>& shaderStages,
+                    const vk::PipelineVertexInputStateCreateInfo& vertexInputInfo,
                     const vk::RenderPass renderPass,
                     const vk::PipelineLayout pipelineLayout);
 
@@ -23,13 +22,12 @@ public:
     vk::PipelineDynamicStateCreateInfo dynamicState{};
     std::vector<vk::DynamicState> dynamicStates;
 
-
     uint32_t subpass = 0;
 
-public:
+   public:
     vk::UniquePipeline build(vk::Device device, vk::PipelineCache cache = nullptr);
 
-private:
+   private:
     vk::PipelineLayout layout;
     vk::RenderPass mRenderPass;
 };

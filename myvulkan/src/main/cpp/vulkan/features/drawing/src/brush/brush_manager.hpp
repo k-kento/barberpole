@@ -4,15 +4,15 @@
 #include <stdexcept>
 #include <unordered_map>
 
-#include "vulkan/vulkan.hpp"
-#include "vulkan_context.h"
+#include "../pipeline/pipeline_manager.hpp"
 #include "brush.hpp"
+#include "circle/circle_brush.hpp"
+#include "glow/glow_brush.hpp"
+#include "log.h"
 #include "normal/normal_brush.hpp"
 #include "rainbow/rainbow_brush.hpp"
-#include "glow/glow_brush.hpp"
-#include "circle/circle_brush.hpp"
-#include "../pipeline/pipeline_manager.hpp"
-#include "log.h"
+#include "vulkan/vulkan.hpp"
+#include "vulkan_context.h"
 
 /**
  * BrushManager - ブラシの管理クラス
@@ -20,13 +20,8 @@
  * 複数のブラシを管理し、現在のブラシを切り替える
  */
 class BrushManager {
-public:
-    enum class Type {
-        Normal,
-        Rainbow,
-        Glow,
-        Circle
-    };
+   public:
+    enum class Type { Normal, Rainbow, Glow, Circle };
 
     BrushManager(VulkanContext& vulkanContext, PipelineManager& pipelineManager) {
         LOGD("BrushManager: registering brushes...");
@@ -46,32 +41,20 @@ public:
         LOGD("BrushManager: current brush set to %d", static_cast<int>(type));
     }
 
-    Brush& current() {
-        return *mBrushes.at(mCurrent);
-    }
+    Brush& current() { return *mBrushes.at(mCurrent); }
 
-    Brush* currentPtr() {
-        return mBrushes.at(mCurrent).get();
-    }
+    Brush* currentPtr() { return mBrushes.at(mCurrent).get(); }
 
-    const Brush& current() const {
-        return *mBrushes.at(mCurrent);
-    }
+    const Brush& current() const { return *mBrushes.at(mCurrent); }
 
-    Type getCurrentType() const {
-        return mCurrent;
-    }
+    Type getCurrentType() const { return mCurrent; }
 
-private:
+   private:
     struct TypeHash {
-        std::size_t operator()(Type t) const noexcept {
-            return static_cast<std::size_t>(t);
-        }
+        std::size_t operator()(Type t) const noexcept { return static_cast<std::size_t>(t); }
     };
 
-    void registerBrush(Type type, std::unique_ptr<Brush> brush) {
-        mBrushes.emplace(type, std::move(brush));
-    }
+    void registerBrush(Type type, std::unique_ptr<Brush> brush) { mBrushes.emplace(type, std::move(brush)); }
 
     std::unordered_map<Type, std::unique_ptr<Brush>, TypeHash> mBrushes;
     Type mCurrent{Type::Normal};

@@ -1,26 +1,26 @@
 #pragma once
 
-#include "glm/glm.hpp"
 #include <vector>
-#include "renderer.hpp"
-#include "texture.hpp"
-#include "render_message.hpp"
-#include "rotation_state.hpp"
-#include "surface_context.hpp"
-#include "mesh_buffer.hpp"
+
+#include "glm/glm.hpp"
 #include "kaleidoscope_descriptor.hpp"
 #include "kaleidoscope_frame_context.hpp"
+#include "mesh_buffer.hpp"
+#include "render_message.hpp"
+#include "renderer.hpp"
+#include "rotation_state.hpp"
+#include "surface_context.hpp"
+#include "texture.hpp"
 
 struct Vertex;
 
 class KaleidoscopeRenderer : public Renderer {
-public:
-
-    KaleidoscopeRenderer(VulkanContext &vkContext,
+   public:
+    KaleidoscopeRenderer(VulkanContext& vkContext,
                          uint32_t windowWidth,
                          uint32_t windowHeight,
                          uint32_t deviceRotationDegree,
-                         const std::string &texturePath,
+                         const std::string& texturePath,
                          std::unique_ptr<SurfaceContext> surfaceContext);
 
     ~KaleidoscopeRenderer() = default;
@@ -29,13 +29,13 @@ public:
 
     void handleMessage(std::unique_ptr<RenderMessage> message) override;
 
-    void updateTexture(const std::string &path);
+    void updateTexture(const std::string& path);
 
-private:
+   private:
     // rad/ms
     static constexpr float rotationSpeed = glm::radians(0.1f);
 
-    VulkanContext &mVkContext;
+    VulkanContext& mVkContext;
 
     std::unique_ptr<SurfaceContext> mSurfaceContext;
     std::vector<std::unique_ptr<KaleidoscopeFrameContext>> mFrameContexts;

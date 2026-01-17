@@ -4,11 +4,8 @@
 #include "rotation_state.hpp"
 
 class RotationMessage : public RenderMessage {
-
-public:
-
+   public:
     explicit RotationMessage(RotationState state) : rotationState{state} {}
 
     RotationState rotationState;
-
 };

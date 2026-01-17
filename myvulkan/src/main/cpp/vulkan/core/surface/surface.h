@@ -1,18 +1,18 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
 #include <android/native_window.h>
+
+#include <vulkan/vulkan.hpp>
+
 #include "vulkan_context.h"
 
 class Surface {
-public:
-    Surface(vk::Instance vkInstance, ANativeWindow *window);
+   public:
+    Surface(vk::Instance vkInstance, ANativeWindow* window);
 
     ~Surface();
 
-    [[nodiscard]] vk::SurfaceKHR getSurface() const {
-        return mSurface.get();
-    }
+    [[nodiscard]] vk::SurfaceKHR getSurface() const { return mSurface.get(); }
 
     [[nodiscard]] uint32_t getWidth() const {
         return mWindow ? static_cast<uint32_t>(ANativeWindow_getWidth(mWindow)) : 0;
@@ -22,7 +22,7 @@ public:
         return mWindow ? static_cast<uint32_t>(ANativeWindow_getHeight(mWindow)) : 0;
     }
 
-private:
+   private:
     vk::UniqueSurfaceKHR mSurface;
-    ANativeWindow *mWindow = nullptr;
+    ANativeWindow* mWindow = nullptr;
 };

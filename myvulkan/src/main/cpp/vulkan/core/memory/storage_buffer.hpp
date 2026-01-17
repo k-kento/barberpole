@@ -1,27 +1,25 @@
 #pragma once
 
-#include "device_buffer.h"
-#include <vector>
 #include <cstring>
 #include <stdexcept>
+#include <vector>
 
-template<typename T>
+#include "device_buffer.h"
+
+template <typename T>
 class StorageBuffer {
-public:
-    StorageBuffer(VulkanContext &context, size_t count)
-            : mCount(count) {
+   public:
+    StorageBuffer(VulkanContext& context, size_t count) : mCount(count) {
         mBufferSize = sizeof(T) * count;
         mBuffer = std::make_unique<DeviceBuffer>(
-                context,
-                mBufferSize,
-                vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst,
-                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
-        );
+            context,
+            mBufferSize,
+            vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     }
 
-    void update(const std::vector<T> &data) {
-        if (data.size() > mCount)
-            throw std::runtime_error("StorageBuffer: data exceeds allocated count");
+    void update(const std::vector<T>& data) {
+        if (data.size() > mCount) throw std::runtime_error("StorageBuffer: data exceeds allocated count");
         mBuffer->copyFrom(data.data(), sizeof(T) * data.size());
     }
 
@@ -31,7 +29,7 @@ public:
 
     size_t getSize() const { return mBufferSize; }
 
-private:
+   private:
     size_t mCount;
     size_t mBufferSize;
     std::unique_ptr<DeviceBuffer> mBuffer;

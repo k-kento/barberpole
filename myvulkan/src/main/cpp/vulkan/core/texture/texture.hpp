@@ -1,18 +1,19 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
 #include <string>
+#include <vulkan/vulkan.hpp>
+
 #include "vulkan_context.h"
 
 class Texture {
-public:
+   public:
     Texture(VulkanContext& context, const std::string& path);
     ~Texture();
 
     [[nodiscard]] vk::ImageView getImageView() const;
     [[nodiscard]] vk::Sampler getSampler() const;
 
-private:
+   private:
     VulkanContext& mContext;
 
     vk::UniqueImage mImage;

@@ -1,0 +1,40 @@
+# -------------------------------------------------
+# Vulkan Android C++ 用 Google Style 準拠 + 実用カスタム
+# - インデント幅を 4 にして Vulkan 構造体初期化も見やすく
+# - 行長は 120 文字に拡張
+# - ポインタは左寄せ
+# - ブレースは関数行末（K&Rスタイル）
+# -------------------------------------------------
+
+BasedOnStyle: Google
+
+# インデント
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# 行長
+ColumnLimit: 120
+AllowShortFunctionsOnASingleLine: Inline
+
+# ポインタ・参照
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+# ブレース
+BreakBeforeBraces: Attach   # 関数やクラスは行末に開きブレース
+
+# 関数引数 / 初期化リスト
+BinPackArguments: false      # 複数行で縦に揃える
+BinPackParameters: false
+AlignAfterOpenBracket: Align
+
+# 名前空間
+NamespaceIndentation: All
+
+# include 整理
+SortIncludes: true
+
+# コメント
+CommentPragmas: '^ IWYU pragma:'
+

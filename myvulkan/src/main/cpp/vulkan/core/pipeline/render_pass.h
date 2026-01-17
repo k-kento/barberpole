@@ -4,25 +4,26 @@
 
 #pragma once
 
-#include "vulkan/vulkan.hpp"
 #include <memory>
 
+#include "vulkan/vulkan.hpp"
+
 class RenderPass {
-public:
+   public:
     RenderPass(vk::Device device, vk::Format colorFormat);
 
     ~RenderPass();
 
-    RenderPass(const RenderPass &) = delete;
+    RenderPass(const RenderPass&) = delete;
 
-    RenderPass &operator=(const RenderPass &) = delete;
+    RenderPass& operator=(const RenderPass&) = delete;
 
-    RenderPass(RenderPass &&other) noexcept;
+    RenderPass(RenderPass&& other) noexcept;
 
-    RenderPass &operator=(RenderPass &&other) noexcept;
+    RenderPass& operator=(RenderPass&& other) noexcept;
 
     [[nodiscard]] vk::RenderPass getVkRenderPass() const { return mRenderPass.get(); }
 
-private:
+   private:
     vk::UniqueRenderPass mRenderPass;
 };

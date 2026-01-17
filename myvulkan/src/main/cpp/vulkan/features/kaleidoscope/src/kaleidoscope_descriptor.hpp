@@ -1,11 +1,11 @@
 #pragma once
 
-#include "vulkan/vulkan.hpp"
 #include "log.h"
 #include "surface_context.hpp"
+#include "vulkan/vulkan.hpp"
 
 class KaleidoscopeDescriptor {
-public:
+   public:
     explicit KaleidoscopeDescriptor(vk::Device device) : mDevice(device) {
         createDescriptorSetLayout();
         createDescriptorPool();
@@ -15,7 +15,6 @@ public:
                                      vk::DeviceSize uboSize,
                                      vk::ImageView imageView,
                                      vk::Sampler sampler) {
-
         vk::DescriptorSetAllocateInfo allocInfo{};
         allocInfo.descriptorPool = *mDescriptorPool;
         allocInfo.descriptorSetCount = 1;
@@ -25,7 +24,7 @@ public:
 
         try {
             descriptorSet = std::move(mDevice.allocateDescriptorSetsUnique(allocInfo).front());
-        } catch (const vk::SystemError &err) {
+        } catch (const vk::SystemError& err) {
             throw std::runtime_error("Failed to allocate descriptor set: " + std::string(err.what()));
         }
 
@@ -41,58 +40,48 @@ public:
 
         std::array<vk::WriteDescriptorSet, 2> descriptorWrites{};
 
-        descriptorWrites[0] = vk::WriteDescriptorSet(
-                *descriptorSet,
-                0,  // binding
-                0,  // array element
-                1,  // descriptor count
-                vk::DescriptorType::eUniformBuffer,
-                nullptr, // pImageInfo
-                &bufferInfo,
-                nullptr
-        );
+        descriptorWrites[0] = vk::WriteDescriptorSet(*descriptorSet,
+                                                     0,  // binding
+                                                     0,  // array element
+                                                     1,  // descriptor count
+                                                     vk::DescriptorType::eUniformBuffer,
+                                                     nullptr,  // pImageInfo
+                                                     &bufferInfo,
+                                                     nullptr);
 
         descriptorWrites[1] = vk::WriteDescriptorSet(
-                *descriptorSet,
-                1,
-                0,
-                1,
-                vk::DescriptorType::eCombinedImageSampler,
-                &imageInfo,
-                nullptr,
-                nullptr
-        );
+            *descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &imageInfo, nullptr, nullptr);
 
         mDevice.updateDescriptorSets(descriptorWrites, nullptr);
 
         return descriptorSet;
     }
 
-//    // =============================
-//    //  初回のみ DescriptorSet を確保
-//    // =============================
-//    vk::UniqueDescriptorSet allocate(vk::Buffer uboBuffer,
-//                                     vk::DeviceSize uboSize,
-//                                     vk::ImageView imageView,
-//                                     vk::Sampler sampler) {
-//        vk::DescriptorSetAllocateInfo allocInfo{};
-//        allocInfo.descriptorPool = *mDescriptorPool;
-//        allocInfo.descriptorSetCount = 1;
-//        allocInfo.pSetLayouts = &*mDescriptorSetLayout;
-//
-//        vk::UniqueDescriptorSet descriptorSet;
-//
-//        try {
-//            descriptorSet = std::move(mDevice.allocateDescriptorSetsUnique(allocInfo).front());
-//        } catch (const vk::SystemError &err) {
-//            throw std::runtime_error("Failed to allocate descriptor set: " + std::string(err.what()));
-//        }
-//
-//        // 初回割り当て時も update と同じ処理で中身設定
-//        update(*descriptorSet, uboBuffer, uboSize, imageView, sampler);
-//
-//        return descriptorSet;
-//    }
+    //    // =============================
+    //    //  初回のみ DescriptorSet を確保
+    //    // =============================
+    //    vk::UniqueDescriptorSet allocate(vk::Buffer uboBuffer,
+    //                                     vk::DeviceSize uboSize,
+    //                                     vk::ImageView imageView,
+    //                                     vk::Sampler sampler) {
+    //        vk::DescriptorSetAllocateInfo allocInfo{};
+    //        allocInfo.descriptorPool = *mDescriptorPool;
+    //        allocInfo.descriptorSetCount = 1;
+    //        allocInfo.pSetLayouts = &*mDescriptorSetLayout;
+    //
+    //        vk::UniqueDescriptorSet descriptorSet;
+    //
+    //        try {
+    //            descriptorSet = std::move(mDevice.allocateDescriptorSetsUnique(allocInfo).front());
+    //        } catch (const vk::SystemError &err) {
+    //            throw std::runtime_error("Failed to allocate descriptor set: " + std::string(err.what()));
+    //        }
+    //
+    //        // 初回割り当て時も update と同じ処理で中身設定
+    //        update(*descriptorSet, uboBuffer, uboSize, imageView, sampler);
+    //
+    //        return descriptorSet;
+    //    }
 
     // ============================================
     //  再利用時に DescriptorSet の中身を更新する
@@ -114,36 +103,24 @@ public:
 
         std::array<vk::WriteDescriptorSet, 2> descriptorWrites{};
 
-        descriptorWrites[0] = vk::WriteDescriptorSet(
-                descriptorSet,
-                0,  // binding
-                0,  // array element
-                1,  // descriptor count
-                vk::DescriptorType::eUniformBuffer,
-                nullptr,
-                &bufferInfo,
-                nullptr
-        );
+        descriptorWrites[0] = vk::WriteDescriptorSet(descriptorSet,
+                                                     0,  // binding
+                                                     0,  // array element
+                                                     1,  // descriptor count
+                                                     vk::DescriptorType::eUniformBuffer,
+                                                     nullptr,
+                                                     &bufferInfo,
+                                                     nullptr);
 
         descriptorWrites[1] = vk::WriteDescriptorSet(
-                descriptorSet,
-                1,
-                0,
-                1,
-                vk::DescriptorType::eCombinedImageSampler,
-                &imageInfo,
-                nullptr,
-                nullptr
-        );
+            descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &imageInfo, nullptr, nullptr);
 
         mDevice.updateDescriptorSets(descriptorWrites, nullptr);
     }
 
-    [[nodiscard]] vk::DescriptorSetLayout getLayout() const {
-        return mDescriptorSetLayout.get();
-    }
+    [[nodiscard]] vk::DescriptorSetLayout getLayout() const { return mDescriptorSetLayout.get(); }
 
-private:
+   private:
     vk::Device mDevice;
     vk::UniqueDescriptorSetLayout mDescriptorSetLayout;
     vk::UniqueDescriptorPool mDescriptorPool;
@@ -154,21 +131,11 @@ private:
 
         // binding 0 → UBO
         bindings[0] = vk::DescriptorSetLayoutBinding(
-                0,
-                vk::DescriptorType::eUniformBuffer,
-                1,
-                vk::ShaderStageFlagBits::eVertex,
-                nullptr
-        );
+            0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex, nullptr);
 
         // binding 1 → sampler2D
         bindings[1] = vk::DescriptorSetLayoutBinding(
-                1,
-                vk::DescriptorType::eCombinedImageSampler,
-                1,
-                vk::ShaderStageFlagBits::eFragment,
-                nullptr
-        );
+            1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr);
 
         vk::DescriptorSetLayoutCreateInfo layoutInfo{{}, bindings};
         mDescriptorSetLayout = mDevice.createDescriptorSetLayoutUnique(layoutInfo);
@@ -176,7 +143,6 @@ private:
 
     // DescriptorSet を作るためのプールを作成
     void createDescriptorPool() {
-
         uint32_t maxFramesInFlight = SurfaceContext::MAX_FRAMES_IN_FLIGHT;
 
         std::array<vk::DescriptorPoolSize, 2> poolSizes{};
@@ -190,7 +156,7 @@ private:
         poolSizes[1].descriptorCount = maxFramesInFlight;
 
         vk::DescriptorPoolCreateInfo poolInfo{};
-        poolInfo.maxSets = maxFramesInFlight * 2; // DescriptorSet 作り直し分も考慮
+        poolInfo.maxSets = maxFramesInFlight * 2;  // DescriptorSet 作り直し分も考慮
         poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         poolInfo.pPoolSizes = poolSizes.data();
 

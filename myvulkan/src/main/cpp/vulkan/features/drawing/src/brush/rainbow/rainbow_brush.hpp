@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../brush.hpp"
 #include <cmath>
+
+#include "../brush.hpp"
 #include "color_utils.hpp"
 
 /**
@@ -10,12 +11,10 @@
  * HSV色空間を使って虹色のグラデーションで描画するブラシ
  */
 class RainbowBrush : public Brush {
-public:
-    RainbowBrush(VulkanContext& context, BasePipeline& pipeline)
-        : Brush(context, pipeline) {}
+   public:
+    RainbowBrush(VulkanContext& context, BasePipeline& pipeline) : Brush(context, pipeline) {}
 
-    void generateVertices(const std::vector<glm::vec2>& points,
-                          std::vector<InputVertex>& outVertices) override {
+    void generateVertices(const std::vector<glm::vec2>& points, std::vector<InputVertex>& outVertices) override {
         const auto total = static_cast<uint32_t>(points.size());
         if (total < 2) return;
 
@@ -52,7 +51,7 @@ public:
         }
     }
 
-private:
+   private:
     static constexpr float HALF_WIDTH = 0.02f;
     float mBaseHue = 0.0f;
 };

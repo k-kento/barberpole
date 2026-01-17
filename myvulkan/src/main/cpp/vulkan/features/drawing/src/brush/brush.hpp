@@ -1,16 +1,17 @@
 #pragma once
 
 #include <vector>
-#include "vulkan/vulkan.hpp"
-#include "vulkan_context.h"
-#include "glm/glm.hpp"
+
 #include "../input_vertex.hpp"
 #include "../pipeline/base_pipeline.hpp"
 #include "../renderer_constants.hpp"
-#include "generic_buffer.hpp"
-#include "ubo_buffer.hpp"
 #include "../ubo_data.hpp"
+#include "generic_buffer.hpp"
+#include "glm/glm.hpp"
 #include "log.h"
+#include "ubo_buffer.hpp"
+#include "vulkan/vulkan.hpp"
+#include "vulkan_context.h"
 
 /**
  * Brush クラス
@@ -21,7 +22,7 @@
  * - 描画（Command）: record メソッドでバッファをバインドし描画命令を発行
  */
 class Brush {
-public:
+   public:
     struct FrameContext {
         std::unique_ptr<GenericBuffer<InputVertex>> vertexBuffer;
         std::unique_ptr<UboBuffer<UboData>> uboBuffer;
@@ -29,8 +30,7 @@ public:
         uint32_t writtenVertexCount = 0;
     };
 
-    Brush(VulkanContext& context, BasePipeline& pipeline)
-        : mDevice(context.getDevice()), mPipeline(pipeline) {
+    Brush(VulkanContext& context, BasePipeline& pipeline) : mDevice(context.getDevice()), mPipeline(pipeline) {
         createDescriptorPool();
         initFrameContexts(context);
     }
@@ -69,8 +69,7 @@ public:
      * @param points 入力座標列
      * @param outVertices 出力頂点バッファ
      */
-    virtual void generateVertices(const std::vector<glm::vec2>& points,
-                                   std::vector<InputVertex>& outVertices) = 0;
+    virtual void generateVertices(const std::vector<glm::vec2>& points, std::vector<InputVertex>& outVertices) = 0;
 
     /**
      * GPU バッファへの差分更新
@@ -104,9 +103,8 @@ public:
         if (frame.writtenVertexCount == 0) return;
 
         cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.getPipeline());
-        cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                               mPipeline.getLayout(),
-                               0, {frame.descriptorSet.get()}, {});
+        cmd.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics, mPipeline.getLayout(), 0, {frame.descriptorSet.get()}, {});
 
         vk::DeviceSize offsets[] = {0};
         cmd.bindVertexBuffers(0, frame.vertexBuffer->getBuffer(), offsets);
@@ -122,7 +120,7 @@ public:
         }
     }
 
-protected:
+   protected:
     vk::Device mDevice;
     BasePipeline& mPipeline;
     vk::UniqueDescriptorPool mDescriptorPool;
@@ -153,14 +151,11 @@ protected:
                 context,
                 sizeof(InputVertex) * MAX_VERTEX_COUNT,
                 vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
-            );
+                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
             frameContext.uboBuffer = std::make_unique<UboBuffer<UboData>>(context);
-            frameContext.descriptorSet = allocateDescriptorSet(
-                frameContext.uboBuffer->getBuffer(),
-                frameContext.uboBuffer->getSize()
-            );
+            frameContext.descriptorSet =
+                allocateDescriptorSet(frameContext.uboBuffer->getBuffer(), frameContext.uboBuffer->getSize());
 
             mFrames.emplace_back(std::move(frameContext));
         }

@@ -1,6 +1,6 @@
 #pragma once
 
 class RenderMessage {
-public:
+   public:
     virtual ~RenderMessage() = default;
 };

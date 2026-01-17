@@ -1,14 +1,15 @@
 #include "physical_device_helper.hpp"
+
 #include "log.h"
 
 // 接続されているデバイスの中からグラフィックスコマンドを処理できるものを探す
-PhysicalDeviceBundle PhysicalDeviceHelper::pickPhysicalDevice(const vk::Instance &instance) {
+PhysicalDeviceBundle PhysicalDeviceHelper::pickPhysicalDevice(const vk::Instance& instance) {
     std::vector<vk::PhysicalDevice> devices = instance.enumeratePhysicalDevices();
     if (devices.empty()) {
         throw std::runtime_error("PhysicalDevice: No GPU found.");
     }
 
-    for (auto device: devices) {
+    for (auto device : devices) {
         std::vector<vk::QueueFamilyProperties> props = device.getQueueFamilyProperties();
         for (uint32_t i = 0; i < props.size(); ++i) {
             if (props[i].queueFlags & vk::QueueFlagBits::eGraphics) {
@@ -20,7 +21,7 @@ PhysicalDeviceBundle PhysicalDeviceHelper::pickPhysicalDevice(const vk::Instance
 }
 
 // 指定したプロパティを満たすメモリタイプのインデックスを返す
-uint32_t PhysicalDeviceHelper::findMemoryType(const vk::PhysicalDevice &physicalDevice,
+uint32_t PhysicalDeviceHelper::findMemoryType(const vk::PhysicalDevice& physicalDevice,
                                               uint32_t typeFilter,
                                               vk::MemoryPropertyFlags properties) {
     vk::PhysicalDeviceMemoryProperties memProperties = physicalDevice.getMemoryProperties();

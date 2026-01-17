@@ -1,33 +1,27 @@
 #pragma once
 
-#include "../brush.hpp"
-#include "color_utils.hpp"
 #include <cmath>
 #include <random>
 
+#include "../brush.hpp"
+#include "color_utils.hpp"
+
 class CircleBrush : public Brush {
-public:
+   public:
     struct Params {
         float pointSize = 50.0f;  // ピクセル単位
     };
 
-    CircleBrush(VulkanContext& ctx, BasePipeline& pipe)
-            : Brush(ctx, pipe) {}
+    CircleBrush(VulkanContext& ctx, BasePipeline& pipe) : Brush(ctx, pipe) {}
 
-    void generateVertices(const std::vector<glm::vec2>& points,
-                          std::vector<InputVertex>& out) override {
-
+    void generateVertices(const std::vector<glm::vec2>& points, std::vector<InputVertex>& out) override {
         // 追加された分だけ送る
         for (size_t i = mLast; i < points.size(); i++) {
             // 虹色
             glm::vec4 color = hsv2rgb(mBaseHue, 0.8f, 1.0f);
             mBaseHue = std::fmod(mBaseHue + 0.05f, 1.0f);
 
-            out.push_back({
-                points[i],
-                color,
-                glm::vec2(0.0f, 0.0f)
-            });
+            out.push_back({points[i], color, glm::vec2(0.0f, 0.0f)});
         }
 
         mLast = points.size();
@@ -51,7 +45,7 @@ public:
         mBaseHue = 0.0f;
     }
 
-private:
+   private:
     Params mParams;
     size_t mLast = 0;
     float mBaseHue = 0.0f;

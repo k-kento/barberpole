@@ -8,12 +8,10 @@
  * 白色の単色で描画する基本的なブラシ
  */
 class NormalBrush : public Brush {
-public:
-    NormalBrush(VulkanContext& context, BasePipeline& pipeline)
-        : Brush(context, pipeline) {}
+   public:
+    NormalBrush(VulkanContext& context, BasePipeline& pipeline) : Brush(context, pipeline) {}
 
-    void generateVertices(const std::vector<glm::vec2>& points,
-                          std::vector<InputVertex>& outVertices) override {
+    void generateVertices(const std::vector<glm::vec2>& points, std::vector<InputVertex>& outVertices) override {
         const auto total = static_cast<uint32_t>(points.size());
         if (total < 2) return;
 
@@ -49,6 +47,6 @@ public:
         }
     }
 
-private:
+   private:
     static constexpr float HALF_WIDTH = 0.02f;
 };

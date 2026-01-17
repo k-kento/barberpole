@@ -22,11 +22,17 @@ inline glm::vec4 hsv2rgb(float h, float s, float v) {
     float x = c * (1 - fabs(fmod(h * 6.0f, 2.0f) - 1));
     float m = v - c;
     glm::vec3 rgb;
-    if (h < 1.0f / 6.0f) rgb = {c, x, 0};
-    else if (h < 2.0f / 6.0f) rgb = {x, c, 0};
-    else if (h < 3.0f / 6.0f) rgb = {0, c, x};
-    else if (h < 4.0f / 6.0f) rgb = {0, x, c};
-    else if (h < 5.0f / 6.0f) rgb = {x, 0, c};
-    else rgb = {c, 0, x};
+    if (h < 1.0f / 6.0f)
+        rgb = {c, x, 0};
+    else if (h < 2.0f / 6.0f)
+        rgb = {x, c, 0};
+    else if (h < 3.0f / 6.0f)
+        rgb = {0, c, x};
+    else if (h < 4.0f / 6.0f)
+        rgb = {0, x, c};
+    else if (h < 5.0f / 6.0f)
+        rgb = {x, 0, c};
+    else
+        rgb = {c, 0, x};
     return {rgb + glm::vec3(m), 1.0f};
 }

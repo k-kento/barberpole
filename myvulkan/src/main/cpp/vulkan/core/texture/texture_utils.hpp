@@ -3,18 +3,14 @@
 #include <vulkan/vulkan.hpp>
 
 class TextureUtils {
-
-public:
-
+   public:
     /**
      * 画像の状態を変える
      */
-    static void transitionImageLayout(
-            vk::CommandBuffer cmd,
-            vk::Image image,
-            vk::ImageLayout oldLayout,
-            vk::ImageLayout newLayout
-    ) {
+    static void transitionImageLayout(vk::CommandBuffer cmd,
+                                      vk::Image image,
+                                      vk::ImageLayout oldLayout,
+                                      vk::ImageLayout newLayout) {
         vk::ImageMemoryBarrier barrier{};
         barrier.oldLayout = oldLayout;
         barrier.newLayout = newLayout;
@@ -30,8 +26,7 @@ public:
         vk::PipelineStageFlags srcStage;
         vk::PipelineStageFlags dstStage;
 
-        if (oldLayout == vk::ImageLayout::eUndefined &&
-            newLayout == vk::ImageLayout::eTransferDstOptimal) {
+        if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal) {
             // Undefined → TransferDst
             barrier.srcAccessMask = {};
             barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
@@ -50,24 +45,14 @@ public:
             throw std::invalid_argument("Unsupported layout transition");
         }
 
-        cmd.pipelineBarrier(srcStage,
-                            dstStage,
-                            {},
-                            nullptr,
-                            nullptr,
-                            barrier);
+        cmd.pipelineBarrier(srcStage, dstStage, {}, nullptr, nullptr, barrier);
     }
 
     /**
      * CPU でロードしたピクセルデータを GPU の画像にコピーする
      */
     static void copyBufferToImage(
-            vk::CommandBuffer cmd,
-            vk::Buffer buffer,
-            vk::Image image,
-            uint32_t width,
-            uint32_t height
-    ) {
+        vk::CommandBuffer cmd, vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height) {
         vk::BufferImageCopy region{};
         region.bufferOffset = 0;
         region.bufferRowLength = 0;
