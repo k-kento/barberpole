@@ -6,8 +6,8 @@
 #include <stdexcept>
 
 #include "command_buffer_helper.hpp"
-#include "device_buffer.h"
 #include "physical_device_helper.hpp"
+#include "base_buffer.hpp"
 #include "stb_image.h"
 #include "texture.hpp"
 #include "texture_utils.hpp"
@@ -42,7 +42,7 @@ void Texture::loadImageFromFile(const std::string& path) {
     createImage(texWidth, texHeight);
 
     auto stagingBuffer =
-        DeviceBuffer(mContext,
+        BaseBuffer(mContext,
                      imageSize,
                      vk::BufferUsageFlagBits::eTransferSrc,
                      vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "device_buffer.h"
+#include "base_buffer.hpp"
 #include "vulkan_context.h"
 
 template <typename T>
-class UboBuffer {
+class UniformBuffer {
    public:
-    explicit UboBuffer(VulkanContext& context) {
-        mBuffer = std::make_unique<DeviceBuffer>(
+    explicit UniformBuffer(VulkanContext& context) {
+        mBuffer = std::make_unique<BaseBuffer>(
             context,
             sizeof(T),
             vk::BufferUsageFlagBits::eUniformBuffer,
@@ -21,5 +21,5 @@ class UboBuffer {
     vk::DeviceSize getSize() const { return sizeof(T); }
 
    private:
-    std::unique_ptr<DeviceBuffer> mBuffer;
+    std::unique_ptr<BaseBuffer> mBuffer;
 };

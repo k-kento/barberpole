@@ -5,22 +5,22 @@
 #include "vulkan/vulkan.hpp"
 #include "vulkan_context.h"
 
-class DeviceBuffer {
+class BaseBuffer {
    public:
-    DeviceBuffer(VulkanContext& context,
-                 vk::DeviceSize size,
-                 vk::BufferUsageFlags usage,
-                 vk::MemoryPropertyFlags properties);
+    BaseBuffer(VulkanContext& context,
+             vk::DeviceSize size,
+             vk::BufferUsageFlags usage,
+             vk::MemoryPropertyFlags properties);
 
     // コピー禁止
-    DeviceBuffer(const DeviceBuffer&) = delete;
+    BaseBuffer(const BaseBuffer&) = delete;
 
-    DeviceBuffer& operator=(const DeviceBuffer&) = delete;
+    BaseBuffer& operator=(const BaseBuffer&) = delete;
 
     // ムーブ可能
-    DeviceBuffer(DeviceBuffer&&) noexcept;
+    BaseBuffer(BaseBuffer&&) noexcept;
 
-    DeviceBuffer& operator=(DeviceBuffer&&) noexcept;
+    BaseBuffer& operator=(BaseBuffer&&) noexcept;
 
     void copyFrom(const void* data, vk::DeviceSize size, vk::DeviceSize offset = 0);
 

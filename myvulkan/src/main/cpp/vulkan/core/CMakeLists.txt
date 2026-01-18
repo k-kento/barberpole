@@ -1,5 +1,6 @@
+add_subdirectory(memory)
+
 add_library(core STATIC
-        memory/device_buffer.cpp
         pipeline/pipeline_builder.cpp
         renderpass/render_pass.cpp
 
@@ -16,7 +17,6 @@ add_library(core STATIC
 target_include_directories(core
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/memory
         ${CMAKE_CURRENT_SOURCE_DIR}/mesh
         ${CMAKE_CURRENT_SOURCE_DIR}/pipeline
         ${CMAKE_CURRENT_SOURCE_DIR}/surface
@@ -32,6 +32,8 @@ target_include_directories(core
 )
 
 target_link_libraries(core
+        PUBLIC
+        memory
         PRIVATE
         vulkan_context
 )

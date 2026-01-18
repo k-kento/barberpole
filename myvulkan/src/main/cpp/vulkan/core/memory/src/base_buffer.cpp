@@ -1,16 +1,16 @@
-#include "device_buffer.h"
+#include "base_buffer.hpp"
 
 #include <cstring>
 #include <stdexcept>
 
 #include "physical_device_helper.hpp"
 
-DeviceBuffer::DeviceBuffer(VulkanContext& context,
-                           vk::DeviceSize size,
-                           vk::BufferUsageFlags usage,
-                           vk::MemoryPropertyFlags properties)
+BaseBuffer::BaseBuffer(VulkanContext& context,
+                   vk::DeviceSize size,
+                   vk::BufferUsageFlags usage,
+                   vk::MemoryPropertyFlags properties)
     : mContext(context), mSize(size) {
-    auto physicalDevice = context.getPhysicalDevice();
+    const auto& physicalDevice = context.getPhysicalDevice();
     auto device = context.getDevice();
 
     vk::BufferCreateInfo bufferInfo{};
@@ -21,8 +21,7 @@ DeviceBuffer::DeviceBuffer(VulkanContext& context,
     mBuffer = device.createBufferUnique(bufferInfo);
 
     vk::MemoryRequirements requirements = device.getBufferMemoryRequirements(*mBuffer);
-    uint32_t memoryTypeIndex =
-        PhysicalDeviceHelper::findMemoryType(physicalDevice, requirements.memoryTypeBits, properties);
+    uint32_t memoryTypeIndex = PhysicalDeviceHelper::findMemoryType(physicalDevice, requirements.memoryTypeBits, properties);
 
     // デバイス上にメモリを確保
     vk::MemoryAllocateInfo allocInfo{};
@@ -34,7 +33,7 @@ DeviceBuffer::DeviceBuffer(VulkanContext& context,
     device.bindBufferMemory(*mBuffer, *mMemory, 0);
 }
 
-DeviceBuffer::DeviceBuffer(DeviceBuffer&& other) noexcept
+BaseBuffer::BaseBuffer(BaseBuffer&& other) noexcept
     : mContext(other.mContext),
       mBuffer(std::move(other.mBuffer)),
       mMemory(std::move(other.mMemory)),
@@ -42,7 +41,7 @@ DeviceBuffer::DeviceBuffer(DeviceBuffer&& other) noexcept
     other.mSize = 0;
 }
 
-DeviceBuffer& DeviceBuffer::operator=(DeviceBuffer&& other) noexcept {
+BaseBuffer& BaseBuffer::operator=(BaseBuffer&& other) noexcept {
     if (this != &other) {
         mBuffer = std::move(other.mBuffer);
         mMemory = std::move(other.mMemory);
@@ -56,7 +55,7 @@ DeviceBuffer& DeviceBuffer::operator=(DeviceBuffer&& other) noexcept {
  * CPU メモリから GPU メモリへデータをコピー
  * Note: copyFrom only works if buffer was created with HOST_VISIBLE memory
  */
-void DeviceBuffer::copyFrom(const void* data, vk::DeviceSize size, vk::DeviceSize offset) {
+void BaseBuffer::copyFrom(const void* data, vk::DeviceSize size, vk::DeviceSize offset) {
     if (size + offset > mSize) throw std::runtime_error("Copy size exceeds buffer size");
 
     auto device = mContext.getDevice();

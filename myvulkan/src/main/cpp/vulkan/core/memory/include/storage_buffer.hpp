@@ -4,14 +4,14 @@
 #include <stdexcept>
 #include <vector>
 
-#include "device_buffer.h"
+#include "base_buffer.hpp"
 
 template <typename T>
 class StorageBuffer {
    public:
     StorageBuffer(VulkanContext& context, size_t count) : mCount(count) {
         mBufferSize = sizeof(T) * count;
-        mBuffer = std::make_unique<DeviceBuffer>(
+        mBuffer = std::make_unique<BaseBuffer>(
             context,
             mBufferSize,
             vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst,
@@ -32,5 +32,5 @@ class StorageBuffer {
    private:
     size_t mCount;
     size_t mBufferSize;
-    std::unique_ptr<DeviceBuffer> mBuffer;
+    std::unique_ptr<BaseBuffer> mBuffer;
 };
