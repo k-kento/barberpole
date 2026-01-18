@@ -6,10 +6,11 @@
 #include "../pipeline/base_pipeline.hpp"
 #include "../renderer_constants.hpp"
 #include "../ubo_data.hpp"
-#include "generic_buffer.hpp"
+#include "vertex_buffer.hpp"
 #include "glm/glm.hpp"
 #include "log.h"
-#include "ubo_buffer.hpp"
+#include "uniform_buffer.hpp"
+#include "vertex_buffer.hpp"
 #include "vulkan/vulkan.hpp"
 #include "vulkan_context.h"
 
@@ -24,8 +25,8 @@
 class Brush {
    public:
     struct FrameContext {
-        std::unique_ptr<GenericBuffer<InputVertex>> vertexBuffer;
-        std::unique_ptr<UboBuffer<UboData>> uboBuffer;
+        std::unique_ptr<VertexBuffer<InputVertex>> vertexBuffer;
+        std::unique_ptr<UniformBuffer<UboData>> uboBuffer;
         vk::UniqueDescriptorSet descriptorSet;
         uint32_t writtenVertexCount = 0;
     };
@@ -107,7 +108,7 @@ class Brush {
             vk::PipelineBindPoint::eGraphics, mPipeline.getLayout(), 0, {frame.descriptorSet.get()}, {});
 
         vk::DeviceSize offsets[] = {0};
-        cmd.bindVertexBuffers(0, frame.vertexBuffer->getBuffer(), offsets);
+        cmd.bindVertexBuffers(0, frame.vertexBuffer->getRawBuffer(), offsets);
         cmd.draw(frame.writtenVertexCount, 1, 0, 0);
     }
 
@@ -147,13 +148,9 @@ class Brush {
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
             FrameContext frameContext{};
 
-            frameContext.vertexBuffer = std::make_unique<GenericBuffer<InputVertex>>(
-                context,
-                sizeof(InputVertex) * MAX_VERTEX_COUNT,
-                vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-
-            frameContext.uboBuffer = std::make_unique<UboBuffer<UboData>>(context);
+            // TODO Max Count
+            frameContext.vertexBuffer = std::make_unique<VertexBuffer<InputVertex>>(context, 1000);
+            frameContext.uboBuffer = std::make_unique<UniformBuffer<UboData>>(context);
             frameContext.descriptorSet =
                 allocateDescriptorSet(frameContext.uboBuffer->getBuffer(), frameContext.uboBuffer->getSize());
 

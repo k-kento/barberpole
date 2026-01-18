@@ -2,22 +2,22 @@
 
 #include "command_buffer_helper.hpp"
 #include "memory"
-#include "ubo_buffer.hpp"
+#include "uniform_buffer.hpp"
 #include "ubo_data.hpp"
 #include "vulkan/vulkan.hpp"
 
 class FrameContext {
    public:
     FrameContext(VulkanContext& vkContext) {
-        mUboBuffer = std::make_unique<UboBuffer<UboData>>(vkContext);
+        mUboBuffer = std::make_unique<UniformBuffer<UboData>>(vkContext);
         mCmdBuffer = CommandBufferHelper::createCommandBuffer(vkContext);
     }
 
-    UboBuffer<UboData>* getUboBuffer() { return mUboBuffer.get(); }
+    UniformBuffer<UboData>* getUboBuffer() { return mUboBuffer.get(); }
 
     vk::CommandBuffer getCommandBuffer() { return mCmdBuffer.get(); }
 
    private:
-    std::unique_ptr<UboBuffer<UboData>> mUboBuffer;
+    std::unique_ptr<UniformBuffer<UboData>> mUboBuffer;
     vk::UniqueCommandBuffer mCmdBuffer;
 };

@@ -1,13 +1,12 @@
 #include "drawing_renderer.hpp"
 
 #include "brush_change_message.hpp"
-#include "device_buffer.h"
 #include "frame_context.hpp"
 #include "input_vertex.hpp"
 #include "log.h"
 #include "surface_changed_message.hpp"
 #include "touch_message.hpp"
-#include "ubo_buffer.hpp"
+#include "uniform_buffer.hpp"
 #include "ubo_data.hpp"
 #include "view_bounds.hpp"
 
