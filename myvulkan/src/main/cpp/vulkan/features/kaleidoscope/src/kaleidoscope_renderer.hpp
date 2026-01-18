@@ -5,12 +5,13 @@
 #include "glm/glm.hpp"
 #include "kaleidoscope_descriptor.hpp"
 #include "kaleidoscope_frame_context.hpp"
-#include "mesh_buffer.hpp"
 #include "render_message.hpp"
 #include "renderer.hpp"
 #include "rotation_state.hpp"
 #include "surface_context.hpp"
 #include "texture.hpp"
+#include "vertex_buffer.hpp"
+#include "index_buffer.hpp"
 
 struct Vertex;
 
@@ -39,7 +40,10 @@ class KaleidoscopeRenderer : public Renderer {
 
     std::unique_ptr<SurfaceContext> mSurfaceContext;
     std::vector<std::unique_ptr<KaleidoscopeFrameContext>> mFrameContexts;
-    std::unique_ptr<MeshBuffer<Vertex>> mMesh;
+    std::unique_ptr<VertexBuffer<Vertex>> mVertexBuffer;
+    std::unique_ptr<IndexBuffer> mIndexBuffer;
+    uint32_t mIndexCount = 0;
+    uint32_t mInstanceCount = 0;
 
     std::unique_ptr<Texture> mTexture;
 

@@ -3,6 +3,8 @@
 #include <vector>
 
 #include "vertex.hpp"
+#include "glm/glm.hpp"
+#include "glm/ext/scalar_constants.hpp"
 
 class RegularPolygon {
    public:

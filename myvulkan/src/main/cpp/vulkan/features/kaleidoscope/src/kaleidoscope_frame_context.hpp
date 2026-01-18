@@ -3,8 +3,12 @@
 #include "command_buffer_helper.hpp"
 #include "glm/glm.hpp"
 #include "kaleidoscope_descriptor.hpp"
-#include "kaleidoscope_instance_buffer.hpp"
-#include "ubo_buffer.hpp"
+#include "uniform_buffer.hpp"
+#include "vertex_buffer.hpp"
+
+struct InstanceData {
+    glm::mat4 model;
+};
 
 class KaleidoscopeFrameContext {
    public:
@@ -13,17 +17,17 @@ class KaleidoscopeFrameContext {
         glm::mat4 uvMatrix;
     };
 
-    KaleidoscopeFrameContext(VulkanContext& vkContext, ViewBounds& viewBounds) {
-        mUniformBuffer = std::make_unique<UboBuffer<UboData>>(vkContext);
-        mInstanceBuffer = std::make_unique<KaleidoscopeInstanceBuffer>(vkContext, viewBounds);
+    KaleidoscopeFrameContext(VulkanContext& vkContext, uint32_t instanceCount) {
+        mUniformBuffer = std::make_unique<UniformBuffer<UboData>>(vkContext);
+        mInstanceBuffer = std::make_unique<VertexBuffer<InstanceData>>(vkContext, instanceCount);
         mCmdBuffer = CommandBufferHelper::createCommandBuffer(vkContext);
     }
 
     ~KaleidoscopeFrameContext() = default;
 
-    [[nodiscard]] UboBuffer<UboData>& getUniformBuffer() const { return *mUniformBuffer; }
+    [[nodiscard]] UniformBuffer<UboData>& getUniformBuffer() const { return *mUniformBuffer; }
 
-    [[nodiscard]] KaleidoscopeInstanceBuffer& getInstanceBuffer() const { return *mInstanceBuffer; }
+    [[nodiscard]] VertexBuffer<InstanceData> & getInstanceBuffer() const { return *mInstanceBuffer; }
 
     [[nodiscard]] bool hasDescriptorSet() const noexcept { return static_cast<bool>(mDescriptorSet); }
 
@@ -36,8 +40,8 @@ class KaleidoscopeFrameContext {
     bool isTextureUpdated = false;
 
    private:
-    std::unique_ptr<UboBuffer<UboData>> mUniformBuffer;
-    std::unique_ptr<KaleidoscopeInstanceBuffer> mInstanceBuffer;
+    std::unique_ptr<UniformBuffer<UboData>> mUniformBuffer;
+    std::unique_ptr<VertexBuffer<InstanceData>> mInstanceBuffer;
     vk::UniqueDescriptorSet mDescriptorSet;
     vk::UniqueCommandBuffer mCmdBuffer;
 };

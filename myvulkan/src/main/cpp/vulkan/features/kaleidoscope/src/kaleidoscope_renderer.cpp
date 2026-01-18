@@ -7,6 +7,7 @@
 #include "surface_context.hpp"
 #include "update_texture_message.hpp"
 #include "view_bounds.hpp"
+#include "mirror_tile_grid.hpp"
 
 KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext& vkContext,
                                            uint32_t windowWidth,
@@ -26,6 +27,9 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext& vkContext,
 
     auto polygon = RegularPolygon{3, 1.0f};
 
+    auto slices = MirrorTileGrid::createTileGrid(viewBounds);
+    mInstanceCount = static_cast<uint32_t>(slices.size());
+
     vk::DescriptorSetLayout layouts[] = {mDescriptor->getLayout()};
     vk::PipelineLayoutCreateInfo layoutInfo{};
     layoutInfo.setLayoutCount = 1;
@@ -37,10 +41,28 @@ KaleidoscopeRenderer::KaleidoscopeRenderer(VulkanContext& vkContext,
 
     mFrameContexts.reserve(SurfaceContext::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < SurfaceContext::MAX_FRAMES_IN_FLIGHT; ++i) {
-        mFrameContexts.emplace_back(std::make_unique<KaleidoscopeFrameContext>(vkContext, viewBounds));
+        auto frameContext = std::make_unique<KaleidoscopeFrameContext>(vkContext, slices.size());
+        // slices を InstanceData に変換して書き込む
+        std::vector<InstanceData> instanceData;
+        instanceData.reserve(slices.size());
+        for (const auto& mat : slices) {
+            instanceData.push_back({mat});
+        }
+        frameContext->getInstanceBuffer().update(instanceData.data(), instanceData.size(), 0);
+        mFrameContexts.emplace_back(std::move(frameContext));
     }
 
-    mMesh = std::make_unique<MeshBuffer<Vertex>>(vkContext, polygon.vertices, polygon.indices);
+    auto vertices = polygon.vertices;
+
+    mVertexBuffer = std::make_unique<VertexBuffer<Vertex>>(vkContext, vertices.size());
+    mVertexBuffer->update(vertices.data(), vertices.size(), 0);
+
+    auto indices = polygon.indices;
+
+    mIndexBuffer = std::make_unique<IndexBuffer>(vkContext, indices.size());
+    mIndexBuffer->update(indices.data(), indices.size(), 0);
+    mIndexCount = indices.size();
+
     updateTexture(texturePath);
 }
 
@@ -114,13 +136,17 @@ void KaleidoscopeRenderer::recordCommandBuffer(KaleidoscopeFrameContext* frameCo
     cmdBuffer.bindDescriptorSets(
         vk::PipelineBindPoint::eGraphics, mPipelineLayout.get(), 0, {frameContext->getDescriptorSet()}, nullptr);
 
-    vk::Buffer instanceBuffers[] = {frameContext->getInstanceBuffer().getDeviceBuffer()};
-
     VkDeviceSize offsets[] = {0};
+
+    vk::Buffer vertexBuffers[] = {mVertexBuffer->getRawBuffer()};
+    cmdBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
+
+    vk::Buffer instanceBuffers[] = {frameContext->getInstanceBuffer().getRawBuffer()};
     cmdBuffer.bindVertexBuffers(1, 1, instanceBuffers, offsets);
 
-    mMesh->bind(cmdBuffer, 0);
-    mMesh->draw(cmdBuffer, instanceBuffer.getInstanceCount());
+    cmdBuffer.bindIndexBuffer(mIndexBuffer->getRawBuffer(), 0, vk::IndexType::eUint16);
+
+    cmdBuffer.drawIndexed(mIndexCount, mInstanceCount, 0, 0, 0);
 
     mSurfaceContext->endRenderPass(cmdBuffer);
     mSurfaceContext->endCommandBuffer(cmdBuffer);

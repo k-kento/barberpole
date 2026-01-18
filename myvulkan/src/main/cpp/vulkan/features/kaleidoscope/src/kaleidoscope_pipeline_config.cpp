@@ -1,11 +1,11 @@
 
-#include "kaleidoscope_pipeline_config.hpp"
 
 #include "colorblend/color_blend_opaque.hpp"
-#include "kaleidoscope_instance_buffer.hpp"
 #include "pipeline_builder.hpp"
 #include "shader_helper.hpp"
 #include "vertex.hpp"
+#include "kaleidoscope_pipeline_config.hpp"
+#include "kaleidoscope_frame_context.hpp"
 
 // TODO 要見直し
 vk::UniquePipeline KaleidoscopePipelineConfig::createPipeline(VulkanContext& context,
